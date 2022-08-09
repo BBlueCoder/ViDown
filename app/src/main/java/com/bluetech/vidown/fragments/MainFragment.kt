@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.bluetech.vidown.R
+import com.dabluecoder.youdownloaderlib.OnVideoInfoListener
+import com.dabluecoder.youdownloaderlib.YouClient
+import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 
 class MainFragment : Fragment() {
 
@@ -18,15 +21,52 @@ class MainFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_main, container, false)
 
+//        val button = view.findViewById<Button>(R.id.btn_test)
+//
+//        button.setOnClickListener {
+//            val client = YouClient()
+//            client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
+//            client.getVideoInfo(object : OnVideoInfoListener{
+//                override fun onError(message: String) {
+//                    println("Error : $message")
+//                }
+//
+//                override fun onSuccess(videoInfo: VideoResponse) {
+//                    videoInfo.streamingData.mixedFormats?.forEach{
+//                        println("Youtube down : ${it.qualityLabel}")
+//                        println("Youtube down : ${it.url}")
+//                        println("__________________________________________________________________________________________________")
+//                    }
+//                }
+//
+//            })
+//        }
+
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val button = view.findViewById<Button>(R.id.btn_test)
 
         button.setOnClickListener {
-            val text = view.findViewById<TextView>(R.id.text)
+            val client = YouClient()
+            client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
+            client.getVideoInfo(object : OnVideoInfoListener{
+                override fun onError(message: String) {
+                    println("Error : $message")
+                }
 
-            text.text = "555555"
+                override fun onSuccess(videoInfo: VideoResponse) {
+                    videoInfo.streamingData.mixedFormats?.forEach{
+                        println("Youtube down : ${it.qualityLabel}")
+                        println("Youtube down : ${it.url}")
+                        println("__________________________________________________________________________________________________")
+                    }
+                }
+
+            })
         }
-
-        return view
     }
 
     companion object {

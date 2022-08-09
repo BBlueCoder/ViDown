@@ -50,6 +50,9 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.1")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.1")
 
+    //Youtube download lib
+    implementation 'com.github.RaIsseMa:YouDownloaderDemo:0.1'
+
 //    //Retrofit
 //    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
 //    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
