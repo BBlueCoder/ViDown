@@ -16,22 +16,22 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
 
-        val client = YouClient()
-        client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
-        client.getVideoInfo(object : OnVideoInfoListener {
-            override fun onError(message: String) {
-                println("Error : $message")
-            }
-
-            override fun onSuccess(videoInfo: VideoResponse) {
-                videoInfo.streamingData.mixedFormats?.forEach{
-                    println("Youtube down : ${it.qualityLabel}")
-                    println("Youtube down : ${it.url}")
-                    println("__________________________________________________________________________________________________")
-                }
-            }
-
-        })
+//        val client = YouClient()
+//        client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
+//        client.getVideoInfo(object : OnVideoInfoListener {
+//            override fun onError(message: String) {
+//                println("Error : $message")
+//            }
+//
+//            override fun onSuccess(videoInfo: VideoResponse) {
+//                videoInfo.streamingData.mixedFormats?.forEach{
+//                    println("Youtube down : ${it.qualityLabel}")
+//                    println("Youtube down : ${it.url}")
+//                    println("__________________________________________________________________________________________________")
+//                }
+//            }
+//
+//        })
 
         assertEquals(4, 2 + 2)
     }

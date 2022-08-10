@@ -51,7 +51,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.1")
 
     //Youtube download lib
-    implementation 'com.github.RaIsseMa:YouDownloaderDemo:0.1'
+    implementation 'com.github.RaIsseMa:YouDownloaderDemo:1.0.0'
 
 //    //Retrofit
 //    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
