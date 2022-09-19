@@ -11,9 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel : ViewModel(){
+class MainViewModel @Inject constructor(): ViewModel(){
 
     private val _lookUpResults = MutableStateFlow<List<String>>(emptyList())
     val lookUpResults = _lookUpResults.asStateFlow()
