@@ -3,6 +3,8 @@ package com.bluetech.vidown
 import com.dabluecoder.youdownloaderlib.OnVideoInfoListener
 import com.dabluecoder.youdownloaderlib.YouClient
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
+import org.jsoup.Connection
+import org.jsoup.Jsoup
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -32,6 +34,24 @@ class ExampleUnitTest {
 //            }
 //
 //        })
+
+        val url = "https://ssstwitter.com/nocontextfooty/status/1576255692738293761"
+
+        val splitUrl = url.split("/")
+
+        val sssUrl = "https://ssstwitter.com/${splitUrl[3]}/${splitUrl[4]}/${splitUrl[5]}"
+
+        println("url : $sssUrl")
+
+        val doc = Jsoup.connect(sssUrl).post()
+
+        val resultClass = doc.getElementsByClass("result_overlay")
+
+        println("result Class : $resultClass")
+
+        val title = resultClass[0].getElementsByTag("p")
+
+        println(title[0].html())
 
         assertEquals(4, 2 + 2)
     }

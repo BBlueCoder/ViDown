@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.pojoclasses.ResultItem
 import com.bluetech.vidown.ui.recyclerviews.ResultsAdapterHolder
@@ -20,7 +19,7 @@ class ResultsAdapter(var resultsList : MutableList<ResultItem>) : ListAdapter<Re
                     LayoutInflater.from(parent.context).inflate(viewType,parent,false)
                 )
             }
-            R.layout.download_item -> {
+            R.layout.result_list_item -> {
                 ResultsAdapterHolder.ResultsViewHolder(
                     LayoutInflater.from(parent.context).inflate(viewType,parent,false)
                 )
@@ -40,7 +39,8 @@ class ResultsAdapter(var resultsList : MutableList<ResultItem>) : ListAdapter<Re
     override fun getItemViewType(position: Int): Int {
         return when(getItem(position)){
             is ResultItem.CategoryTitle -> R.layout.result_category_title
-            is ResultItem.ItemData -> R.layout.download_item
+            is ResultItem.ItemData -> R.layout.result_list_item
+            is ResultItem.ItemInfo -> R.layout.result_category_title
         }
     }
 

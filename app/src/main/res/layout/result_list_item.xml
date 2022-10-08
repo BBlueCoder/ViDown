@@ -15,24 +15,25 @@
         android:id="@+id/item_icon"/>
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/title"
-        android:textSize="20sp"
-        tools:text="Title here"
-        android:layout_toEndOf="@id/item_icon"
-        android:layout_marginTop="10dp"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="90dp"
-        />
+        android:layout_toEndOf="@id/item_icon"
+        android:textColor="#7D7D7D"
+        android:textSize="20sp"
+        tools:text="Title here" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/format"
         tools:text="mp4"
+        android:textColor="#7D7D7D"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="10dp"
         android:textSize="20sp"
         />

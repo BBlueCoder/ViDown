@@ -8,8 +8,12 @@ sealed class ResultItem {
 
     class ItemData(
         val id: Int,
-        val title: String,
         val format: String,
         val url: String
+    ) : ResultItem()
+
+    class ItemInfo(
+        val title: String,
+        val thumbnail : String
     ) : ResultItem()
 }

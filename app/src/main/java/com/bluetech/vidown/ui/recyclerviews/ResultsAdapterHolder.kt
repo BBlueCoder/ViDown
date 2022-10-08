@@ -20,8 +20,8 @@ sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(ite
             val title = itemView.findViewById<TextView>(R.id.title)
             val format = itemView.findViewById<TextView>(R.id.format)
 
-            title.text = resultItem.title
-            format.text = resultItem.format
+//            title.text = resultItem.title
+//            format.text = resultItem.format
         }
     }
 

@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -14,7 +16,6 @@ import com.bluetech.vidown.R
 import com.bluetech.vidown.ui.ResultsAdapter
 import com.bluetech.vidown.customviews.ResultCardView
 import com.bluetech.vidown.pojoclasses.ResultItem
-import com.dabluecoder.youdownloaderlib.YouClient
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +44,7 @@ class MainFragment : Fragment() {
             override fun getSpanSize(position: Int): Int {
                 return when (adapter.getItemViewType(position)){
                     R.layout.result_category_title -> 1
-                    R.layout.download_item -> 1
+                    R.layout.result_list_item -> 1
                     else -> 1
                 }
             }
@@ -70,16 +71,33 @@ class MainFragment : Fragment() {
 
 //                    resultCard.setThumbnail(vidResp.videoDetails.thumbnail.thumbnails.first().url)
 //                    resultCard.setTitle(vidResp.videoDetails.title)
+                    resultCard.visibility = View.VISIBLE
+                    val anim = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_down_with_fade)
+                    anim.setAnimationListener(object : Animation.AnimationListener {
+                        override fun onAnimationStart(p0: Animation?) {
 
-                    resultList.add(ResultItem.CategoryTitle("Video"))
-                    resultList.add(ResultItem.ItemData(1,"test","mp4","url"))
-                    resultList.add(ResultItem.ItemData(2,"test 2","mp4","url"))
-                    resultList.add(ResultItem.CategoryTitle("Audio"))
-                    resultList.add(ResultItem.ItemData(3,"test 3","audio","url"))
-                    resultList.add(ResultItem.ItemData(4,"test 4","audio","url"))
+                        }
 
-                    recyclerView.adapter = adapter
-                    adapter.submitList(resultList)
+                        override fun onAnimationEnd(p0: Animation?) {
+
+                        }
+
+                        override fun onAnimationRepeat(p0: Animation?) {
+
+                        }
+
+                    })
+//                    resultCard.startAnimation(anim)
+//
+//                    resultList.add(ResultItem.CategoryTitle("Video"))
+//                    resultList.add(ResultItem.ItemData(1,"test","mp4","url"))
+//                    resultList.add(ResultItem.ItemData(2,"test 2","mp4","url"))
+//                    resultList.add(ResultItem.CategoryTitle("Audio"))
+//                    resultList.add(ResultItem.ItemData(3,"test 3","audio","url"))
+//                    resultList.add(ResultItem.ItemData(4,"test 4","audio","url"))
+//
+//                    recyclerView.adapter = adapter
+//                    adapter.submitList(resultList)
 
                 }
 
