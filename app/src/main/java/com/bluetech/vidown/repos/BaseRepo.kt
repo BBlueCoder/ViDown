@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 abstract class BaseRepo {
 
-    abstract fun getResultsAsFlow(url : String) : Flow<MutableList<ResultItem>>
+    abstract fun getResultsAsFlow(url : String) : Flow<Result<List<ResultItem>>>
 
 }

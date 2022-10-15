@@ -17,7 +17,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.bluetech.vidown.HiltTestRunner"
     }
 
     buildTypes {
@@ -51,6 +51,9 @@ dependencies {
     androidTestImplementation "com.google.truth:truth:1.0.1"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1"
 
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
+
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
     //nav comp
@@ -58,7 +61,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.1")
 
     //Youtube download lib
-    implementation 'com.github.RaIsseMa:YouDownloaderDemo:1.1.0'
+    implementation 'com.github.RaIsseMa:YouDownloaderDemo:1.2.0'
 
     //Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
@@ -77,8 +80,7 @@ dependencies {
     //Dagger Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-//    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hiltAndroidXVersion"
-//    kapt "androidx.hilt:hilt-compiler:$hiltAndroidXVersion"
+
 //
 //    // Kotlin Extensions and Coroutines support for Room
 //    implementation "androidx.room:room-ktx:$roomVersion"

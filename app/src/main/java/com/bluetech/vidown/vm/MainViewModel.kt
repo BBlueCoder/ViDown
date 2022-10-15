@@ -19,27 +19,27 @@ class MainViewModel @Inject constructor(): ViewModel(){
     private val _lookUpResults = MutableStateFlow<List<String>>(emptyList())
     val lookUpResults = _lookUpResults.asStateFlow()
 
-    fun lookUp(url : String){
-        viewModelScope.launch(Dispatchers.Default) {
-            val client = YouClient()
-            client.videoUrl = url
-
-            client.getVideoInfo(object : OnVideoInfoListener{
-                override fun onError(message: String) {
-                    throw Exception(message)
-                }
-
-                override fun onSuccess(videoInfo: VideoResponse) {
-                    val list = mutableListOf<String>()
-
-                    videoInfo.streamingData.adaptiveFormats?.forEach {
-                        list.add("${it.qualityLabel}${it.audioQuality} - ")
-                    }
-
-//                    _lookUpResults.emit(list)
-                }
-
-            })
-        }
-    }
+//    fun lookUp(url : String){
+//        viewModelScope.launch(Dispatchers.Default) {
+//            val client = YouClient()
+//            client.videoUrl = url
+//
+//            client.getVideoInfo(object : OnVideoInfoListener{
+//                override fun onError(message: String) {
+//                    throw Exception(message)
+//                }
+//
+//                override fun onSuccess(videoInfo: VideoResponse) {
+//                    val list = mutableListOf<String>()
+//
+//                    videoInfo.streamingData.adaptiveFormats?.forEach {
+//                        list.add("${it.qualityLabel}${it.audioQuality} - ")
+//                    }
+//
+////                    _lookUpResults.emit(list)
+//                }
+//
+//            })
+//        }
+//    }
 }
