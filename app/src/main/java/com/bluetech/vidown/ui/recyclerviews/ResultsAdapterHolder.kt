@@ -1,10 +1,11 @@
 package com.bluetech.vidown.ui.recyclerviews
 
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.pojoclasses.ResultItem
+import com.bluetech.vidown.core.pojoclasses.ResultItem
 
 sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(itemView){
 
@@ -17,11 +18,18 @@ sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(ite
 
     class ResultsViewHolder(itemView: View) : ResultsAdapterHolder(itemView){
         fun bind(resultItem: ResultItem.ItemData){
-            val title = itemView.findViewById<TextView>(R.id.title)
-            val format = itemView.findViewById<TextView>(R.id.format)
+            val icon = itemView.findViewById<ImageView>(R.id.item_icon)
+            when(resultItem.format){
+                "video"-> icon.setImageResource(R.drawable.ic_video_gray)
+                "audio"-> icon.setImageResource(R.drawable.ic_audio_gray)
+                "image"-> icon.setImageResource(R.drawable.ic_image_gray)
+            }
 
-//            title.text = resultItem.title
-//            format.text = resultItem.format
+            val title = itemView.findViewById<TextView>(R.id.item_title)
+            val quality = itemView.findViewById<TextView>(R.id.item_quality)
+
+            title.text = resultItem.format
+            quality.text = resultItem.quality
         }
     }
 

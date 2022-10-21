@@ -1,10 +1,7 @@
 package com.bluetech.vidown
 
-import com.bluetech.vidown.pojoclasses.ResultItem
-import com.bluetech.vidown.repos.InstaRepo
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.core.repos.InstaRepo
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -15,7 +12,7 @@ class InstaRepoTest {
 
     @Before
     fun setup(){
-        instaRepo = InstaRepo()
+        //instaRepo = InstaRepo()
     }
 
     @Test

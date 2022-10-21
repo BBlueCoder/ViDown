@@ -5,6 +5,7 @@ buildscript {
         hiltAndroidXVersion = '1.0.0-alpha03'
         hiltVersion = '2.43.2'
         retrofitVersion = '2.9.0'
+        roomVersion = '2.4.3'
     }
     repositories {
         google()

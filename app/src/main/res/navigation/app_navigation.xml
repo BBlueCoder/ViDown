@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.bluetech.vidown.fragments.MainFragment"
+        android:name="com.bluetech.vidown.ui.fragments.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" />
     <fragment
         android:id="@+id/downloadFragment"
-        android:name="com.bluetech.vidown.fragments.DownloadFragment"
+        android:name="com.bluetech.vidown.ui.fragments.DownloadFragment"
         android:label="fragment_download"
         tools:layout="@layout/fragment_download" />
 </navigation>

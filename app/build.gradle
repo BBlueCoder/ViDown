@@ -61,7 +61,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.1")
 
     //Youtube download lib
-    implementation 'com.github.RaIsseMa:YouDownloaderDemo:1.2.0'
+    implementation 'com.github.RaIsseMa:YouDownloaderDemo:1.2.2'
 
     //Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
@@ -74,8 +74,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
 //
 //    //Room
-//    implementation "androidx.room:room-runtime:$roomVersion"
-//    kapt "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
 //
     //Dagger Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
