@@ -12,6 +12,8 @@ class ResultsAdapter(var resultsList : List<ResultItem>) : ListAdapter<ResultIte
 )
 {
 
+    var itemClickListener : ((resultItem : ResultItem.ItemData)->Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultsAdapterHolder {
         return when(viewType){
             R.layout.result_category_title -> {
@@ -29,6 +31,7 @@ class ResultsAdapter(var resultsList : List<ResultItem>) : ListAdapter<ResultIte
     }
 
     override fun onBindViewHolder(holder: ResultsAdapterHolder, position: Int) {
+        holder.itemClickListener = itemClickListener
         val item = getItem(position)
         when(holder){
             is ResultsAdapterHolder.TitleViewHolder -> holder.bind(item as ResultItem.CategoryTitle)

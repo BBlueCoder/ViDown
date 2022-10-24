@@ -1,11 +1,13 @@
 package com.bluetech.vidown.core.db
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.bluetech.vidown.core.MediaType
 
+@Dao
 interface MediaDao {
 
     @Query("Select * from mediaentity")

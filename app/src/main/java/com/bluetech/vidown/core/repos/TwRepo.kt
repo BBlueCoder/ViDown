@@ -1,5 +1,6 @@
 package com.bluetech.vidown.core.repos
 
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.utils.Constants
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +43,7 @@ class TwRepo @Inject constructor(): BaseRepo(){
             if (typeOfTweet == "Image") {
                 val imgSource = elementsImg.first().attr("src")
                 results.add(ResultItem.ItemInfo("", imgSource))
-                results.add(ResultItem.ItemData(1, "image", "",imgSource))
+                results.add(ResultItem.ItemData(1, MediaType.Image, "",imgSource))
                 emit(Result.success(results.toList()))
                 return@flow
             }
@@ -60,7 +61,7 @@ class TwRepo @Inject constructor(): BaseRepo(){
 
             for ((id, element) in elementsLinks.withIndex()) {
                 results.add(
-                    ResultItem.ItemData(id, "video", element.html().substring(
+                    ResultItem.ItemData(id, MediaType.Video, element.html().substring(
                         element.html().indexOf("x")
                     ),element.attr("href"))
                 )

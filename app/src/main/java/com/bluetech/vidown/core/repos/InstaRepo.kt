@@ -1,5 +1,6 @@
 package com.bluetech.vidown.core.repos
 
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.api.ApplicationApi
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +33,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                             instaItem.thumbnail
                         )
                     )
-                    results.add(ResultItem.ItemData(results.size, "image", "",instaItem.thumbnail))
+                    results.add(ResultItem.ItemData(results.size, MediaType.Image, "",instaItem.thumbnail))
                     emit(Result.success(results.toList()))
                 }
                 "GraphVideo" -> { // post is a video
@@ -43,7 +44,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                             instaItem.thumbnail
                         )
                     )
-                    results.add(ResultItem.ItemData(results.size, "video", "",instaItem.videoUrl!!))
+                    results.add(ResultItem.ItemData(results.size, MediaType.Video, "",instaItem.videoUrl!!))
                     emit(Result.success(results.toList()))
                 }
                 "GraphSidecar" -> { // post is multiples
@@ -60,7 +61,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                                 results.add(
                                     ResultItem.ItemData(
                                         results.size,
-                                        "image",
+                                        MediaType.Image,
                                         "",
                                         media.node.thumbnail
                                     )
@@ -71,7 +72,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                                 results.add(
                                     ResultItem.ItemData(
                                         results.size,
-                                        "video",
+                                        MediaType.Video,
                                         "",
                                         media.node.videoUrl!!
                                     )

@@ -1,5 +1,7 @@
 package com.bluetech.vidown.core.pojoclasses
 
+import com.bluetech.vidown.core.MediaType
+
 
 sealed class ResultItem {
     class CategoryTitle(
@@ -8,7 +10,7 @@ sealed class ResultItem {
 
     class ItemData(
         val id: Int,
-        val format: String,
+        val format: MediaType,
         val quality : String,
         val url: String
     ) : ResultItem()

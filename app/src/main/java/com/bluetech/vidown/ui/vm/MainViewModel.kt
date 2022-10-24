@@ -31,13 +31,11 @@ class MainViewModel @Inject constructor(): ViewModel(){
     val lookUpResults = _lookUpResults.asStateFlow()
 
     fun searchForResult(url : String){
-        println("searching...")
         viewModelScope.launch(Dispatchers.IO){
             val repo = verifyUrlAndMatchItToRepo(url)
             if(repo == null)
                 _lookUpResults.emit(Result.failure(Exception("Url is invalid or not supported")))
             repo!!.getResultsAsFlow(url).collect{
-                println("view model collect")
                 _lookUpResults.emit(it)
             }
         }

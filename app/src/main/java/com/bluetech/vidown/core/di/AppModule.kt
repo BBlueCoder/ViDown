@@ -35,4 +35,9 @@ object AppModule {
         @ApplicationContext context : Context
     ) = Room.databaseBuilder(context,AppLocalDB::class.java, DATABASE_NAME).build()
 
+    @Singleton
+    @Provides
+    fun provideMediaDao(
+        appLocalDB: AppLocalDB
+    ) = appLocalDB.mediaDao()
 }

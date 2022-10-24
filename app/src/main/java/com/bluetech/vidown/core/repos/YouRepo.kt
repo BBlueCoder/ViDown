@@ -1,5 +1,6 @@
 package com.bluetech.vidown.core.repos
 
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.dabluecoder.youdownloaderlib.YouClient
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,7 @@ class YouRepo @Inject constructor(): BaseRepo() {
                 results.add(
                     ResultItem.ItemData(
                         results.size,
-                        "video",
+                        MediaType.Video,
                         it.quality,
                         it.url!!
                     )
@@ -49,7 +50,7 @@ class YouRepo @Inject constructor(): BaseRepo() {
                 results.add(
                     ResultItem.ItemData(
                         results.size,
-                        "video",
+                        MediaType.Video,
                         it.quality,
                         it.url!!
                     )
@@ -60,7 +61,7 @@ class YouRepo @Inject constructor(): BaseRepo() {
                 results.add(
                     ResultItem.ItemData(
                         results.size,
-                        "audio",
+                        MediaType.Audio,
                         it.audioQuality?: "",
                         it.url!!
                     )

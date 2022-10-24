@@ -1,5 +1,6 @@
 package com.bluetech.vidown.core.repos
 
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.api.ApplicationApi
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.utils.Constants.TT_BASE_URL_API
@@ -24,21 +25,21 @@ class TTRepo @Inject constructor(private val api : ApplicationApi): BaseRepo() {
                 "video" -> {
                     results.add(ResultItem.CategoryTitle("Video"))
                     results.add(ResultItem.ItemInfo(respBody.videoTitle!!,respBody.videoThumbnail!!))
-                    results.add(ResultItem.ItemData(results.size,"video","",respBody.videoUrl!!))
+                    results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.videoUrl!!))
                     results.add(ResultItem.CategoryTitle("Video without watermark"))
-                    results.add(ResultItem.ItemData(results.size,"video","",respBody.videoUrlWithoutWatermark!!))
+                    results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.videoUrlWithoutWatermark!!))
                     results.add(ResultItem.CategoryTitle("Music in video : ${respBody.videoMusicTitle!!}"))
-                    results.add(ResultItem.ItemData(results.size,"audio","",respBody.videoMusicUrl!!))
+                    results.add(ResultItem.ItemData(results.size,MediaType.Audio,"",respBody.videoMusicUrl!!))
                     emit(Result.success(results))
                 }
                 "album" -> {
                     results.add(ResultItem.CategoryTitle("Image"))
                     results.add(ResultItem.ItemInfo(respBody.albumTitle!!,respBody.albumUrls!!.first()))
                     for ((id,thumbnail) in respBody.albumUrls.withIndex()){
-                        results.add(ResultItem.ItemData(id,"image","",thumbnail))
+                        results.add(ResultItem.ItemData(id,MediaType.Image,"",thumbnail))
                     }
                     results.add(ResultItem.CategoryTitle("Music in album : ${respBody.albumMusicTitle!!}"))
-                    results.add(ResultItem.ItemData(results.size,"audio","",respBody.albumMusicUrl!!))
+                    results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.albumMusicUrl!!))
                     emit(Result.success(results))
                 }
                 else -> throw Exception("Type unsupported")

@@ -1,5 +1,7 @@
 package com.bluetech.vidown.ui.fragments
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -17,9 +19,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.customviews.ResultCardView
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -93,6 +97,26 @@ class MainFragment : Fragment() {
         }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
+        adapterClickListener()
+    }
+
+    private fun adapterClickListener(){
+        adapter.itemClickListener = { resultItemData->
+            Intent(requireContext(),DownloadFileService::class.java).also {
+                println("Starting service...")
+                it.putExtra("fileUrl",resultItemData.url)
+                when(resultItemData.format){
+                    MediaType.Video->it.putExtra("fileType","video")
+                    MediaType.Image->it.putExtra("fileType","image")
+                    MediaType.Audio->it.putExtra("fileType","audio")
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireContext().startForegroundService(it)
+                }else{
+                    requireContext().startService(it)
+                }
+            }
+        }
     }
 
     private fun observeSearchResults(view: View) {
