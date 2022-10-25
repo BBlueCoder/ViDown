@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/result_category_title"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:text="Videos"
         android:textSize="18sp"
         android:textStyle="bold"

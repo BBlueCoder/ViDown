@@ -18,6 +18,10 @@ class DownloadViewModel @Inject constructor(private var downloadRepo: DownloadRe
     val downloadMedia = _downloadMedia.asStateFlow()
 
     init {
+        refreshDownload()
+    }
+
+    fun refreshDownload(){
         viewModelScope.launch(Dispatchers.IO) {
             downloadRepo.getDownloadFiles().collect{
                 _downloadMedia.emit(it)

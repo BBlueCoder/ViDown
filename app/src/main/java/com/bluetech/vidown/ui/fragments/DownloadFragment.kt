@@ -1,5 +1,6 @@
 package com.bluetech.vidown.ui.fragments
 
+import android.content.BroadcastReceiver
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -21,6 +22,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 
 @AndroidEntryPoint
 class DownloadFragment : Fragment() {
@@ -38,10 +40,14 @@ class DownloadFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[DownloadViewModel::class.java]
 
+
+
         recyclerView = view.findViewById(R.id.download_recycler_view)
         adapter = DownloadsAdapter(emptyList())
         recyclerView.adapter = adapter
         observeDownloads(view)
+
+        val br : BroadcastReceiver =
 
         return view
     }
