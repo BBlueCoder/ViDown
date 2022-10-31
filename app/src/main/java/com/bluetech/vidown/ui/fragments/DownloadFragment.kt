@@ -1,20 +1,21 @@
 package com.bluetech.vidown.ui.fragments
 
-import android.content.BroadcastReceiver
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.ui.MainActivity
+import com.bluetech.vidown.core.MediaType
+import com.bluetech.vidown.ui.activities.MainActivity
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.utils.snackBar
@@ -22,7 +23,6 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 
 @AndroidEntryPoint
 class DownloadFragment : Fragment() {
@@ -43,11 +43,23 @@ class DownloadFragment : Fragment() {
 
 
         recyclerView = view.findViewById(R.id.download_recycler_view)
-        adapter = DownloadsAdapter(emptyList())
+        adapter = DownloadsAdapter(emptyList()){mediaEntity ->
+            when(mediaEntity.mediaType){
+                MediaType.Video -> {
+                    val action = DownloadFragmentDirections.displayMediaAction(mediaEntity)
+                    Navigation.findNavController(requireActivity() ,R.id.nav_host).navigate(action)
+                }
+                MediaType.Image -> {
+
+                }
+                MediaType.Audio -> {
+
+                }
+            }
+        }
         recyclerView.adapter = adapter
         observeDownloads(view)
 
-        val br : BroadcastReceiver =
 
         return view
     }

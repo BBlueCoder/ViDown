@@ -3,16 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_navigation"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/downloadFragment">
 
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.bluetech.vidown.ui.fragments.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/display_media"
+            app:destination="@id/displayMedia" />
+    </fragment>
     <fragment
         android:id="@+id/downloadFragment"
         android:name="com.bluetech.vidown.ui.fragments.DownloadFragment"
         android:label="fragment_download"
-        tools:layout="@layout/fragment_download" />
+        tools:layout="@layout/fragment_download" >
+        <action
+            android:id="@+id/display_media_action"
+            app:destination="@id/displayMedia" />
+    </fragment>
+    <activity
+        android:id="@+id/displayMedia"
+        android:name="com.bluetech.vidown.ui.activities.DisplayMedia"
+        android:label="activity_display_media"
+        tools:layout="@layout/activity_display_media" >
+        <argument
+            android:name="mediaEntity"
+            app:argType="com.bluetech.vidown.core.db.MediaEntity" />
+    </activity>
 </navigation>

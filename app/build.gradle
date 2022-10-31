@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -57,8 +58,8 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
     //nav comp
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.1")
-    implementation("androidx.navigation:navigation-ui-ktx:2.5.1")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
 
     //Youtube download lib
     implementation 'com.github.RaIsseMa:YouDownloaderDemo:1.2.2'

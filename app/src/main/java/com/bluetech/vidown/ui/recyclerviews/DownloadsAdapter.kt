@@ -12,7 +12,7 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
 import java.io.File
 
-class DownloadsAdapter(var downloadsList : List<MediaEntity>) : RecyclerView.Adapter<DownloadsAdapter.DownloadsAdapterHolder>() {
+class DownloadsAdapter(var downloadsList : List<MediaEntity>,val itemClickListener : ((mediaEntity : MediaEntity)->Unit)?) : RecyclerView.Adapter<DownloadsAdapter.DownloadsAdapterHolder>() {
 
     inner class DownloadsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(itemView)
 
@@ -47,6 +47,11 @@ class DownloadsAdapter(var downloadsList : List<MediaEntity>) : RecyclerView.Ada
                     }
                 }
             }
+
+            thumbnail.setOnClickListener {
+                itemClickListener?.invoke(downloadsList[position])
+            }
+
         }
     }
 

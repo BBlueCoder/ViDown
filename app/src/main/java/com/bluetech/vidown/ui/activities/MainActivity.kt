@@ -1,4 +1,4 @@
-package com.bluetech.vidown.ui
+package com.bluetech.vidown.ui.activities
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity() {
     private fun setUpNavigationBottom(){
 
         supportFragmentManager.beginTransaction().apply {
-            add(R.id.nav_host,mainFragment,"Main")
             add(R.id.nav_host,downloadFragment,"Downloads").hide(downloadFragment)
+            add(R.id.nav_host,mainFragment,"Main")
         }.commit()
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        LocalBroadcastManager.getInstance(this).registerReceiver(DownloadReceiver(), IntentFilter(DOWNLOAD_SERVICE_ACTION))
+        //LocalBroadcastManager.getInstance(this).registerReceiver(DownloadReceiver(), IntentFilter(DOWNLOAD_SERVICE_ACTION))
     }
 
     inner class DownloadReceiver : BroadcastReceiver(){
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(DownloadReceiver())
+        //unregisterReceiver(DownloadReceiver())
     }
 
 }
