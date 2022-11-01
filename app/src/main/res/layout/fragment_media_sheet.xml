@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".ui.fragments.MediaSheet">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:padding="20dp"
+        >
+
+        <ImageView
+            android:id="@+id/media_thumbnail"
+            android:layout_width="110dp"
+            android:layout_height="90dp"
+            android:layout_marginStart="15dp"
+            android:scaleType="centerCrop"
+             />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/media_title"
+            android:layout_toEndOf="@id/media_thumbnail"
+            android:layout_marginStart="10dp"
+            android:maxHeight="90dp"
+            android:textSize="15sp"
+            />
+    </RelativeLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="125dp"
+        android:id="@+id/media_divider"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/media_text"
+        android:layout_below="@id/media_divider"
+        android:layout_marginTop="10dp"
+        android:text="@string/media_text"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginStart="20dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/media_recycler_view"
+        android:layout_below="@id/media_text"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        tools:listitem="@layout/result_list_item"
+        />
+
+</RelativeLayout>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.fragments.MainFragment"
-    android:background="@color/gray"
+    android:background="@color/color_text"
     >
 
 
@@ -16,7 +16,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="ViDown"
-        android:textColor="@color/light_pink"
+        android:textColor="@color/color_primary"
         android:textSize="28sp"
         android:textStyle="bold" />
 
@@ -31,6 +31,8 @@
         app:startIconDrawable="@drawable/ic_search_gray"
         app:boxStrokeWidth="0dp"
         android:hint="@string/link_hint"
+        app:hintTextColor="@color/color_primary"
+
         >
 
         <com.google.android.material.textfield.TextInputEditText
@@ -53,24 +55,23 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/light_pink"
+        android:backgroundTint="@color/color_primary"
         android:padding="15dp"
-        android:text="Look up"
-        android:textColor="#fff" />
+        android:text="@string/button_search_media_text"
+        android:textColor="@color/color_text" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/main_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/main_progress"
         android:layout_below="@id/link"
         android:layout_centerInParent="true"
         android:layout_marginStart="20dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="20dp"
-        app:indicatorColor="@color/light_pink"
-        android:visibility="visible"
         android:indeterminate="true"
-        />
+        android:visibility="visible"
+        app:indicatorColor="@color/color_accent" />
 
 
     <com.bluetech.vidown.ui.customviews.ResultCardView
@@ -81,19 +82,26 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:visibility="gone"
-
+        tools:visibility="visible"
         android:layout_marginEnd="20dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/result_list"
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/card_result_available_formats"
         android:layout_below="@id/card_result"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
+        android:text="@string/results_text_btn"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textColor="@color/color_accent"
         android:visibility="gone"
-        tools:listitem="@layout/result_list_item" />
+        tools:visibility="visible"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        />
+
 
 
 </RelativeLayout>

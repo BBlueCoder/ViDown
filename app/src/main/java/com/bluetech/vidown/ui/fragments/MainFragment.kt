@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,11 +39,9 @@ class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
 
-    private lateinit var adapter: ResultsAdapter
-    private lateinit var recyclerView: RecyclerView
-
     private lateinit var circularProgress : CircularProgressIndicator
     private lateinit var lookUpBtn : Button
+    private lateinit var showAvailableFormatsBtn : Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,14 +51,13 @@ class MainFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_main, container, false)
 
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
-        adapter = ResultsAdapter(mutableListOf())
-        recyclerView = view.findViewById(R.id.result_list)
+
         circularProgress = view.findViewById(R.id.main_progress)
 
-        setupRecyclerView()
         observeSearchResults(view)
 
         lookUpBtn = view.findViewById(R.id.btn_look_up)
+        showAvailableFormatsBtn = view.findViewById(R.id.card_result_available_formats)
 
         //link.setText("https://www.youtube.com/watch?v=Q3IkQxzpFfw")
 
@@ -80,43 +78,12 @@ class MainFragment : Fragment() {
             }
         }
 
+        showAvailableFormatsBtn.setOnClickListener {
+            println("available formats click!!!")
+            Navigation.findNavController(requireActivity() ,R.id.nav_host).navigate(R.id.show_available_formats)
+        }
+
         return view
-    }
-
-    private fun setupRecyclerView(){
-        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return when (adapter.getItemViewType(position)) {
-                    R.layout.result_category_title -> 1
-                    R.layout.result_list_item -> 1
-                    else -> 1
-                }
-            }
-
-        }
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
-        adapterClickListener()
-    }
-
-    private fun adapterClickListener(){
-        adapter.itemClickListener = { resultItemData->
-            Intent(requireContext(),DownloadFileService::class.java).also {
-                println("Starting service...")
-                it.putExtra("fileUrl",resultItemData.url)
-                when(resultItemData.format){
-                    MediaType.Video->it.putExtra("fileType","video")
-                    MediaType.Image->it.putExtra("fileType","image")
-                    MediaType.Audio->it.putExtra("fileType","audio")
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    requireContext().startForegroundService(it)
-                }else{
-                    requireContext().startService(it)
-                }
-            }
-        }
     }
 
     private fun observeSearchResults(view: View) {
@@ -135,7 +102,7 @@ class MainFragment : Fragment() {
                             return@onSuccess
                         val itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
                         showItemInfoCard(view,itemInfo)
-                        showResultsRecyclerView(it.filter { item -> item !is ResultItem.ItemInfo })
+                        showAvailableFormats(view)
                     }
                 }
             }
@@ -158,17 +125,16 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun showResultsRecyclerView(results : List<ResultItem>){
-        if(!recyclerView.isVisible){
-            adapter.submitList(results)
+    private fun showAvailableFormats(view: View){
+        if(!showAvailableFormatsBtn.isVisible){
 
             val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down_with_fade)
-            recyclerView.visibility = View.VISIBLE
-            recyclerView.startAnimation(anim)
+            showAvailableFormatsBtn.visibility = View.VISIBLE
+            showAvailableFormatsBtn.startAnimation(anim)
             return
         }
 
-        adapter.submitList(results)
+
     }
 
 }

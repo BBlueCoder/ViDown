@@ -22,6 +22,9 @@
         <action
             android:id="@+id/display_media_action"
             app:destination="@id/displayMedia" />
+        <action
+            android:id="@+id/show_available_formats"
+            app:destination="@id/mediaSheet" />
     </fragment>
     <activity
         android:id="@+id/displayMedia"
@@ -32,4 +35,9 @@
             android:name="mediaEntity"
             app:argType="com.bluetech.vidown.core.db.MediaEntity" />
     </activity>
+    <dialog
+        android:id="@+id/mediaSheet"
+        android:name="com.bluetech.vidown.ui.fragments.MediaSheet"
+        android:label="fragment_media_sheet"
+        tools:layout="@layout/fragment_media_sheet" />
 </navigation>

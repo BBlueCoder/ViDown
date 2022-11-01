@@ -16,18 +16,18 @@ sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(ite
     class TitleViewHolder(itemView: View): ResultsAdapterHolder(itemView){
         fun bind(resultItem: ResultItem.CategoryTitle){
             val categoryTitle = itemView.findViewById<TextView>(R.id.result_category_title)
+            val categoryThumbnail = itemView.findViewById<ImageView>(R.id.result_category_icon)
             categoryTitle.text = resultItem.title
+            when{
+                resultItem.title.contains("Video") -> categoryThumbnail.setImageResource(R.drawable.ic_video_purple)
+                resultItem.title.contains("Image") -> categoryThumbnail.setImageResource(R.drawable.ic_image_purple)
+                else -> categoryThumbnail.setImageResource(R.drawable.ic_audio_purple)
+            }
         }
     }
 
     class ResultsViewHolder(itemView: View) : ResultsAdapterHolder(itemView){
         fun bind(resultItem: ResultItem.ItemData){
-            val icon = itemView.findViewById<ImageView>(R.id.item_icon)
-            when(resultItem.format){
-                MediaType.Video-> icon.setImageResource(R.drawable.ic_video_gray)
-                MediaType.Audio-> icon.setImageResource(R.drawable.ic_audio_gray)
-                MediaType.Image-> icon.setImageResource(R.drawable.ic_image_gray)
-            }
 
             val title = itemView.findViewById<TextView>(R.id.item_title)
             title.text = resultItem.quality
