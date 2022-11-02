@@ -1,11 +1,14 @@
 package com.bluetech.vidown.ui.fragments
 
+import android.app.Dialog
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +23,8 @@ import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,6 +35,15 @@ class MediaSheet : BottomSheetDialogFragment() {
 
     private lateinit var adapter: ResultsAdapter
     private lateinit var recyclerView: RecyclerView
+
+    private lateinit var dialog : BottomSheetDialog
+    private lateinit var bottomSheetBehavior : BottomSheetBehavior<View>
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        return dialog
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +62,16 @@ class MediaSheet : BottomSheetDialogFragment() {
         observeSearchResults(view)
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        bottomSheetBehavior = BottomSheetBehavior.from((view.parent as View))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+        val mediaSheetLayout = view.findViewById<RelativeLayout>(R.id.media_sheet_layout)
+        mediaSheetLayout.minimumHeight = Resources.getSystem().displayMetrics.heightPixels-180
     }
 
     private fun setupRecyclerView(){

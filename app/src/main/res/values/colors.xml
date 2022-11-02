@@ -12,4 +12,7 @@
     <color name="color_primary">#695DED</color>
     <color name="color_accent">#FFE741</color>
     <color name="color_text">#FFFFFF</color>
+    <color name="white_smoke">#F5F5F5</color>
+    <color name="color_lavender">#E6E6FA</color>
+    <color name="dark_purple">#551a8b</color>
 </resources>

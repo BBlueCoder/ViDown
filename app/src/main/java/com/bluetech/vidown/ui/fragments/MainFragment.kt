@@ -1,6 +1,7 @@
 package com.bluetech.vidown.ui.fragments
 
 import android.content.Intent
+import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -57,12 +58,15 @@ class MainFragment : Fragment() {
         observeSearchResults(view)
 
         lookUpBtn = view.findViewById(R.id.btn_look_up)
+
         showAvailableFormatsBtn = view.findViewById(R.id.card_result_available_formats)
+        showAvailableFormatsBtn.paintFlags = showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         //link.setText("https://www.youtube.com/watch?v=Q3IkQxzpFfw")
 
         lookUpBtn.setOnClickListener {
             val link = view.findViewById<TextInputEditText>(R.id.link_text)
+            link.clearFocus()
             val url = link.text.toString()
 
             //check if input is a valid url

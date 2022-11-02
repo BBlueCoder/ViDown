@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="#fff"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+
+    >
 
     <ImageView
         android:layout_width="20dp"
@@ -12,15 +14,17 @@
         android:id="@+id/result_category_icon"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_video_purple"
+        android:layout_marginBottom="20dp"
         />
 
     <TextView
         android:id="@+id/result_category_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Videos"
+        tools:text="Videos"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="#000"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/result_category_icon"
         android:layout_marginStart="15dp"

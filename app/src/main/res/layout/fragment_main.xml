@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.MainFragment"
     android:background="@color/color_text"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     >
 
 
@@ -27,7 +29,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:id="@+id/link"
-        app:boxBackgroundColor="#00000000"
+        app:boxBackgroundColor="@color/white_smoke"
         app:startIconDrawable="@drawable/ic_search_gray"
         app:boxStrokeWidth="0dp"
         android:hint="@string/link_hint"
@@ -41,7 +43,7 @@
             android:id="@+id/link_text"
             android:maxLines="1"
             android:inputType="text"
-            android:text="https://www.tiktok.com/@joker.me1/video/7154795821395987718"
+            android:text="https://www.youtube.com/watch?v=xsuaf2EuuIY"
             />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -71,37 +73,45 @@
         android:layout_marginEnd="20dp"
         android:indeterminate="true"
         android:visibility="visible"
-        app:indicatorColor="@color/color_accent" />
+        app:indicatorColor="@color/color_primary" />
 
-
-    <com.bluetech.vidown.ui.customviews.ResultCardView
-        android:id="@+id/card_result"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/btn_look_up"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:layout_marginEnd="20dp" />
+        android:layout_marginEnd="20dp"
+        android:id="@+id/parent_card_result"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="0dp"
+        >
+
+        <com.bluetech.vidown.ui.customviews.ResultCardView
+            android:id="@+id/card_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible"
+             />
+
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="35dp"
         android:id="@+id/card_result_available_formats"
-        android:layout_below="@id/card_result"
+        android:layout_below="@id/parent_card_result"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:text="@string/results_text_btn"
         android:gravity="center"
         android:textSize="12sp"
-        android:textColor="@color/color_accent"
+        android:textColor="@color/color_primary"
         android:visibility="gone"
         tools:visibility="visible"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         />
-
 
 
 </RelativeLayout>
