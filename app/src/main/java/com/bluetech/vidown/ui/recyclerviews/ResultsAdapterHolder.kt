@@ -32,9 +32,8 @@ sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(ite
             val title = itemView.findViewById<TextView>(R.id.item_title)
             title.text = resultItem.quality
 
-            val layout = itemView.findViewById<RelativeLayout>(R.id.result_item_view)
-            layout.setOnClickListener {
-                println("item click...")
+            val downloadIcon = itemView.findViewById<ImageView>(R.id.result_item_download_icon)
+            downloadIcon.setOnClickListener {
                 itemClickListener?.invoke(resultItem)
             }
         }

@@ -26,6 +26,7 @@ import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.customviews.ResultCardView
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.services.DownloadFileService
+import com.bluetech.vidown.ui.recyclerviews.RecentDownloadAdapter
 import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -44,6 +45,9 @@ class MainFragment : Fragment() {
     private lateinit var lookUpBtn : Button
     private lateinit var showAvailableFormatsBtn : Button
 
+    private lateinit var recentDownloadsRecyclerView : RecyclerView
+    private lateinit var recentDownloadsAdapter : RecentDownloadAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,16 +57,29 @@ class MainFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
 
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         circularProgress = view.findViewById(R.id.main_progress)
 
+        recentDownloadsRecyclerView = view.findViewById(R.id.recent_recycler_view)
+        recentDownloadsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recentDownloadsAdapter = RecentDownloadAdapter(
+            emptyList(),
+            requireContext()
+        )
+        recentDownloadsRecyclerView.adapter = recentDownloadsAdapter
+
         observeSearchResults(view)
+        observeLastDownloads()
 
         lookUpBtn = view.findViewById(R.id.btn_look_up)
 
         showAvailableFormatsBtn = view.findViewById(R.id.card_result_available_formats)
         showAvailableFormatsBtn.paintFlags = showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-
-        //link.setText("https://www.youtube.com/watch?v=Q3IkQxzpFfw")
 
         lookUpBtn.setOnClickListener {
             val link = view.findViewById<TextInputEditText>(R.id.link_text)
@@ -75,7 +92,7 @@ class MainFragment : Fragment() {
                 return@setOnClickListener
             }
             circularProgress.visibility = View.VISIBLE
-            lookUpBtn.visibility = View.GONE
+            lookUpBtn.visibility = View.INVISIBLE
 
             lifecycleScope.launch {
                 viewModel.searchForResult(url)
@@ -83,11 +100,8 @@ class MainFragment : Fragment() {
         }
 
         showAvailableFormatsBtn.setOnClickListener {
-            println("available formats click!!!")
             Navigation.findNavController(requireActivity() ,R.id.nav_host).navigate(R.id.show_available_formats)
         }
-
-        return view
     }
 
     private fun observeSearchResults(view: View) {
@@ -106,7 +120,7 @@ class MainFragment : Fragment() {
                             return@onSuccess
                         val itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
                         showItemInfoCard(view,itemInfo)
-                        showAvailableFormats(view)
+                        showAvailableFormats()
                     }
                 }
             }
@@ -129,7 +143,7 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun showAvailableFormats(view: View){
+    private fun showAvailableFormats(){
         if(!showAvailableFormatsBtn.isVisible){
 
             val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down_with_fade)
@@ -137,8 +151,19 @@ class MainFragment : Fragment() {
             showAvailableFormatsBtn.startAnimation(anim)
             return
         }
+    }
 
-
+    private fun observeLastDownloads(){
+        lifecycleScope.launch(Dispatchers.Main){
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.recentDownloads.collect{result ->
+                    result.onSuccess {
+                        recentDownloadsAdapter.recentDownloadList = it
+                        recentDownloadsAdapter.notifyItemRangeInserted(0,it.size)
+                    }
+                }
+            }
+        }
     }
 
 }

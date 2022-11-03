@@ -18,4 +18,7 @@ interface MediaDao {
 
     @Delete
     fun deleteMedia(mediaEntity: MediaEntity)
+
+    @Query("Select * from mediaentity order by uid desc limit 7")
+    fun getLastSevenRecords(): List<MediaEntity>
 }

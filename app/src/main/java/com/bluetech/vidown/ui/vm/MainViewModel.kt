@@ -2,6 +2,7 @@ package com.bluetech.vidown.ui.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.repos.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(): ViewModel(){
+class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel(){
 
 //    @Inject
 //    lateinit var youRepo: YouRepo
@@ -30,6 +31,11 @@ class MainViewModel @Inject constructor(): ViewModel(){
     private val _lookUpResults = MutableStateFlow<Result<List<ResultItem>>>(Result.success(emptyList()))
     val lookUpResults = _lookUpResults.asStateFlow()
 
+    private val _recentDownloads = MutableStateFlow<Result<List<MediaEntity>>>(Result.success(
+        emptyList()
+    ))
+    val recentDownloads = _recentDownloads.asStateFlow()
+
     fun searchForResult(url : String){
         viewModelScope.launch(Dispatchers.IO){
             val repo = verifyUrlAndMatchItToRepo(url)
@@ -37,6 +43,14 @@ class MainViewModel @Inject constructor(): ViewModel(){
                 _lookUpResults.emit(Result.failure(Exception("Url is invalid or not supported")))
             repo!!.getResultsAsFlow(url).collect{
                 _lookUpResults.emit(it)
+            }
+        }
+    }
+
+    fun getLastDownloads(){
+        viewModelScope.launch(Dispatchers.IO){
+            dbRepo.getRecentRecords().collect{
+                _recentDownloads.emit(it)
             }
         }
     }
@@ -49,5 +63,9 @@ class MainViewModel @Inject constructor(): ViewModel(){
             url.contains("tiktok") -> ttRepo
            else -> null
         }
+    }
+
+    init {
+        getLastDownloads()
     }
 }

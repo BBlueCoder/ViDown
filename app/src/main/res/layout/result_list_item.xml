@@ -24,6 +24,7 @@
         android:layout_height="20dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
+        android:id="@+id/result_item_download_icon"
         android:src="@drawable/ic_download_purple"
         />
 

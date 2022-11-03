@@ -7,12 +7,11 @@ import androidx.recyclerview.widget.ListAdapter
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 
-class ResultsAdapter(var resultsList : List<ResultItem>) : ListAdapter<ResultItem,ResultsAdapterHolder>(
+class ResultsAdapter(var resultsList : List<ResultItem>,
+    private var itemClickListener : ((resultItem : ResultItem.ItemData)->Unit)? = null) : ListAdapter<ResultItem,ResultsAdapterHolder>(
     COMPARATOR
 )
 {
-
-    var itemClickListener : ((resultItem : ResultItem.ItemData)->Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultsAdapterHolder {
         return when(viewType){

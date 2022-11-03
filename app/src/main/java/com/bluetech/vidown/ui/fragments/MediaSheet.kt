@@ -1,7 +1,9 @@
 package com.bluetech.vidown.ui.fragments
 
 import android.app.Dialog
+import android.content.Intent
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,7 +20,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.snackBar
@@ -39,6 +43,8 @@ class MediaSheet : BottomSheetDialogFragment() {
     private lateinit var dialog : BottomSheetDialog
     private lateinit var bottomSheetBehavior : BottomSheetBehavior<View>
 
+    private var title = ""
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
         return dialog
@@ -54,13 +60,6 @@ class MediaSheet : BottomSheetDialogFragment() {
 
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
 
-        recyclerView = view.findViewById(R.id.media_recycler_view)
-        adapter = ResultsAdapter(mutableListOf())
-
-
-        setupRecyclerView()
-        observeSearchResults(view)
-
         return view
     }
 
@@ -72,6 +71,14 @@ class MediaSheet : BottomSheetDialogFragment() {
 
         val mediaSheetLayout = view.findViewById<RelativeLayout>(R.id.media_sheet_layout)
         mediaSheetLayout.minimumHeight = Resources.getSystem().displayMetrics.heightPixels-180
+
+        recyclerView = view.findViewById(R.id.media_recycler_view)
+        adapter = ResultsAdapter(mutableListOf()){ itemData ->
+            downloadMedia(itemData)
+        }
+
+        setupRecyclerView()
+        observeSearchResults(view)
     }
 
     private fun setupRecyclerView(){
@@ -106,6 +113,7 @@ class MediaSheet : BottomSheetDialogFragment() {
                         val mediaThumbnail = view.findViewById<ImageView>(R.id.media_thumbnail)
                         val mediaTitle = view.findViewById<TextView>(R.id.media_title)
                         mediaTitle.text = itemInfo.title
+                        title = itemInfo.title
                         Glide
                             .with(requireContext())
                             .load(itemInfo.thumbnail)
@@ -116,6 +124,23 @@ class MediaSheet : BottomSheetDialogFragment() {
             }
         }
 
+    }
+
+    private fun downloadMedia(itemData: ResultItem.ItemData){
+        Intent(requireContext(), DownloadFileService::class.java).also {
+            it.putExtra("fileUrl",itemData.url)
+            it.putExtra("mediaTitle",title)
+            when(itemData.format){
+                MediaType.Video->it.putExtra("fileType","video")
+                MediaType.Image->it.putExtra("fileType","image")
+                MediaType.Audio->it.putExtra("fileType","audio")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireContext().startForegroundService(it)
+            }else{
+                requireContext().startService(it)
+            }
+        }
     }
 
 }

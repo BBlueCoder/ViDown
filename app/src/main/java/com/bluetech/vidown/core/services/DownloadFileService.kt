@@ -42,6 +42,7 @@ class DownloadFileService : Service() {
 
         val fileUrl = intent?.getStringExtra("fileUrl")
         val fileType = intent?.getStringExtra("fileType")
+        val mediaTitle = intent?.getStringExtra("mediaTitle") ?: ""
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(111,createNotification().build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
@@ -51,7 +52,7 @@ class DownloadFileService : Service() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                downloadFile(fileUrl!!,fileType!!)
+                downloadFile(fileUrl!!,fileType!!,mediaTitle)
             }catch (ex : Exception){
                 println("DownloadServiceException : ${ex.printStackTrace()}")
                 val notificationManager = NotificationManagerCompat.from(this@DownloadFileService)
@@ -88,7 +89,7 @@ class DownloadFileService : Service() {
             .setProgress(100,0,true)
     }
 
-    private fun downloadFile(fileUrl : String,fileMimeType : String){
+    private fun downloadFile(fileUrl : String,fileMimeType : String,mediaTitle: String){
 
         val timeInMillis = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             DateTimeFormatter.ISO_INSTANT.format(Instant.now())
@@ -119,11 +120,11 @@ class DownloadFileService : Service() {
         println("Download Service : finished downloading...")
 
         fileOutputStream.close()
-        saveFileToDB(savedFileName,fileMimeType)
+        saveFileToDB(savedFileName,fileMimeType, mediaTitle)
 
     }
 
-    private fun saveFileToDB(fileName: String, fileMimeType: String){
+    private fun saveFileToDB(fileName: String, fileMimeType: String,mediaTitle : String){
 
         val mediaType = when(fileMimeType){
             "image"->MediaType.Image
@@ -132,7 +133,7 @@ class DownloadFileService : Service() {
             else -> null
         }
 
-        val mediaEntity = MediaEntity(0,fileName,mediaType!!)
+        val mediaEntity = MediaEntity(0,fileName,mediaType!!,mediaTitle)
 
         mediaDao.addMedia(mediaEntity)
 

@@ -11,5 +11,6 @@ import kotlinx.parcelize.Parcelize
 data class MediaEntity(
     @PrimaryKey(autoGenerate = true) val uid : Int,
     val name : String,
-    val mediaType : MediaType
+    val mediaType : MediaType,
+    val title : String
 ) : Parcelable
