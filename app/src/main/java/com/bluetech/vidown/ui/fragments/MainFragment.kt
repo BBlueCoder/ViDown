@@ -48,6 +48,8 @@ class MainFragment : Fragment() {
     private lateinit var recentDownloadsRecyclerView : RecyclerView
     private lateinit var recentDownloadsAdapter : RecentDownloadAdapter
 
+    private lateinit var recentTextLayout : LinearLayout
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,6 +66,8 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         circularProgress = view.findViewById(R.id.main_progress)
+
+        recentTextLayout = view.findViewById(R.id.recent_layout)
 
         recentDownloadsRecyclerView = view.findViewById(R.id.recent_recycler_view)
         recentDownloadsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -158,8 +162,16 @@ class MainFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.recentDownloads.collect{result ->
                     result.onSuccess {
+
+                        recentDownloadsRecyclerView.isVisible = it.isNotEmpty()
+                        recentTextLayout.isVisible= it.isNotEmpty()
+
                         recentDownloadsAdapter.recentDownloadList = it
-                        recentDownloadsAdapter.notifyItemRangeInserted(0,it.size)
+                        recentDownloadsAdapter.notifyItemRangeChanged(0,it.size)
+                    }
+                    result.onFailure {
+                        recentTextLayout.visibility = View.INVISIBLE
+                        recentTextLayout.visibility = View.INVISIBLE
                     }
                 }
             }

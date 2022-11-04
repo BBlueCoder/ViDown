@@ -10,20 +10,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/download_recycler_view"
-        tools:listitem="@layout/download_item"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="3"
-        android:visibility="gone"
+        tools:visibility="visible"
         />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/download_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/download_progress"
         android:layout_centerInParent="true"
-        app:indicatorColor="@color/light_pink"
         android:indeterminate="true"
-        />
+        android:visibility="gone"
+        app:indicatorColor="@color/light_pink" />
 
     <TextView
         android:layout_width="match_parent"

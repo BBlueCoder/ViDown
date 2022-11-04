@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
             println("received broadcast action")
             if(result == "success"){
 
-                downloadViewModel.refreshDownload()
+                //downloadViewModel.refreshDownload()
             }
         }
 

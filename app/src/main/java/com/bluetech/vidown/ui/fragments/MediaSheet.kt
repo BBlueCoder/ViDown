@@ -82,17 +82,17 @@ class MediaSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupRecyclerView(){
-        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return when (adapter.getItemViewType(position)) {
-                    R.layout.result_category_title -> 1
-                    R.layout.result_list_item -> 1
-                    else -> 1
-                }
-            }
-
-        }
+//        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
+//        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+//            override fun getSpanSize(position: Int): Int {
+//                return when (adapter.getItemViewType(position)) {
+//                    R.layout.result_category_title -> 1
+//                    R.layout.result_list_item -> 1
+//                    else -> 1
+//                }
+//            }
+//
+//        }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
     }

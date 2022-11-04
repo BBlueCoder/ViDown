@@ -122,6 +122,7 @@
             android:orientation="horizontal"
             android:weightSum="3"
             android:layout_marginTop="50dp"
+            android:id="@+id/recent_layout"
             >
 
             <TextView

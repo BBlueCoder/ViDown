@@ -10,8 +10,8 @@ import com.bluetech.vidown.core.MediaType
 @Dao
 interface MediaDao {
 
-    @Query("Select * from mediaentity")
-    fun getAllMedia(): List<MediaEntity>
+    @Query("Select * from mediaentity order by uid asc limit :limit offset :offset")
+    fun getAllMedia(limit: Int,offset : Int): List<MediaEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addMedia(mediaEntity: MediaEntity)

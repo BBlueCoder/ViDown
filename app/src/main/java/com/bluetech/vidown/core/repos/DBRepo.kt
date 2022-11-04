@@ -12,4 +12,6 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
         val lastRecords = mediaDao.getLastSevenRecords()
         emit(Result.success(lastRecords))
     }
+
+    fun getMedia(limit : Int,offset : Int) = mediaDao.getAllMedia(limit,offset)
 }

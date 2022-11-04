@@ -11,7 +11,7 @@
         android:layout_height="120dp"
         android:clickable="true"
         app:cardCornerRadius="15dp"
-        android:id="@+id/download_card_view"
+        android:id="@+id/media_vide_card_view"
         android:focusable="true">
 
         <RelativeLayout
@@ -21,14 +21,13 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/download_item_thumbnail"
+                android:id="@+id/media_video_thumbnail"
                 android:scaleType="centerCrop"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#3E000000"
-                android:id="@+id/download_item_overview"
                 />
 
             <ImageView
@@ -36,13 +35,12 @@
                 android:layout_height="25dp"
                 android:src="@drawable/ic_play_white"
                 android:layout_centerInParent="true"
-                android:id="@+id/download_thumbnail_play_btn"
                 />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/download_item_duration"
+                android:id="@+id/media_video_duration"
                 tools:text="03:20"
                 android:layout_alignParentBottom="true"
                 android:paddingStart="5dp"
@@ -61,8 +59,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/download_item_title"
-        android:layout_below="@id/download_card_view"
+        android:id="@+id/media_video_title"
+        android:layout_below="@id/media_vide_card_view"
         android:layout_marginTop="5dp"
         tools:text="Don Big - M9tal"
         android:gravity="center"

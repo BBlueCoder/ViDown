@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
@@ -22,7 +23,9 @@ import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class DownloadFragment : Fragment() {
@@ -43,7 +46,8 @@ class DownloadFragment : Fragment() {
 
 
         recyclerView = view.findViewById(R.id.download_recycler_view)
-        adapter = DownloadsAdapter(emptyList()){mediaEntity ->
+        //recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adapter = DownloadsAdapter(requireContext()){mediaEntity ->
             when(mediaEntity.mediaType){
                 MediaType.Video -> {
                     val action = DownloadFragmentDirections.displayMediaAction(mediaEntity)
@@ -65,25 +69,25 @@ class DownloadFragment : Fragment() {
     }
 
     private fun observeDownloads(view : View){
-        lifecycleScope.launch(Dispatchers.Main){
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.downloadMedia.collect{results->
-                    val progress = view.findViewById<CircularProgressIndicator>(R.id.download_progress)
-                    progress.visibility = View.GONE
-                    results.onFailure {
-                        view.snackBar("An Error occurred, can not load downloads files")
-                    }
-                    results.onSuccess {
-                        adapter.downloadsList = it
-                        adapter.notifyDataSetChanged()
-                        if(it.isEmpty()){
-                            val emptyText = view.findViewById<TextView>(R.id.download_empty_text)
-                            emptyText.visibility = View.VISIBLE
-                        }else{
-                            recyclerView.visibility = View.VISIBLE
-                        }
-                    }
-                }
+//        lifecycleScope.launch(Dispatchers.Main){
+//            repeatOnLifecycle(Lifecycle.State.STARTED){
+//                viewModel.downloadsMedia.collectLatest{pagingData->
+//                    println("paging data = $pagingData")
+////                    val progress = view.findViewById<CircularProgressIndicator>(R.id.download_progress)
+////                    progress.visibility = View.GONE
+//                    //recyclerView.visibility = View.VISIBLE
+//                    adapter.submitData(pagingData)
+//                    adapter.refresh()
+//                    println("data submitted _____________")
+//                }
+//            }
+//        }
+
+        viewLifecycleOwner.lifecycleScope.launch(){
+            viewModel.downloadsMedia.collectLatest {
+                println("--------------------collected data : $it")
+                adapter.submitData(it)
+
             }
         }
     }

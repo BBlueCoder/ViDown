@@ -1,10 +1,14 @@
 package com.bluetech.vidown.ui.recyclerviews
 
+import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
@@ -12,51 +16,54 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
 import java.io.File
 
-class DownloadsAdapter(var downloadsList : List<MediaEntity>,
-                       private val itemClickListener : ((mediaEntity : MediaEntity)->Unit)?) : RecyclerView.Adapter<DownloadsAdapter.DownloadsAdapterHolder>() {
-
-    inner class DownloadsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(itemView)
+class DownloadsAdapter(private val context : Context,
+                       private val itemClickListener : ((mediaEntity : MediaEntity)->Unit)?)
+    : PagingDataAdapter<MediaEntity,DownloadsAdapterHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsAdapterHolder {
-        return DownloadsAdapterHolder(LayoutInflater.from(parent.context).inflate(R.layout.download_item,parent,false))
-    }
-
-    override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
-        holder.itemView.apply {
-            val thumbnail = this.findViewById<ImageView>(R.id.download_item_thumbnail)
-            val playIcon = this.findViewById<ImageView>(R.id.download_thumbnail_play_btn)
-            val overView = this.findViewById<View>(R.id.download_item_overview)
-
-            val file = File(context.filesDir,downloadsList[position].name)
-            if(file.exists()){
-                when(downloadsList[position].mediaType){
-                    MediaType.Audio->{
-                        thumbnail.setImageResource(R.drawable.ic_audio_gray)
-                    }
-                    MediaType.Image->{
-                        playIcon.visibility = View.INVISIBLE
-                        overView.visibility = View.INVISIBLE
-                        Glide.with(context)
-                            .load(Uri.fromFile(file))
-                            .into(thumbnail)
-                    }
-                    MediaType.Video->{
-                        Glide.with(context)
-                            .asBitmap()
-                            .load(Uri.fromFile(file))
-                            .into(thumbnail)
-                    }
-                }
+        return when(viewType){
+            R.layout.media_audio_layout -> {
+                DownloadsAdapterHolder.AudioMediaViewHolder(
+                    LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+                )
             }
-
-            thumbnail.setOnClickListener {
-                itemClickListener?.invoke(downloadsList[position])
+            R.layout.media_image_layout -> {
+                DownloadsAdapterHolder.ImageMediaViewHolder(
+                    LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+                )
             }
-
+            R.layout.media_video_layout -> {
+                DownloadsAdapterHolder.VideoMediaViewHolder(
+                    LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+                )
+            }
+            else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
-    override fun getItemCount(): Int {
-        return downloadsList.size
+    override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
+        val item = getItem(position) as MediaEntity
+        holder.bind(item,context)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when(getItem(position)!!.mediaType){
+            MediaType.Audio -> R.layout.media_audio_layout
+            MediaType.Image -> R.layout.media_image_layout
+            MediaType.Video -> R.layout.media_video_layout
+        }
+    }
+
+    companion object {
+        private val COMPARATOR = object : DiffUtil.ItemCallback<MediaEntity>(){
+            override fun areItemsTheSame(oldItem: MediaEntity, newItem: MediaEntity): Boolean {
+                return oldItem.uid == newItem.uid
+            }
+
+            override fun areContentsTheSame(oldItem: MediaEntity, newItem: MediaEntity): Boolean {
+                return oldItem == newItem
+            }
+
+        }
     }
 }

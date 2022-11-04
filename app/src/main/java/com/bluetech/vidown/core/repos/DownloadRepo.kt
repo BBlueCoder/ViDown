@@ -10,9 +10,4 @@ import javax.inject.Singleton
 @Singleton
 class DownloadRepo @Inject constructor(var mediaDao: MediaDao){
 
-    fun getDownloadFiles() = flow {
-        val media = mediaDao.getAllMedia()
-        emit(Result.success(media))
-    }
-
 }

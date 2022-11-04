@@ -82,6 +82,9 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
+    //Paging
+    implementation "androidx.paging:paging-runtime:$paging_version"
+
 //
 //    // Kotlin Extensions and Coroutines support for Room
 //    implementation "androidx.room:room-ktx:$roomVersion"
