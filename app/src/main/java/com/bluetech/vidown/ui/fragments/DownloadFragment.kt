@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -19,7 +20,10 @@ import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
+import com.bumptech.glide.Glide
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -35,6 +39,9 @@ class DownloadFragment : Fragment() {
     private lateinit var emptyText : TextView
     private lateinit var recyclerViewFooterProgress : CircularProgressIndicator
     private lateinit var recyclerViewHeaderProgress : CircularProgressIndicator
+
+    private lateinit var downloadProgress : LinearProgressIndicator
+    private lateinit var downloadTextProgress : TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,6 +63,8 @@ class DownloadFragment : Fragment() {
             emptyText = findViewById(R.id.download_empty_text)
             recyclerViewFooterProgress = findViewById(R.id.download_progress_footer)
             recyclerViewHeaderProgress = findViewById(R.id.download_progress_header)
+            downloadProgress = findViewById(R.id.download_media_progress)
+            downloadTextProgress = findViewById(R.id.download_media_progress_text)
         }
 
         adapter = DownloadsAdapter(requireContext()){mediaEntity ->
@@ -73,11 +82,14 @@ class DownloadFragment : Fragment() {
             }
         }
         recyclerView.adapter = adapter
-        observeDownloads(view)
+        observeDownloads()
 
         adapter.addLoadStateListener {  loadState ->
             adapterLoadStateListening(loadState)
         }
+
+        observeItemInfo(view)
+        observeDownloadProgress()
 
     }
 
@@ -100,7 +112,7 @@ class DownloadFragment : Fragment() {
         }
     }
 
-    private fun observeDownloads(view : View){
+    private fun observeDownloads(){
         lifecycleScope.launch(Dispatchers.Main){
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.downloadsMedia.collectLatest{pagingData->
@@ -108,6 +120,37 @@ class DownloadFragment : Fragment() {
                 }
             }
         }
+    }
 
+    private fun observeItemInfo(view : View){
+        lifecycleScope.launch(Dispatchers.Main){
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.downloadItemInfo.collectLatest { resultItemInfo ->
+                    val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
+                    if(resultItemInfo == null){
+                        card.visibility = View.GONE
+                    }else{
+                        val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
+                        val title = view.findViewById<TextView>(R.id.download_media_title)
+                        title.text = resultItemInfo.title
+                        Glide.with(requireContext())
+                            .load(resultItemInfo.thumbnail)
+                            .into(thumbnail)
+                        card.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeDownloadProgress(){
+        lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.downloadProgress.collectLatest { progress->
+                    downloadProgress.progress = progress
+                    downloadTextProgress.text = "$progress%"
+                }
+            }
+        }
     }
 }

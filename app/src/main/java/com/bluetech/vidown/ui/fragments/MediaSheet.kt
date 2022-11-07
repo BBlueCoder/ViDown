@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
+import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
@@ -36,6 +38,7 @@ import kotlinx.coroutines.launch
 class MediaSheet : BottomSheetDialogFragment() {
 
     private lateinit var viewModel: MainViewModel
+    private lateinit var downloadViewModel : DownloadViewModel
 
     private lateinit var adapter: ResultsAdapter
     private lateinit var recyclerView: RecyclerView
@@ -43,7 +46,7 @@ class MediaSheet : BottomSheetDialogFragment() {
     private lateinit var dialog : BottomSheetDialog
     private lateinit var bottomSheetBehavior : BottomSheetBehavior<View>
 
-    private var title = ""
+    private var itemInfo : ResultItem.ItemInfo ? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
@@ -59,6 +62,7 @@ class MediaSheet : BottomSheetDialogFragment() {
         val view = inflater.inflate(R.layout.fragment_media_sheet,container,false)
 
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
+        downloadViewModel = ViewModelProvider(requireActivity())[DownloadViewModel::class.java]
 
         return view
     }
@@ -109,14 +113,14 @@ class MediaSheet : BottomSheetDialogFragment() {
                     result.onSuccess {
                         if(it.isEmpty())
                             return@onSuccess
-                        val itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
+                        itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
                         val mediaThumbnail = view.findViewById<ImageView>(R.id.media_thumbnail)
                         val mediaTitle = view.findViewById<TextView>(R.id.media_title)
-                        mediaTitle.text = itemInfo.title
-                        title = itemInfo.title
+                        mediaTitle.text = itemInfo!!.title
+
                         Glide
                             .with(requireContext())
-                            .load(itemInfo.thumbnail)
+                            .load(itemInfo!!.thumbnail)
                             .into(mediaThumbnail)
                         adapter.submitList(it.filter {  item -> item !is ResultItem.ItemInfo })
                     }
@@ -128,12 +132,18 @@ class MediaSheet : BottomSheetDialogFragment() {
 
     private fun downloadMedia(itemData: ResultItem.ItemData){
         Intent(requireContext(), DownloadFileService::class.java).also {
+            Toast.makeText(requireContext(),"Downloading started...",Toast.LENGTH_SHORT).show()
+            println("-------------------file url : ${itemData.url}")
+            downloadViewModel.updateItemInfo(itemInfo)
             it.putExtra("fileUrl",itemData.url)
-            it.putExtra("mediaTitle",title)
+            it.putExtra("mediaTitle",itemInfo!!.title)
             when(itemData.format){
                 MediaType.Video->it.putExtra("fileType","video")
                 MediaType.Image->it.putExtra("fileType","image")
-                MediaType.Audio->it.putExtra("fileType","audio")
+                MediaType.Audio->{
+                    it.putExtra("fileType","audio")
+                    it.putExtra("thumbnail",itemInfo!!.thumbnail)
+                }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireContext().startForegroundService(it)
@@ -141,6 +151,7 @@ class MediaSheet : BottomSheetDialogFragment() {
                 requireContext().startService(it)
             }
         }
+        dismiss()
     }
 
 }

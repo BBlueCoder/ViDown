@@ -13,6 +13,7 @@ import com.bluetech.vidown.R
 import com.bluetech.vidown.ui.fragments.DownloadFragment
 import com.bluetech.vidown.ui.fragments.MainFragment
 import com.bluetech.vidown.ui.vm.DownloadViewModel
+import com.bluetech.vidown.utils.Constants.DOWNLOAD_FILE_PROGRESS_ACTION
 import com.bluetech.vidown.utils.Constants.DOWNLOAD_SERVICE_ACTION
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,24 +68,34 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        //LocalBroadcastManager.getInstance(this).registerReceiver(DownloadReceiver(), IntentFilter(DOWNLOAD_SERVICE_ACTION))
+        LocalBroadcastManager.getInstance(this).registerReceiver(DownloadReceiver(), IntentFilter(DOWNLOAD_SERVICE_ACTION))
+        LocalBroadcastManager.getInstance(this).registerReceiver(DownloadProgressReceiver(),
+            IntentFilter(DOWNLOAD_FILE_PROGRESS_ACTION))
     }
 
     inner class DownloadReceiver : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             val result = intent?.getStringExtra("result")
             println("received broadcast action")
-            if(result == "success"){
 
-                //downloadViewModel.refreshDownload()
-            }
+            downloadViewModel.updateItemInfo(null)
+
+        }
+
+    }
+
+    inner class DownloadProgressReceiver : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val progress = intent?.getIntExtra("progress",0)
+            downloadViewModel.updateProgress(progress!!)
         }
 
     }
 
     override fun onStop() {
         super.onStop()
-        //unregisterReceiver(DownloadReceiver())
+        unregisterReceiver(DownloadReceiver())
+        unregisterReceiver(DownloadProgressReceiver())
     }
 
 }

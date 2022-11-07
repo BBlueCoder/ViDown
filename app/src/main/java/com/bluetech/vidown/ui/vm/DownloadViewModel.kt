@@ -7,33 +7,31 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.paging.MediaPagingSource
+import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.repos.DBRepo
 import com.bluetech.vidown.core.repos.DownloadRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewModel(){
 
-//    private val _downloadMedia = MutableStateFlow<Result<List<MediaEntity>>>(Result.success(emptyList()))
-//    val downloadMedia = _downloadMedia.asStateFlow()
-//
-//    init {
-//        refreshDownload()
-//    }
-//
-//    fun refreshDownload(){
-//        viewModelScope.launch(Dispatchers.IO) {
-//            downloadRepo.getDownloadFiles().collect{
-//                _downloadMedia.emit(it)
-//            }
-//        }
-//    }
+    private val _downloadProgress = MutableStateFlow(0)
+    val downloadProgress = _downloadProgress.asStateFlow()
 
+    private val _downloadItemInfo = MutableStateFlow<ResultItem.ItemInfo?>(null)
+    val downloadItemInfo = _downloadItemInfo.asStateFlow()
+
+
+    var title : String = ""
+    var thumbnail : String = ""
 
     val downloadsMedia = Pager(
         PagingConfig(
@@ -43,5 +41,19 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         ),){
         MediaPagingSource(dbRepo)
     }.flow.cachedIn(viewModelScope)
+
+    fun updateProgress(progress : Int){
+        viewModelScope.launch(Dispatchers.Default){
+            _downloadProgress.emit(progress)
+        }
+    }
+
+    fun updateItemInfo(itemInfo: ResultItem.ItemInfo?){
+        viewModelScope.launch {
+            if(itemInfo == null)
+                delay(1500)
+            _downloadItemInfo.emit(itemInfo)
+        }
+    }
 
 }

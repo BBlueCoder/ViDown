@@ -12,6 +12,7 @@ object Constants {
     const val FILE_PREFIX_NAME = "vidown_"
 
     const val DOWNLOAD_SERVICE_ACTION = "DOWNLOAD_SERVICE"
+    const val DOWNLOAD_FILE_PROGRESS_ACTION = "download_progress_action"
 
     const val STARTING_PAGE_INDEX = 0
 }

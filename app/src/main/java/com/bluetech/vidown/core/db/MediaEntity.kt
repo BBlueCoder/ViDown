@@ -12,5 +12,6 @@ data class MediaEntity(
     @PrimaryKey(autoGenerate = true) val uid : Int,
     val name : String,
     val mediaType : MediaType,
-    val title : String
+    val title : String,
+    val thumbnail : String? = null
 ) : Parcelable

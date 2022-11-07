@@ -2,6 +2,8 @@ package com.bluetech.vidown.core.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bluetech.vidown.core.api.ApplicationApi
 import com.bluetech.vidown.core.db.AppLocalDB
 import com.bluetech.vidown.utils.Constants.API_BASE_URL_EXAMPLE
@@ -20,6 +22,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    val DB_MIGRATION_2_3 = object : Migration(2,3){
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("ALTER table mediaEntity add column thumbnail TEXT")
+        }
+    }
 
     @Singleton
     @Provides
@@ -44,7 +52,8 @@ object AppModule {
     @Provides
     fun provideAppLocalDB(
         @ApplicationContext context : Context
-    ) = Room.databaseBuilder(context,AppLocalDB::class.java, DATABASE_NAME).build()
+    ) = Room.databaseBuilder(context,AppLocalDB::class.java, DATABASE_NAME).addMigrations(
+        DB_MIGRATION_2_3).build()
 
     @Singleton
     @Provides
