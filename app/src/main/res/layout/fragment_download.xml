@@ -6,23 +6,46 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.DownloadFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/download_recycler_view"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="3"
-        tools:visibility="visible"
-        />
+        android:orientation="vertical"
+        android:gravity="center"
+        >
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/download_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:indicatorColor="@color/light_pink" />
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/download_progress_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            tools:visibility="visible"
+            android:layout_weight="0"
+            android:visibility="gone"
+            app:indicatorColor="@color/light_pink" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/download_recycler_view"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3"
+            tools:visibility="visible"
+            tools:listitem="@layout/media_audio_layout"
+            android:visibility="gone"
+            android:layout_weight="1"
+            />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/download_progress_footer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            tools:visibility="visible"
+            android:layout_weight="0"
+            android:visibility="gone"
+            app:indicatorColor="@color/light_pink" />
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"

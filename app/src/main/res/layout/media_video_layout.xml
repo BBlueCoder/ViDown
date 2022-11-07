@@ -43,12 +43,12 @@
                 android:id="@+id/media_video_duration"
                 tools:text="03:20"
                 android:layout_alignParentBottom="true"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginBottom="5dp"
                 android:background="#41000000"
-                android:textSize="11sp"
+                android:textSize="8sp"
                 android:textColor="@color/white"
                 />
 
@@ -64,8 +64,10 @@
         android:layout_marginTop="5dp"
         tools:text="Don Big - M9tal"
         android:gravity="center"
-        android:textSize="13sp"
+        android:textSize="11sp"
         android:maxLines="2"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         />
 
 </RelativeLayout>

@@ -6,6 +6,7 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.repos.DBRepo
 import com.bluetech.vidown.utils.Constants.STARTING_PAGE_INDEX
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class MediaPagingSource(private val dbRepo: DBRepo) : PagingSource<Int,MediaEntity>() {
@@ -18,23 +19,20 @@ class MediaPagingSource(private val dbRepo: DBRepo) : PagingSource<Int,MediaEnti
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MediaEntity> {
-        println("------------------------------------------------------------load fun called")
+
         val position = params.key ?: STARTING_PAGE_INDEX
         return try{
-            println("------------------------------ before getting data")
+
             withContext(Dispatchers.IO){
-                println("------------------------- load size ${params.loadSize}")
                 val data = dbRepo.getMedia(params.loadSize,position * params.loadSize)
-                println("_____________________________ data : $data")
                 LoadResult.Page(
                     data = data,
-                    prevKey = null,
+                    prevKey = if(position == STARTING_PAGE_INDEX) null else position-1,
                     nextKey = if(data.isEmpty()) null else position + 1
                 )
             }
 
         }catch (ex : Exception){
-            println("error load paging data ${ex.printStackTrace()}")
             LoadResult.Error(ex)
         }
     }

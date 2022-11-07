@@ -36,8 +36,10 @@
         android:layout_marginTop="5dp"
         tools:text="Don Big - M9tal"
         android:gravity="center"
-        android:textSize="13sp"
+        android:textSize="11sp"
         android:maxLines="2"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         />
 
 </RelativeLayout>

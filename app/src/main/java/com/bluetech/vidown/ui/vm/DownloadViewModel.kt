@@ -34,16 +34,12 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
 //        }
 //    }
 
-    init {
-        viewModelScope.launch(Dispatchers.IO){
-            val dt = dbRepo.getMedia(5,0)
-            println("------------------- dt $dt")
-        }
-    }
 
     val downloadsMedia = Pager(
         PagingConfig(
-            pageSize = 25
+            pageSize = 30,
+            enablePlaceholders = false,
+            maxSize = 100
         ),){
         MediaPagingSource(dbRepo)
     }.flow.cachedIn(viewModelScope)
