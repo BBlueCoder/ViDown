@@ -29,6 +29,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                     results.add(ResultItem.CategoryTitle("Image"))
                     results.add(
                         ResultItem.ItemInfo(
+                            url,
                             instaItem.mediaCaption.edges.first().node.text,
                             instaItem.thumbnail
                         )
@@ -40,6 +41,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                     results.add(ResultItem.CategoryTitle("Video"))
                     results.add(
                         ResultItem.ItemInfo(
+                            url,
                             instaItem.mediaCaption.edges.first().node.text,
                             instaItem.thumbnail
                         )
@@ -50,6 +52,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                 "GraphSidecar" -> { // post is multiples
                     results.add(
                         ResultItem.ItemInfo(
+                            url,
                             instaItem.mediaCaption.edges.first().node.text,
                             instaItem.thumbnail
                         )

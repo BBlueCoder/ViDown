@@ -1,12 +1,19 @@
 package com.bluetech.vidown.ui.fragments
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -18,8 +25,10 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
+import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
+import com.bluetech.vidown.utils.formatSizeToReadableFormat
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -42,6 +51,11 @@ class DownloadFragment : Fragment() {
 
     private lateinit var downloadProgress : LinearProgressIndicator
     private lateinit var downloadTextProgress : TextView
+    private lateinit var downloadSizeProgress : TextView
+
+    private var isDownloadServiceBound = false
+
+    private lateinit var downloadFileService : DownloadFileService
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,6 +79,12 @@ class DownloadFragment : Fragment() {
             recyclerViewHeaderProgress = findViewById(R.id.download_progress_header)
             downloadProgress = findViewById(R.id.download_media_progress)
             downloadTextProgress = findViewById(R.id.download_media_progress_text)
+            downloadSizeProgress = findViewById(R.id.download_media_size)
+
+            val cancelBtn = findViewById<ImageView>(R.id.download_media_cancel)
+            cancelBtn.setOnClickListener {
+                downloadFileService.cancelDownload()
+            }
         }
 
         adapter = DownloadsAdapter(requireContext()){mediaEntity ->
@@ -129,6 +149,7 @@ class DownloadFragment : Fragment() {
                     val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
                     if(resultItemInfo == null){
                         card.visibility = View.GONE
+                        adapter.refresh()
                     }else{
                         val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
                         val title = view.findViewById<TextView>(R.id.download_media_title)
@@ -137,6 +158,8 @@ class DownloadFragment : Fragment() {
                             .load(resultItemInfo.thumbnail)
                             .into(thumbnail)
                         card.visibility = View.VISIBLE
+                        if(!isDownloadServiceBound)
+                            bindToDownloadService()
                     }
                 }
             }
@@ -146,11 +169,43 @@ class DownloadFragment : Fragment() {
     private fun observeDownloadProgress(){
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.downloadProgress.collectLatest { progress->
-                    downloadProgress.progress = progress
-                    downloadTextProgress.text = "$progress%"
+                viewModel.downloadProgress.collectLatest { progressData->
+                    progressData.progress?.let {
+                        downloadProgress.progress = it
+                        downloadTextProgress.text = "$it%"
+                    }
+                    if(progressData.progress == null){
+                        downloadProgress.isIndeterminate = true
+                        downloadTextProgress.text = ""
+                        downloadSizeProgress.text = progressData.downloadedSize.formatSizeToReadableFormat()
+                    }else{
+                        downloadProgress.isIndeterminate = false
+                        downloadSizeProgress.text =
+                            "${progressData.downloadedSize.formatSizeToReadableFormat()}/${progressData.fileSize!!.formatSizeToReadableFormat()}"
+                    }
+
                 }
             }
+        }
+    }
+
+    private fun bindToDownloadService(){
+        val serviceConnection = object : ServiceConnection{
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                println("---------------------- bind to service")
+                isDownloadServiceBound = true
+                downloadFileService = (service as DownloadFileService.DownloadFileServiceBinder).service
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                println("---------------------- unbind to service")
+                isDownloadServiceBound = false
+            }
+
+        }
+
+        Intent(requireContext(),DownloadFileService::class.java).also{
+            requireContext().bindService(it,serviceConnection,Context.BIND_AUTO_CREATE)
         }
     }
 }

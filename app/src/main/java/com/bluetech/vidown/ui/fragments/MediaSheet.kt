@@ -133,10 +133,10 @@ class MediaSheet : BottomSheetDialogFragment() {
     private fun downloadMedia(itemData: ResultItem.ItemData){
         Intent(requireContext(), DownloadFileService::class.java).also {
             Toast.makeText(requireContext(),"Downloading started...",Toast.LENGTH_SHORT).show()
-            println("-------------------file url : ${itemData.url}")
             downloadViewModel.updateItemInfo(itemInfo)
             it.putExtra("fileUrl",itemData.url)
             it.putExtra("mediaTitle",itemInfo!!.title)
+            it.putExtra("source",itemInfo!!.link)
             when(itemData.format){
                 MediaType.Video->it.putExtra("fileType","video")
                 MediaType.Image->it.putExtra("fileType","image")

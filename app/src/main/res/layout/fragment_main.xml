@@ -43,7 +43,7 @@
             android:id="@+id/link_text"
             android:maxLines="1"
             android:inputType="text"
-            android:text="https://www.youtube.com/watch?v=xsuaf2EuuIY"
+            android:text="https://www.youtube.com/watch?v=wVkVuGrJFjo"
             />
 
     </com.google.android.material.textfield.TextInputLayout>

@@ -25,31 +25,49 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             val durationText = itemView.findViewById<TextView>(R.id.media_video_duration)
 
             val file = File(context.filesDir, mediaEntity.name)
+
             if (file.exists()) {
-                Glide.with(context)
-                    .asBitmap()
-                    .load(Uri.fromFile(file))
-                    .into(thumbnail)
-            }
-            title.text = mediaEntity.title
-            val uri = Uri.fromFile(file)
-            MediaPlayer.create(context, uri).also {
-                val durationDate = Date((it.duration).toLong())
-                when {
-                    it.duration / 1000 < 3600 -> {
-                        val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
-                        durationText.text = sdf.format(durationDate)
+                val uri = Uri.fromFile(file)
+                MediaPlayer.create(context, uri).also {
+                    it?.let {
+                        val durationDate = Date((it.duration).toLong())
+                        when {
+                            it.duration / 1000 < 3600 -> {
+                                val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
+                                durationText.text = sdf.format(durationDate)
+                            }
+                            else -> {
+                                val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
+                                durationText.text = sdf.format(durationDate)
+                            }
+                        }
+
+                        it.reset()
+                        it.release()
+
+                        Glide.with(context)
+                            .asBitmap()
+                            .load(Uri.fromFile(file))
+                            .error(R.drawable.ic_video_corrupted)
+                            .into(thumbnail)
+                        return@also
                     }
-                    else -> {
-                        val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
-                        durationText.text = sdf.format(durationDate)
-                    }
+
+
+                }.setOnErrorListener { _, _, _ ->
+                    Glide.with(context)
+                        .load(R.drawable.ic_video_corrupted)
+                        .into(thumbnail)
+                    true
                 }
 
-                it.reset()
-                it.release()
+                title.text = mediaEntity.title
+                return
+            }else{
+                Glide.with(context)
+                    .load(R.drawable.ic_video_corrupted)
+                    .into(thumbnail)
             }
-
         }
     }
 
@@ -62,10 +80,10 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             if (file.exists()) {
                 Glide.with(context)
                     .load(Uri.fromFile(file))
+                    .error(R.drawable.ic_video_corrupted)
                     .into(thumbnail)
             }
             title.text = mediaEntity.title
-
         }
     }
 
@@ -85,23 +103,35 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             }
             title.text = mediaEntity.title
             val file = File(context.filesDir,mediaEntity.name)
-            val uri = Uri.fromFile(file)
-            MediaPlayer.create(context, uri).also {
-                val durationDate = Date((it.duration).toLong())
-                when {
-                    it.duration / 1000 < 3600 -> {
-                        val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
-                        durationText.text = sdf.format(durationDate)
+            if(file.exists()){
+                val uri = Uri.fromFile(file)
+                MediaPlayer.create(context, uri).also {
+                    val durationDate = Date((it.duration).toLong())
+                    when {
+                        it.duration / 1000 < 3600 -> {
+                            val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
+                            durationText.text = sdf.format(durationDate)
+                        }
+                        else -> {
+                            val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
+                            durationText.text = sdf.format(durationDate)
+                        }
                     }
-                    else -> {
-                        val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
-                        durationText.text = sdf.format(durationDate)
-                    }
-                }
 
-                it.reset()
-                it.release()
+                    it.reset()
+                    it.release()
+                }.setOnErrorListener { _, _, _ ->
+                    Glide.with(context)
+                        .load(R.drawable.ic_video_corrupted)
+                        .into(thumbnail)
+                    true
+                }
+            }else{
+                Glide.with(context)
+                    .load(R.drawable.ic_video_corrupted)
+                    .into(thumbnail)
             }
+
 
         }
     }

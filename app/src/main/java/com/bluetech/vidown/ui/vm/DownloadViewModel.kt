@@ -7,6 +7,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.paging.MediaPagingSource
+import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.repos.DBRepo
 import com.bluetech.vidown.core.repos.DownloadRepo
@@ -23,7 +24,7 @@ import kotlin.random.Random
 @HiltViewModel
 class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewModel(){
 
-    private val _downloadProgress = MutableStateFlow(0)
+    private val _downloadProgress = MutableStateFlow(DownloadMediaProgress(0,0,0))
     val downloadProgress = _downloadProgress.asStateFlow()
 
     private val _downloadItemInfo = MutableStateFlow<ResultItem.ItemInfo?>(null)
@@ -42,7 +43,7 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         MediaPagingSource(dbRepo)
     }.flow.cachedIn(viewModelScope)
 
-    fun updateProgress(progress : Int){
+    fun updateProgress(progress : DownloadMediaProgress){
         viewModelScope.launch(Dispatchers.Default){
             _downloadProgress.emit(progress)
         }

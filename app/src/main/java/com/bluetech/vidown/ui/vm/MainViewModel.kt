@@ -16,8 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel(){
 
-//    @Inject
-//    lateinit var youRepo: YouRepo
+    @Inject
+    lateinit var youRepo: YouRepo
 
     @Inject
     lateinit var instaRepo: InstaRepo
@@ -57,7 +57,7 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
 
     private fun verifyUrlAndMatchItToRepo(url : String) : BaseRepo?{
         return when{
-            url.contains("youtube") || url.contains("youtu.be") -> YouRepo()
+            url.contains("youtube") || url.contains("youtu.be") -> youRepo
             url.contains("instagram") || url.contains("instagra") -> instaRepo
             url.contains("twitter") || url.contains("t.co") -> twRepo
             url.contains("tiktok") -> ttRepo

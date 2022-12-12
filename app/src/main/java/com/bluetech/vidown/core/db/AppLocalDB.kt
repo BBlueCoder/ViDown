@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [MediaEntity::class],
-    version = 3
+    version = 7
 )
 abstract class AppLocalDB : RoomDatabase() {
     abstract fun mediaDao() : MediaDao

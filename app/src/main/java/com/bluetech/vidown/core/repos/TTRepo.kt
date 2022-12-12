@@ -24,7 +24,7 @@ class TTRepo @Inject constructor(private val api : ApplicationApi): BaseRepo() {
             when(respBody.type){
                 "video" -> {
                     results.add(ResultItem.CategoryTitle("Video"))
-                    results.add(ResultItem.ItemInfo(respBody.videoTitle!!,respBody.videoThumbnail!!))
+                    results.add(ResultItem.ItemInfo(url,respBody.videoTitle!!,respBody.videoThumbnail!!))
                     results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.videoUrl!!))
                     results.add(ResultItem.CategoryTitle("Video without watermark"))
                     results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.videoUrlWithoutWatermark!!))
@@ -34,7 +34,7 @@ class TTRepo @Inject constructor(private val api : ApplicationApi): BaseRepo() {
                 }
                 "album" -> {
                     results.add(ResultItem.CategoryTitle("Image"))
-                    results.add(ResultItem.ItemInfo(respBody.albumTitle!!,respBody.albumUrls!!.first()))
+                    results.add(ResultItem.ItemInfo(url,respBody.albumTitle!!,respBody.albumUrls!!.first()))
                     for ((id,thumbnail) in respBody.albumUrls.withIndex()){
                         results.add(ResultItem.ItemData(id,MediaType.Image,"",thumbnail))
                     }

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bluetech.vidown.R
+import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
 import com.bluetech.vidown.ui.fragments.DownloadFragment
 import com.bluetech.vidown.ui.fragments.MainFragment
 import com.bluetech.vidown.ui.vm.DownloadViewModel
@@ -86,16 +87,25 @@ class MainActivity : AppCompatActivity() {
 
     inner class DownloadProgressReceiver : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
-            val progress = intent?.getIntExtra("progress",0)
-            downloadViewModel.updateProgress(progress!!)
+            val progress = intent?.getIntExtra("progress",-1)
+            val fileSize = intent?.getLongExtra("fileSizeInByte",-1)
+            val downloadedSize = intent?.getLongExtra("downloadSizeInByte",0)
+            downloadViewModel.updateProgress(DownloadMediaProgress(
+                fileSize,downloadedSize!!,progress
+            ))
         }
 
     }
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(DownloadReceiver())
-        unregisterReceiver(DownloadProgressReceiver())
+        try {
+            unregisterReceiver(DownloadReceiver())
+            unregisterReceiver(DownloadProgressReceiver())
+        }catch (ex : Exception){
+
+        }
+
     }
 
 }

@@ -11,8 +11,12 @@ import javax.inject.Singleton
 class DBRepo @Inject constructor(private var mediaDao: MediaDao){
 
     fun getRecentRecords() =  flow{
-        val lastRecords = mediaDao.getLastSevenRecords()
-        emit(Result.success(lastRecords))
+        try {
+            val lastRecords = mediaDao.getLastSevenRecords()
+            emit(Result.success(lastRecords))
+        }catch (ex : Exception){
+            emit(Result.failure(ex))
+        }
     }
 
     fun getMedia(limit : Int,offset : Int) = mediaDao.getAllMedia(limit,offset)

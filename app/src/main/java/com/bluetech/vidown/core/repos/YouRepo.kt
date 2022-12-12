@@ -1,15 +1,17 @@
 package com.bluetech.vidown.core.repos
 
+import android.content.Context
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.dabluecoder.youdownloaderlib.YouClient
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class YouRepo @Inject constructor(): BaseRepo() {
+class YouRepo @Inject constructor(@ApplicationContext val context : Context): BaseRepo() {
 
     private val TAG = "YouRepo"
 
@@ -17,7 +19,7 @@ class YouRepo @Inject constructor(): BaseRepo() {
         val results = mutableListOf<ResultItem>()
         try {
 
-            val youClient = YouClient(url)
+            val youClient = YouClient(url,context)
 
             val videoTitle = youClient.getVideoTitle()
 
@@ -26,6 +28,7 @@ class YouRepo @Inject constructor(): BaseRepo() {
             results.add(ResultItem.CategoryTitle("Video"))
             results.add(
                 ResultItem.ItemInfo(
+                    url,
                     videoTitle,
                     videoThumbnail
                 )
@@ -40,18 +43,19 @@ class YouRepo @Inject constructor(): BaseRepo() {
                     ResultItem.ItemData(
                         results.size,
                         MediaType.Video,
-                        it.quality,
+                        it.qualityLabel?:it.quality,
                         it.url!!
                     )
                 )
             }
 
             vidResp.streamingData.adaptiveFormats!!.filter { format -> !format.mimeType.contains("audio") }.forEach {
+                println("---------------------------------${it.qualityLabel}/${it.contentLength}")
                 results.add(
                     ResultItem.ItemData(
                         results.size,
                         MediaType.Video,
-                        it.quality,
+                        it.qualityLabel?:it.quality,
                         it.url!!
                     )
                 )
@@ -62,7 +66,7 @@ class YouRepo @Inject constructor(): BaseRepo() {
                     ResultItem.ItemData(
                         results.size,
                         MediaType.Audio,
-                        it.audioQuality?: "",
+                        it.qualityLabel?: it.audioQuality?:it.quality,
                         it.url!!
                     )
                 )

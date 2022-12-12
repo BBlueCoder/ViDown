@@ -16,6 +16,7 @@ sealed class ResultItem {
     ) : ResultItem()
 
     class ItemInfo(
+        val link : String,
         val title: String,
         val thumbnail : String
     ) : ResultItem()

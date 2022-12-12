@@ -33,11 +33,32 @@
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/download_media_thumbnail"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginEnd="45dp"
                 android:layout_marginTop="5dp"
                 android:id="@+id/download_media_title"
                 android:textSize="11sp"
                 android:maxLines="3"/>
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/download_media_cancel"
+                android:src="@drawable/ic_cancel_purple"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="17.5dp"
+                android:layout_marginEnd="10dp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_media_size"
+                android:layout_below="@id/download_media_thumbnail"
+                android:layout_marginStart="20dp"
+                android:textSize="8sp"
+                tools:text="2MB/15MB"
+                android:layout_marginTop="5dp"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -48,6 +69,7 @@
                 android:layout_marginEnd="20dp"
                 android:textSize="8sp"
                 tools:text="55%"
+                android:layout_marginTop="5dp"
                 />
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
