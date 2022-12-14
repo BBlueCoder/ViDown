@@ -10,7 +10,7 @@ import javax.inject.Singleton
 @Singleton
 class DBRepo @Inject constructor(private var mediaDao: MediaDao){
 
-    fun getRecentRecords() =  flow{
+    fun getRecentRecords() = flow{
         try {
             val lastRecords = mediaDao.getLastSevenRecords()
             emit(Result.success(lastRecords))
@@ -19,6 +19,13 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
         }
     }
 
-    fun getMedia(limit : Int,offset : Int) = mediaDao.getAllMedia(limit,offset)
+    fun getMedia(limit : Int,offset : Int) : List<MediaEntity> {
+        val list  = mediaDao.getAllMedia(limit,offset)
+        val _list = mutableListOf<MediaEntity>()
+        for(i in 0..20){
+            _list.add(list.first())
+        }
+        return _list.toList()
+    }
 
 }

@@ -90,7 +90,7 @@ class DownloadFragment : Fragment() {
         adapter = DownloadsAdapter(requireContext()){mediaEntity ->
             when(mediaEntity.mediaType){
                 MediaType.Video -> {
-                    val action = DownloadFragmentDirections.displayMediaAction(mediaEntity)
+                    val action = MainFragmentDirections.displayMedia(mediaEntity)
                     Navigation.findNavController(requireActivity() ,R.id.nav_host).navigate(action)
                 }
                 MediaType.Image -> {

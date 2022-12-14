@@ -41,8 +41,8 @@ class MainActivity : AppCompatActivity() {
     private fun setUpNavigationBottom(){
 
         supportFragmentManager.beginTransaction().apply {
-            add(R.id.nav_host,downloadFragment,"Downloads").hide(downloadFragment)
             add(R.id.nav_host,mainFragment,"Main")
+            add(R.id.nav_host,downloadFragment,"Downloads").hide(downloadFragment)
         }.commit()
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.core.view.isVisible
@@ -50,6 +51,8 @@ class MainFragment : Fragment() {
 
     private lateinit var recentTextLayout : LinearLayout
 
+    private lateinit var resultCard : ResultCardView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,6 +80,8 @@ class MainFragment : Fragment() {
         )
         recentDownloadsRecyclerView.adapter = recentDownloadsAdapter
 
+        resultCard = view.findViewById(R.id.card_result)
+
         observeSearchResults(view)
         observeLastDownloads()
 
@@ -86,9 +91,12 @@ class MainFragment : Fragment() {
         showAvailableFormatsBtn.paintFlags = showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         lookUpBtn.setOnClickListener {
+            hideItemCard()
+
             val link = view.findViewById<TextInputEditText>(R.id.link_text)
             link.clearFocus()
             val url = link.text.toString()
+            link.setText("https://www.youtube.com/shorts/lZEDLCk6drY")
 
             //check if input is a valid url
             if (!url.matches(Regex("(https)?(:\\/\\/)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.([a-zA-Z0-9()]{1,6})(?=)\\/.+"))) {
@@ -123,7 +131,7 @@ class MainFragment : Fragment() {
                         if(it.isEmpty())
                             return@onSuccess
                         val itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
-                        showItemInfoCard(view,itemInfo)
+                        showItemInfoCard(itemInfo)
                         showAvailableFormats()
                     }
                 }
@@ -132,8 +140,7 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun showItemInfoCard(view: View, itemInfo: ResultItem.ItemInfo) {
-        val resultCard = view.findViewById<ResultCardView>(R.id.card_result)
+    private fun showItemInfoCard(itemInfo: ResultItem.ItemInfo) {
         if (resultCard.visibility == View.VISIBLE)
             return
 
@@ -176,6 +183,30 @@ class MainFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun hideItemCard(){
+        if(resultCard.visibility == View.GONE || resultCard.visibility == View.INVISIBLE)
+            return
+
+        val hideAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_up_with_fade)
+        hideAnimation.setAnimationListener(object : AnimationListener{
+            override fun onAnimationStart(animation: Animation?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                showAvailableFormatsBtn.visibility = View.GONE
+                resultCard.visibility = View.GONE
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+
+            }
+
+        })
+        resultCard.startAnimation(hideAnimation)
+        showAvailableFormatsBtn.startAnimation(hideAnimation)
     }
 
 }

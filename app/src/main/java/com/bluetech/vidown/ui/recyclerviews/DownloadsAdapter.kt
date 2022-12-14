@@ -43,7 +43,7 @@ class DownloadsAdapter(private val context : Context,
 
     override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
         val item = getItem(position) as MediaEntity
-        holder.bind(item,context)
+        holder.bind(item,context,itemClickListener)
     }
 
     override fun getItemViewType(position: Int): Int {

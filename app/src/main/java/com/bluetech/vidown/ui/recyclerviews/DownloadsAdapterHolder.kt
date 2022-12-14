@@ -16,15 +16,23 @@ import java.util.*
 
 sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    abstract fun bind(mediaEntity: MediaEntity, context: Context)
+    abstract fun bind(mediaEntity: MediaEntity, context: Context,itemClickListener : ((mediaEntity : MediaEntity)->Unit)?)
 
     class VideoMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
-        override fun bind(mediaEntity: MediaEntity, context: Context) {
+        override fun bind(
+            mediaEntity: MediaEntity,
+            context: Context,
+            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+        ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_video_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_video_title)
             val durationText = itemView.findViewById<TextView>(R.id.media_video_duration)
 
             val file = File(context.filesDir, mediaEntity.name)
+
+            thumbnail.setOnClickListener {
+                itemClickListener?.invoke(mediaEntity)
+            }
 
             if (file.exists()) {
                 val uri = Uri.fromFile(file)
@@ -52,8 +60,6 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                             .into(thumbnail)
                         return@also
                     }
-
-
                 }.setOnErrorListener { _, _, _ ->
                     Glide.with(context)
                         .load(R.drawable.ic_video_corrupted)
@@ -72,7 +78,11 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
     }
 
     class ImageMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
-        override fun bind(mediaEntity: MediaEntity, context: Context) {
+        override fun bind(
+            mediaEntity: MediaEntity,
+            context: Context,
+            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+        ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_image_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_image_title)
 
@@ -88,7 +98,11 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
     }
 
     class AudioMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
-        override fun bind(mediaEntity: MediaEntity, context: Context) {
+        override fun bind(
+            mediaEntity: MediaEntity,
+            context: Context,
+            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+        ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_audio_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_audio_title)
             val durationText = itemView.findViewById<TextView>(R.id.media_audio_duration)

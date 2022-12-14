@@ -20,10 +20,11 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
         try {
 
             val youClient = YouClient(url,context)
+            val vidResp = youClient.getVideoData()
 
-            val videoTitle = youClient.getVideoTitle()
+            val videoTitle = vidResp.videoDetails.title
 
-            val videoThumbnail = youClient.getVideoThumbnail()
+            val videoThumbnail = vidResp.videoDetails.thumbnail.thumbnails.first().url
 
             results.add(ResultItem.CategoryTitle("Video"))
             results.add(
@@ -36,7 +37,7 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
 
             //emit(Result.success(results.toList()))
 
-            val vidResp = youClient.getVideoAllData()
+
 
             vidResp.streamingData.mixedFormats!!.forEach {
                 results.add(
@@ -49,17 +50,16 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
                 )
             }
 
-            vidResp.streamingData.adaptiveFormats!!.filter { format -> !format.mimeType.contains("audio") }.forEach {
-                println("---------------------------------${it.qualityLabel}/${it.contentLength}")
-                results.add(
-                    ResultItem.ItemData(
-                        results.size,
-                        MediaType.Video,
-                        it.qualityLabel?:it.quality,
-                        it.url!!
-                    )
-                )
-            }
+//            vidResp.streamingData.adaptiveFormats!!.filter { format -> !format.mimeType.contains("audio") }.forEach {
+//                results.add(
+//                    ResultItem.ItemData(
+//                        results.size,
+//                        MediaType.Video,
+//                        it.qualityLabel?:it.quality,
+//                        it.url!!
+//                    )
+//                )
+//            }
             results.add(ResultItem.CategoryTitle("Audio"))
             vidResp.streamingData.adaptiveFormats!!.filter { format -> format.mimeType.contains("audio") }.forEach {
                 results.add(
