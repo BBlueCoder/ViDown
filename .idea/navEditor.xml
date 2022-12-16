@@ -13,8 +13,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="417" />
-                            <option name="y" value="-96" />
+                            <option name="x" value="349" />
+                            <option name="y" value="101" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -25,13 +25,18 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="218" />
-                            <option name="y" value="1" />
+                            <option name="x" value="61" />
+                            <option name="y" value="161" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
                             <entry key="display_media_action">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="show_available_formats">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -46,12 +51,17 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
+                            <option name="x" value="-192" />
+                            <option name="y" value="172" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_mainFragment_to_mediaSheet">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="display_media">
                               <value>
                                 <LayoutPositions />

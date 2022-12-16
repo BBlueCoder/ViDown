@@ -8,4 +8,5 @@
     <string name="media_text">Download media as</string>
     <string name="results_text_btn"><u>Show available formats</u></string>
     <string name="recent_text">Most Recent</string>
+    <string name="favorites">Favorites</string>
 </resources>

@@ -65,7 +65,7 @@ class DownloadFileService : Service() {
             else -> null
         }
 
-        val mediaEntity = MediaEntity(0,"",mediaType!!,mediaTitle,fileAudioThumbnail,null,0,source!!,fileUrl!!)
+        val mediaEntity = MediaEntity(0,"",mediaType!!,mediaTitle,fileAudioThumbnail,null,0,source!!,fileUrl!!,true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(111,createNotification().build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)

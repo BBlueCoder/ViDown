@@ -12,20 +12,20 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
 
     fun getRecentRecords() = flow{
         try {
-            val lastRecords = mediaDao.getLastSevenRecords()
-            emit(Result.success(lastRecords))
+            emit(Result.success(mediaDao.getLastSevenRecords()))
         }catch (ex : Exception){
             emit(Result.failure(ex))
         }
     }
 
-    fun getMedia(limit : Int,offset : Int) : List<MediaEntity> {
-        val list  = mediaDao.getAllMedia(limit,offset)
-        val _list = mutableListOf<MediaEntity>()
-        for(i in 0..20){
-            _list.add(list.first())
+    fun getMedia(limit : Int,offset : Int) = mediaDao.getAllMedia(limit,offset)
+
+    fun getLastFavorites() = flow{
+        try {
+            emit(Result.success(mediaDao.getLastFavorites()))
+        }catch (ex : Exception){
+            emit(Result.failure(ex))
         }
-        return _list.toList()
     }
 
 }

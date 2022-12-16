@@ -13,6 +13,9 @@
         <action
             android:id="@+id/display_media"
             app:destination="@id/displayMedia" />
+        <action
+            android:id="@+id/show_available_formats"
+            app:destination="@id/mediaSheet" />
     </fragment>
     <fragment
         android:id="@+id/downloadFragment"
@@ -22,9 +25,6 @@
         <action
             android:id="@+id/display_media_action"
             app:destination="@id/displayMedia" />
-        <action
-            android:id="@+id/show_available_formats"
-            app:destination="@id/mediaSheet" />
     </fragment>
     <activity
         android:id="@+id/displayMedia"

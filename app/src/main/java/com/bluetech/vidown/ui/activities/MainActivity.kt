@@ -14,6 +14,7 @@ import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
 import com.bluetech.vidown.ui.fragments.DownloadFragment
 import com.bluetech.vidown.ui.fragments.MainFragment
 import com.bluetech.vidown.ui.vm.DownloadViewModel
+import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.Constants.DOWNLOAD_FILE_PROGRESS_ACTION
 import com.bluetech.vidown.utils.Constants.DOWNLOAD_SERVICE_ACTION
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -27,12 +28,14 @@ class MainActivity : AppCompatActivity() {
     private var currentFragment : Fragment = mainFragment
 
     private lateinit var downloadViewModel : DownloadViewModel
+    private lateinit var mainViewModel : MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         downloadViewModel = ViewModelProvider(this)[DownloadViewModel::class.java]
+        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         setUpNavigationBottom()
 
@@ -80,6 +83,8 @@ class MainActivity : AppCompatActivity() {
             println("received broadcast action")
 
             downloadViewModel.updateItemInfo(null)
+            mainViewModel.getLastDownloads()
+            mainViewModel.getLastFavorites()
 
         }
 

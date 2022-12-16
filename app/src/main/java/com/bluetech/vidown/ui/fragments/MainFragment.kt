@@ -49,7 +49,11 @@ class MainFragment : Fragment() {
     private lateinit var recentDownloadsRecyclerView : RecyclerView
     private lateinit var recentDownloadsAdapter : RecentDownloadAdapter
 
+    private lateinit var favoritesRecyclerView: RecyclerView
+    private lateinit var favoritesAdapter: RecentDownloadAdapter
+
     private lateinit var recentTextLayout : LinearLayout
+    private lateinit var favoritesLayout : LinearLayout
 
     private lateinit var resultCard : ResultCardView
 
@@ -68,26 +72,41 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        circularProgress = view.findViewById(R.id.main_progress)
+        view.apply {
+            circularProgress = findViewById(R.id.main_progress)
 
-        recentTextLayout = view.findViewById(R.id.recent_layout)
+            recentTextLayout = findViewById(R.id.recent_layout)
+            recentDownloadsRecyclerView = findViewById(R.id.recent_recycler_view)
 
-        recentDownloadsRecyclerView = view.findViewById(R.id.recent_recycler_view)
-        recentDownloadsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+            favoritesLayout = findViewById(R.id.favorites_layout)
+            favoritesRecyclerView = findViewById(R.id.favorites_recycler_view)
+
+            resultCard = findViewById(R.id.card_result)
+
+            lookUpBtn = findViewById(R.id.btn_look_up)
+
+            showAvailableFormatsBtn = findViewById(R.id.card_result_available_formats)
+
+        }
+
+        recentDownloadsRecyclerView.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
         recentDownloadsAdapter = RecentDownloadAdapter(
             emptyList(),
             requireContext()
         )
         recentDownloadsRecyclerView.adapter = recentDownloadsAdapter
 
-        resultCard = view.findViewById(R.id.card_result)
+        favoritesRecyclerView.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
+        favoritesAdapter = RecentDownloadAdapter(
+            emptyList(),
+            requireContext()
+        )
+        favoritesRecyclerView.adapter = favoritesAdapter
 
         observeSearchResults(view)
         observeLastDownloads()
+        observeLastFavorites()
 
-        lookUpBtn = view.findViewById(R.id.btn_look_up)
-
-        showAvailableFormatsBtn = view.findViewById(R.id.card_result_available_formats)
         showAvailableFormatsBtn.paintFlags = showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         lookUpBtn.setOnClickListener {
@@ -96,7 +115,7 @@ class MainFragment : Fragment() {
             val link = view.findViewById<TextInputEditText>(R.id.link_text)
             link.clearFocus()
             val url = link.text.toString()
-            link.setText("https://www.youtube.com/shorts/lZEDLCk6drY")
+            //link.setText("https://www.youtube.com/shorts/lZEDLCk6drY")
 
             //check if input is a valid url
             if (!url.matches(Regex("(https)?(:\\/\\/)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.([a-zA-Z0-9()]{1,6})(?=)\\/.+"))) {
@@ -179,6 +198,26 @@ class MainFragment : Fragment() {
                     result.onFailure {
                         recentTextLayout.visibility = View.INVISIBLE
                         recentTextLayout.visibility = View.INVISIBLE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeLastFavorites(){
+        lifecycleScope.launch(Dispatchers.Main){
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.lastFavorites.collect{ result ->
+                    result.onSuccess {
+                        favoritesLayout.isVisible = it.isNotEmpty()
+                        favoritesRecyclerView.isVisible = it.isNotEmpty()
+
+                        favoritesAdapter.recentDownloadList =it
+                        favoritesAdapter.notifyItemChanged(0,it.size)
+                    }
+                    result.onFailure {
+                        favoritesLayout.visibility = View.INVISIBLE
+                        favoritesRecyclerView.visibility = View.INVISIBLE
                     }
                 }
             }

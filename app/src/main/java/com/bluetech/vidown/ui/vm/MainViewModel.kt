@@ -36,6 +36,9 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
     ))
     val recentDownloads = _recentDownloads.asStateFlow()
 
+    private val _lastFavorites = MutableStateFlow<Result<List<MediaEntity>>>(Result.success(emptyList()))
+    val lastFavorites = _lastFavorites.asStateFlow()
+
     fun searchForResult(url : String){
         viewModelScope.launch(Dispatchers.IO){
             val repo = verifyUrlAndMatchItToRepo(url)
@@ -55,6 +58,14 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
         }
     }
 
+    fun getLastFavorites(){
+        viewModelScope.launch(Dispatchers.IO) {
+            dbRepo.getLastFavorites().collect{
+                _lastFavorites.emit(it)
+            }
+        }
+    }
+
     private fun verifyUrlAndMatchItToRepo(url : String) : BaseRepo?{
         return when{
             url.contains("youtube") || url.contains("youtu.be") -> youRepo
@@ -67,5 +78,6 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
 
     init {
         getLastDownloads()
+        getLastFavorites()
     }
 }
