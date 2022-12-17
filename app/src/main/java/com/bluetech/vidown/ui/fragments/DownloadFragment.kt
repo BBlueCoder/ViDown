@@ -41,28 +41,28 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class DownloadFragment : Fragment() {
 
-    private lateinit var viewModel : DownloadViewModel
-    private lateinit var adapter : DownloadsAdapter
+    private lateinit var viewModel: DownloadViewModel
+    private lateinit var adapter: DownloadsAdapter
     private lateinit var recyclerView: RecyclerView
 
-    private lateinit var emptyText : TextView
-    private lateinit var recyclerViewFooterProgress : CircularProgressIndicator
-    private lateinit var recyclerViewHeaderProgress : CircularProgressIndicator
+    private lateinit var emptyText: TextView
+    private lateinit var recyclerViewFooterProgress: CircularProgressIndicator
+    private lateinit var recyclerViewHeaderProgress: CircularProgressIndicator
 
-    private lateinit var downloadProgress : LinearProgressIndicator
-    private lateinit var downloadTextProgress : TextView
-    private lateinit var downloadSizeProgress : TextView
+    private lateinit var downloadProgress: LinearProgressIndicator
+    private lateinit var downloadTextProgress: TextView
+    private lateinit var downloadSizeProgress: TextView
 
     private var isDownloadServiceBound = false
 
-    private lateinit var downloadFileService : DownloadFileService
+    private lateinit var downloadFileService: DownloadFileService
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view =  inflater.inflate(R.layout.fragment_download, container, false)
+        val view = inflater.inflate(R.layout.fragment_download, container, false)
 
         viewModel = ViewModelProvider(requireActivity())[DownloadViewModel::class.java]
 
@@ -87,11 +87,11 @@ class DownloadFragment : Fragment() {
             }
         }
 
-        adapter = DownloadsAdapter(requireContext()){mediaEntity ->
-            when(mediaEntity.mediaType){
+        adapter = DownloadsAdapter(requireContext(), { mediaEntity ->
+            when (mediaEntity.mediaType) {
                 MediaType.Video -> {
                     val action = MainFragmentDirections.displayMedia(mediaEntity)
-                    Navigation.findNavController(requireActivity() ,R.id.nav_host).navigate(action)
+                    Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
                 }
                 MediaType.Image -> {
 
@@ -100,11 +100,13 @@ class DownloadFragment : Fragment() {
 
                 }
             }
-        }
+        }, {
+
+        })
         recyclerView.adapter = adapter
         observeDownloads()
 
-        adapter.addLoadStateListener {  loadState ->
+        adapter.addLoadStateListener { loadState ->
             adapterLoadStateListening(loadState)
         }
 
@@ -120,37 +122,37 @@ class DownloadFragment : Fragment() {
 
         recyclerView.isVisible = loadState.source.refresh is LoadState.NotLoading
 
-        if(loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && adapter.itemCount<1){
+        if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && adapter.itemCount < 1) {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
         }
 
-        if(loadState.source.refresh is LoadState.Error){
+        if (loadState.source.refresh is LoadState.Error) {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
             emptyText.text = "An error occurred while loading media"
         }
     }
 
-    private fun observeDownloads(){
-        lifecycleScope.launch(Dispatchers.Main){
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.downloadsMedia.collectLatest{pagingData->
+    private fun observeDownloads() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.downloadsMedia.collectLatest { pagingData ->
                     adapter.submitData(pagingData)
                 }
             }
         }
     }
 
-    private fun observeItemInfo(view : View){
-        lifecycleScope.launch(Dispatchers.Main){
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+    private fun observeItemInfo(view: View) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.downloadItemInfo.collectLatest { resultItemInfo ->
                     val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
-                    if(resultItemInfo == null){
+                    if (resultItemInfo == null) {
                         card.visibility = View.GONE
                         adapter.refresh()
-                    }else{
+                    } else {
                         val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
                         val title = view.findViewById<TextView>(R.id.download_media_title)
                         title.text = resultItemInfo.title
@@ -158,7 +160,7 @@ class DownloadFragment : Fragment() {
                             .load(resultItemInfo.thumbnail)
                             .into(thumbnail)
                         card.visibility = View.VISIBLE
-                        if(!isDownloadServiceBound)
+                        if (!isDownloadServiceBound)
                             bindToDownloadService()
                     }
                 }
@@ -166,19 +168,20 @@ class DownloadFragment : Fragment() {
         }
     }
 
-    private fun observeDownloadProgress(){
-        lifecycleScope.launch{
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.downloadProgress.collectLatest { progressData->
+    private fun observeDownloadProgress() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.downloadProgress.collectLatest { progressData ->
                     progressData.progress?.let {
                         downloadProgress.progress = it
                         downloadTextProgress.text = "$it%"
                     }
-                    if(progressData.progress == null){
+                    if (progressData.progress == null) {
                         downloadProgress.isIndeterminate = true
                         downloadTextProgress.text = ""
-                        downloadSizeProgress.text = progressData.downloadedSize.formatSizeToReadableFormat()
-                    }else{
+                        downloadSizeProgress.text =
+                            progressData.downloadedSize.formatSizeToReadableFormat()
+                    } else {
                         downloadProgress.isIndeterminate = false
                         downloadSizeProgress.text =
                             "${progressData.downloadedSize.formatSizeToReadableFormat()}/${progressData.fileSize!!.formatSizeToReadableFormat()}"
@@ -189,12 +192,13 @@ class DownloadFragment : Fragment() {
         }
     }
 
-    private fun bindToDownloadService(){
-        val serviceConnection = object : ServiceConnection{
+    private fun bindToDownloadService() {
+        val serviceConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 println("---------------------- bind to service")
                 isDownloadServiceBound = true
-                downloadFileService = (service as DownloadFileService.DownloadFileServiceBinder).service
+                downloadFileService =
+                    (service as DownloadFileService.DownloadFileServiceBinder).service
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -204,8 +208,8 @@ class DownloadFragment : Fragment() {
 
         }
 
-        Intent(requireContext(),DownloadFileService::class.java).also{
-            requireContext().bindService(it,serviceConnection,Context.BIND_AUTO_CREATE)
+        Intent(requireContext(), DownloadFileService::class.java).also {
+            requireContext().bindService(it, serviceConnection, Context.BIND_AUTO_CREATE)
         }
     }
 }

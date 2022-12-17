@@ -57,4 +57,10 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         }
     }
 
+    fun updateMediaFavorite(id : Int,favorite : Boolean){
+        viewModelScope.launch(Dispatchers.IO){
+            dbRepo.updateMediaFavorite(id,favorite)
+        }
+    }
+
 }

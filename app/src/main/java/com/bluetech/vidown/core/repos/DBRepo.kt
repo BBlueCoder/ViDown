@@ -28,4 +28,8 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
         }
     }
 
+    fun updateMediaFavorite(id : Int,favorite : Boolean){
+        mediaDao.updateMediaFavorite(id,favorite)
+    }
+
 }

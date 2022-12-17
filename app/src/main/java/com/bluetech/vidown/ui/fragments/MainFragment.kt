@@ -1,8 +1,6 @@
 package com.bluetech.vidown.ui.fragments
 
-import android.content.Intent
 import android.graphics.Paint
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,16 +16,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.customviews.ResultCardView
 import com.bluetech.vidown.core.pojoclasses.ResultItem
-import com.bluetech.vidown.core.services.DownloadFileService
-import com.bluetech.vidown.ui.recyclerviews.RecentDownloadAdapter
+import com.bluetech.vidown.ui.recyclerviews.HorizontalRecyclerViewAdapter
 import com.bluetech.vidown.ui.vm.MainViewModel
 import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -35,7 +29,6 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -47,10 +40,10 @@ class MainFragment : Fragment() {
     private lateinit var showAvailableFormatsBtn : Button
 
     private lateinit var recentDownloadsRecyclerView : RecyclerView
-    private lateinit var recentDownloadsAdapter : RecentDownloadAdapter
+    private lateinit var recentDownloadsAdapter : HorizontalRecyclerViewAdapter
 
     private lateinit var favoritesRecyclerView: RecyclerView
-    private lateinit var favoritesAdapter: RecentDownloadAdapter
+    private lateinit var favoritesAdapter: HorizontalRecyclerViewAdapter
 
     private lateinit var recentTextLayout : LinearLayout
     private lateinit var favoritesLayout : LinearLayout
@@ -90,14 +83,14 @@ class MainFragment : Fragment() {
         }
 
         recentDownloadsRecyclerView.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
-        recentDownloadsAdapter = RecentDownloadAdapter(
+        recentDownloadsAdapter = HorizontalRecyclerViewAdapter(
             emptyList(),
             requireContext()
         )
         recentDownloadsRecyclerView.adapter = recentDownloadsAdapter
 
         favoritesRecyclerView.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
-        favoritesAdapter = RecentDownloadAdapter(
+        favoritesAdapter = HorizontalRecyclerViewAdapter(
             emptyList(),
             requireContext()
         )

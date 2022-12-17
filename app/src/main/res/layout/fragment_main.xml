@@ -17,7 +17,6 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="ViDown"
@@ -147,7 +146,7 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginTop="10dp"
-            tools:listitem="@layout/recent_item_layout"
+            tools:listitem="@layout/horizontal_recycler_view_item_layout"
             android:id="@+id/recent_recycler_view"
             />
 
@@ -179,7 +178,7 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginTop="10dp"
-            tools:listitem="@layout/recent_item_layout"
+            tools:listitem="@layout/horizontal_recycler_view_item_layout"
             android:id="@+id/favorites_recycler_view"
             />
 

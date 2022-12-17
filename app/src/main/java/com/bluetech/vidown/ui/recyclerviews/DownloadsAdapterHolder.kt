@@ -3,10 +3,14 @@ package com.bluetech.vidown.ui.recyclerviews
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import android.provider.MediaStore.Audio.Media
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
@@ -16,13 +20,19 @@ import java.util.*
 
 sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    abstract fun bind(mediaEntity: MediaEntity, context: Context,itemClickListener : ((mediaEntity : MediaEntity)->Unit)?)
+    abstract fun bind(
+        mediaEntity: MediaEntity,
+        context: Context,
+        itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
+        favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+    )
 
     class VideoMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
-            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
+            favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_video_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_video_title)
@@ -68,8 +78,9 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                 }
 
                 title.text = mediaEntity.title
-                return
-            }else{
+
+
+            } else {
                 Glide.with(context)
                     .load(R.drawable.ic_video_corrupted)
                     .into(thumbnail)
@@ -81,7 +92,8 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
-            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
+            favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_image_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_image_title)
@@ -101,23 +113,24 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
-            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
+            favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_audio_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_audio_title)
             val durationText = itemView.findViewById<TextView>(R.id.media_audio_duration)
 
-            mediaEntity.thumbnail?.let{
-                val file = File(context.filesDir,it)
-                if(file.exists()){
+            mediaEntity.thumbnail?.let {
+                val file = File(context.filesDir, it)
+                if (file.exists()) {
                     Glide.with(context)
                         .load(Uri.fromFile(file))
                         .into(thumbnail)
                 }
             }
             title.text = mediaEntity.title
-            val file = File(context.filesDir,mediaEntity.name)
-            if(file.exists()){
+            val file = File(context.filesDir, mediaEntity.name)
+            if (file.exists()) {
                 val uri = Uri.fromFile(file)
                 MediaPlayer.create(context, uri).also {
                     val durationDate = Date((it.duration).toLong())
@@ -140,7 +153,7 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                         .into(thumbnail)
                     true
                 }
-            }else{
+            } else {
                 Glide.with(context)
                     .load(R.drawable.ic_video_corrupted)
                     .into(thumbnail)

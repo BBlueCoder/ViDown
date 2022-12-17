@@ -16,25 +16,27 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
 import java.io.File
 
-class DownloadsAdapter(private val context : Context,
-                       private val itemClickListener : ((mediaEntity : MediaEntity)->Unit)?)
-    : PagingDataAdapter<MediaEntity,DownloadsAdapterHolder>(COMPARATOR) {
+class DownloadsAdapter(
+    private val context: Context,
+    private val itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
+    private val favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+) : PagingDataAdapter<MediaEntity, DownloadsAdapterHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsAdapterHolder {
-        return when(viewType){
+        return when (viewType) {
             R.layout.media_audio_layout -> {
                 DownloadsAdapterHolder.AudioMediaViewHolder(
-                    LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+                    LayoutInflater.from(parent.context).inflate(viewType, parent, false)
                 )
             }
             R.layout.media_image_layout -> {
                 DownloadsAdapterHolder.ImageMediaViewHolder(
-                    LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+                    LayoutInflater.from(parent.context).inflate(viewType, parent, false)
                 )
             }
             R.layout.media_video_layout -> {
                 DownloadsAdapterHolder.VideoMediaViewHolder(
-                    LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+                    LayoutInflater.from(parent.context).inflate(viewType, parent, false)
                 )
             }
             else -> throw IllegalArgumentException("Invalid view type")
@@ -43,11 +45,11 @@ class DownloadsAdapter(private val context : Context,
 
     override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
         val item = getItem(position) as MediaEntity
-        holder.bind(item,context,itemClickListener)
+        holder.bind(item, context, itemClickListener,favoriteClickListener)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when(getItem(position)!!.mediaType){
+        return when (getItem(position)!!.mediaType) {
             MediaType.Audio -> R.layout.media_audio_layout
             MediaType.Image -> R.layout.media_image_layout
             MediaType.Video -> R.layout.media_video_layout
@@ -55,7 +57,7 @@ class DownloadsAdapter(private val context : Context,
     }
 
     companion object {
-        private val COMPARATOR = object : DiffUtil.ItemCallback<MediaEntity>(){
+        private val COMPARATOR = object : DiffUtil.ItemCallback<MediaEntity>() {
             override fun areItemsTheSame(oldItem: MediaEntity, newItem: MediaEntity): Boolean {
                 return oldItem.uid == newItem.uid
             }

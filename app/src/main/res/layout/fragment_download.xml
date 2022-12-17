@@ -7,12 +7,25 @@
     android:background="#fff"
     tools:context=".ui.fragments.DownloadFragment">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Downloads"
+        android:textColor="@color/color_primary"
+        android:textSize="28sp"
+        android:id="@+id/downloads_download_text"
+        android:textStyle="bold" />
+
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:id="@+id/download_progress_card"
         android:visibility="gone"
         tools:visibility="visible"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/downloads_download_text"
         >
 
         <RelativeLayout

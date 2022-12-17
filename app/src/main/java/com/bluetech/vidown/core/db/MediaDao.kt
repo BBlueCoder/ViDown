@@ -25,4 +25,8 @@ interface MediaDao {
 
     @Query("Select * from mediaentity order by uid desc limit 7")
     fun getLastSevenRecords(): List<MediaEntity>
+
+    @Query("update mediaentity set favorite = :favorite where uid = :id")
+    fun updateMediaFavorite(id : Int,favorite : Boolean)
+
 }
