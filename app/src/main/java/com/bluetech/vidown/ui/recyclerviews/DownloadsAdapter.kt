@@ -19,7 +19,7 @@ import java.io.File
 class DownloadsAdapter(
     private val context: Context,
     private val itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-    private val favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+    private val editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
 ) : PagingDataAdapter<MediaEntity, DownloadsAdapterHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsAdapterHolder {
@@ -45,7 +45,7 @@ class DownloadsAdapter(
 
     override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
         val item = getItem(position) as MediaEntity
-        holder.bind(item, context, itemClickListener,favoriteClickListener)
+        holder.bind(item, context, itemClickListener,editClickListener)
     }
 
     override fun getItemViewType(position: Int): Int {

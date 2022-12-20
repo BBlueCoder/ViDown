@@ -18,5 +18,5 @@ data class MediaEntity(
     var downloadedLength : Long?,
     val source: String,
     val downloadSource : String,
-    val favorite : Boolean = false
+    var favorite : Boolean = false
 ) : Parcelable

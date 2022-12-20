@@ -56,6 +56,8 @@ class MainActivity : AppCompatActivity() {
                     supportFragmentManager.beginTransaction()
                         .hide(currentFragment).show(mainFragment).commit()
                     currentFragment = mainFragment
+                    mainViewModel.getLastFavorites()
+                    mainViewModel.getLastDownloads()
                     true
                 }
                 R.id.downloadFragment -> {
@@ -84,7 +86,6 @@ class MainActivity : AppCompatActivity() {
 
             downloadViewModel.updateItemInfo(null)
             mainViewModel.getLastDownloads()
-            mainViewModel.getLastFavorites()
 
         }
 

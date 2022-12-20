@@ -3,14 +3,10 @@ package com.bluetech.vidown.ui.recyclerviews
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import android.provider.MediaStore.Audio.Media
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnStart
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieAnimationView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
@@ -24,7 +20,7 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         mediaEntity: MediaEntity,
         context: Context,
         itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-        favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+        editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
     )
 
     class VideoMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
@@ -32,13 +28,15 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             mediaEntity: MediaEntity,
             context: Context,
             itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_video_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_video_title)
             val durationText = itemView.findViewById<TextView>(R.id.media_video_duration)
 
             val file = File(context.filesDir, mediaEntity.name)
+
+            val editDots = itemView.findViewById<ImageView>(R.id.media_video_edit)
 
             thumbnail.setOnClickListener {
                 itemClickListener?.invoke(mediaEntity)
@@ -79,6 +77,9 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
 
                 title.text = mediaEntity.title
 
+                editDots.setOnClickListener {
+                    editClickListener?.invoke(mediaEntity)
+                }
 
             } else {
                 Glide.with(context)
@@ -93,7 +94,7 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             mediaEntity: MediaEntity,
             context: Context,
             itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_image_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_image_title)
@@ -114,7 +115,7 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             mediaEntity: MediaEntity,
             context: Context,
             itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            favoriteClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_audio_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_audio_title)

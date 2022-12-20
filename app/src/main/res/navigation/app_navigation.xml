@@ -17,8 +17,8 @@
             android:id="@+id/show_available_formats"
             app:destination="@id/mediaSheet" />
         <action
-            android:id="@+id/action_mainFragment_to_mediaEditSheet"
-            app:destination="@id/mediaEditSheet" />
+            android:id="@+id/edit_media_action"
+            app:destination="@id/MediaEditSheet" />
     </fragment>
     <fragment
         android:id="@+id/downloadFragment"
@@ -43,9 +43,13 @@
         android:name="com.bluetech.vidown.ui.fragments.MediaSheet"
         android:label="fragment_media_sheet"
         tools:layout="@layout/fragment_media_sheet" />
-    <fragment
-        android:id="@+id/mediaEditSheet"
-        android:name="com.bluetech.vidown.mediaEditSheet"
+    <dialog
+        android:id="@+id/MediaEditSheet"
+        android:name="com.bluetech.vidown.MediaEditSheet"
         android:label="fragment_media_edit_sheet"
-        tools:layout="@layout/fragment_media_edit_sheet" />
+        tools:layout="@layout/fragment_media_edit_sheet" >
+        <argument
+            android:name="mediaEntity"
+            app:argType="com.bluetech.vidown.core.db.MediaEntity" />
+    </dialog>
 </navigation>

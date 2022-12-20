@@ -20,7 +20,7 @@ interface MediaDao {
     @Delete
     fun deleteMedia(mediaEntity: MediaEntity)
 
-    @Query("Select * from mediaentity where favorite = 1 order by uid desc limit 7")
+    @Query("Select * from mediaentity where favorite = 1 order by uid asc limit 7")
     fun getLastFavorites() : List<MediaEntity>
 
     @Query("Select * from mediaentity order by uid desc limit 7")

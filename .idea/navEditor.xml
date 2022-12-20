@@ -8,6 +8,18 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="MediaEditSheet">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="10" />
+                            <option name="y" value="-145" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="displayMedia">
                     <value>
                       <LayoutPositions>
@@ -57,24 +69,17 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="edit_media_action">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="show_available_formats">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
                           </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="mediaEditSheet">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="-479" />
-                            <option name="y" value="116" />
-                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>

@@ -1,5 +1,6 @@
 package com.bluetech.vidown.ui.vm
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -16,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,6 +32,8 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
     private val _downloadItemInfo = MutableStateFlow<ResultItem.ItemInfo?>(null)
     val downloadItemInfo = _downloadItemInfo.asStateFlow()
 
+    private val _removeMediaStateFlow = MutableStateFlow<Result<Boolean?>>(Result.success(null))
+    val removeMediaStateFlow = _removeMediaStateFlow.asStateFlow()
 
     var title : String = ""
     var thumbnail : String = ""
@@ -51,8 +55,6 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
 
     fun updateItemInfo(itemInfo: ResultItem.ItemInfo?){
         viewModelScope.launch {
-            if(itemInfo == null)
-                delay(1500)
             _downloadItemInfo.emit(itemInfo)
         }
     }
@@ -60,6 +62,14 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
     fun updateMediaFavorite(id : Int,favorite : Boolean){
         viewModelScope.launch(Dispatchers.IO){
             dbRepo.updateMediaFavorite(id,favorite)
+        }
+    }
+
+    fun removeMedia(mediaEntity: MediaEntity,context: Context){
+        viewModelScope.launch(Dispatchers.IO){
+            dbRepo.removeMedia(mediaEntity,context).collect{
+                _removeMediaStateFlow.emit(it)
+            }
         }
     }
 

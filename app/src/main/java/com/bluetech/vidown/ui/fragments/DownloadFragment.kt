@@ -29,6 +29,7 @@ import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.utils.formatSizeToReadableFormat
+import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -101,7 +102,8 @@ class DownloadFragment : Fragment() {
                 }
             }
         }, {
-
+            val action = MainFragmentDirections.editMediaAction(it)
+            Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
         })
         recyclerView.adapter = adapter
         observeDownloads()
@@ -112,6 +114,7 @@ class DownloadFragment : Fragment() {
 
         observeItemInfo(view)
         observeDownloadProgress()
+        observeRemovingMedia()
 
     }
 
@@ -121,6 +124,7 @@ class DownloadFragment : Fragment() {
         recyclerViewHeaderProgress.isVisible = loadState.source.prepend is LoadState.Loading
 
         recyclerView.isVisible = loadState.source.refresh is LoadState.NotLoading
+        emptyText.visibility = View.GONE
 
         if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && adapter.itemCount < 1) {
             recyclerView.visibility = View.GONE
@@ -210,6 +214,19 @@ class DownloadFragment : Fragment() {
 
         Intent(requireContext(), DownloadFileService::class.java).also {
             requireContext().bindService(it, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    private fun observeRemovingMedia() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.removeMediaStateFlow.collect { result ->
+                    result.onSuccess {
+                        if (it != null)
+                            adapter.refresh()
+                    }
+                }
+            }
         }
     }
 }

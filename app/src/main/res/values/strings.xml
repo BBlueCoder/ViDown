@@ -9,4 +9,8 @@
     <string name="results_text_btn"><u>Show available formats</u></string>
     <string name="recent_text">Most Recent</string>
     <string name="favorites">Favorites</string>
+    <string name="rename_media_edit_sheet_btn_text">Rename</string>
+    <string name="delete_media_edit_sheet_btn_text">Delete</string>
+    <string name="add_to_favorite_media_edit_sheet_btn">Add to favorite</string>
+    <string name="remove_from_favorite_media_edit_sheet_btn_text">Remove from favorite</string>
 </resources>
