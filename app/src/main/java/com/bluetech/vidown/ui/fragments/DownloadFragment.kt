@@ -101,8 +101,8 @@ class DownloadFragment : Fragment() {
 
                 }
             }
-        }, {
-            val action = MainFragmentDirections.editMediaAction(it)
+        }, { mediaEntity,position ->
+            val action = MainFragmentDirections.editMediaAction(mediaEntity,position)
             Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
         })
         recyclerView.adapter = adapter
@@ -115,6 +115,7 @@ class DownloadFragment : Fragment() {
         observeItemInfo(view)
         observeDownloadProgress()
         observeRemovingMedia()
+        observeRenamingMedia()
 
     }
 
@@ -224,6 +225,23 @@ class DownloadFragment : Fragment() {
                     result.onSuccess {
                         if (it != null)
                             adapter.refresh()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeRenamingMedia() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.renameMediaStateFlow.collect{ result ->
+                    result.onSuccess { itemPayload ->
+                        if(itemPayload != null) {
+                            adapter.notifyItemChanged(itemPayload.position,itemPayload.title)
+                        }
+                    }
+                    result.onFailure {
+                        it.printStackTrace()
                     }
                 }
             }

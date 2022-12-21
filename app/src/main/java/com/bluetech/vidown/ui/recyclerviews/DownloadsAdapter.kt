@@ -1,15 +1,10 @@
 package com.bluetech.vidown.ui.recyclerviews
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
@@ -19,7 +14,7 @@ import java.io.File
 class DownloadsAdapter(
     private val context: Context,
     private val itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-    private val editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+    private val editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit)?
 ) : PagingDataAdapter<MediaEntity, DownloadsAdapterHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsAdapterHolder {
@@ -45,7 +40,20 @@ class DownloadsAdapter(
 
     override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
         val item = getItem(position) as MediaEntity
-        holder.bind(item, context, itemClickListener,editClickListener)
+
+        holder.bind(item, context,position, itemClickListener,editClickListener)
+    }
+
+    override fun onBindViewHolder(
+        holder: DownloadsAdapterHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if(payloads.isNotEmpty()){
+            holder.renameItem(payloads.first() as String)
+            return
+        }
+        super.onBindViewHolder(holder, position, payloads)
     }
 
     override fun getItemViewType(position: Int): Int {

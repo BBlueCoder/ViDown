@@ -29,4 +29,7 @@ interface MediaDao {
     @Query("update mediaentity set favorite = :favorite where uid = :id")
     fun updateMediaFavorite(id : Int,favorite : Boolean)
 
+    @Query("update mediaentity set title = :title where uid = :id")
+    fun updateMediaTitle(title : String,id: Int)
+
 }

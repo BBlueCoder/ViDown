@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.paging.MediaPagingSource
+import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
 import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.repos.DBRepo
@@ -34,6 +35,9 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
 
     private val _removeMediaStateFlow = MutableStateFlow<Result<Boolean?>>(Result.success(null))
     val removeMediaStateFlow = _removeMediaStateFlow.asStateFlow()
+
+    private val _renameMediaStateFlow = MutableStateFlow<Result<DownloadItemPayload?>>(Result.success(null))
+    val renameMediaStateFlow = _renameMediaStateFlow.asStateFlow()
 
     var title : String = ""
     var thumbnail : String = ""
@@ -69,6 +73,14 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         viewModelScope.launch(Dispatchers.IO){
             dbRepo.removeMedia(mediaEntity,context).collect{
                 _removeMediaStateFlow.emit(it)
+            }
+        }
+    }
+
+    fun renameMedia(id : Int,title: String,downloadItemPayload: DownloadItemPayload){
+        viewModelScope.launch(Dispatchers.IO){
+            dbRepo.renameMedia(id,title,downloadItemPayload).collect{
+                _renameMediaStateFlow.emit(it)
             }
         }
     }

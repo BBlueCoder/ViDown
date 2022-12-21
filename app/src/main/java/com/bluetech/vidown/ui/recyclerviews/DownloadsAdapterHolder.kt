@@ -19,16 +19,20 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
     abstract fun bind(
         mediaEntity: MediaEntity,
         context: Context,
+        position : Int,
         itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-        editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+        editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit)?
     )
+
+    abstract fun renameItem(title : String)
 
     class VideoMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
+            position: Int,
             itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_video_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_video_title)
@@ -78,7 +82,7 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                 title.text = mediaEntity.title
 
                 editDots.setOnClickListener {
-                    editClickListener?.invoke(mediaEntity)
+                    editClickListener?.invoke(mediaEntity,position)
                 }
 
             } else {
@@ -87,14 +91,20 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                     .into(thumbnail)
             }
         }
+
+        override fun renameItem(title: String) {
+            val titleTxt = itemView.findViewById<TextView>(R.id.media_video_title)
+            titleTxt.text = title
+        }
     }
 
     class ImageMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
+            position: Int,
             itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_image_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_image_title)
@@ -108,14 +118,19 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             }
             title.text = mediaEntity.title
         }
+
+        override fun renameItem(title: String) {
+
+        }
     }
 
     class AudioMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
+            position: Int,
             itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            editClickListener: ((mediaEntity: MediaEntity) -> Unit)?
+            editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)?
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_audio_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_audio_title)
@@ -160,6 +175,10 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                     .into(thumbnail)
             }
 
+
+        }
+
+        override fun renameItem(title: String) {
 
         }
     }

@@ -1,9 +1,11 @@
 package com.bluetech.vidown.core.repos
 
 import android.content.Context
+import android.icu.text.CaseMap.Title
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaDao
 import com.bluetech.vidown.core.db.MediaEntity
+import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
 import kotlinx.coroutines.flow.flow
 import java.io.File
 import javax.inject.Inject
@@ -39,6 +41,15 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
             mediaDao.deleteMedia(mediaEntity)
             val file = File(context.filesDir,mediaEntity.name)
             emit(Result.success(file.delete()))
+        }catch (ex : Exception){
+            emit(Result.failure(ex))
+        }
+    }
+
+    fun renameMedia(id : Int,title : String,downloadItemPayload: DownloadItemPayload) = flow {
+        try{
+            mediaDao.updateMediaTitle(title,id)
+            emit(Result.success(downloadItemPayload))
         }catch (ex : Exception){
             emit(Result.failure(ex))
         }

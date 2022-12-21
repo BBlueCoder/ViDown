@@ -45,11 +45,14 @@
         tools:layout="@layout/fragment_media_sheet" />
     <dialog
         android:id="@+id/MediaEditSheet"
-        android:name="com.bluetech.vidown.MediaEditSheet"
+        android:name="com.bluetech.vidown.ui.fragments.MediaEditSheet"
         android:label="fragment_media_edit_sheet"
         tools:layout="@layout/fragment_media_edit_sheet" >
         <argument
             android:name="mediaEntity"
             app:argType="com.bluetech.vidown.core.db.MediaEntity" />
+        <argument
+            android:name="position"
+            app:argType="integer" />
     </dialog>
 </navigation>

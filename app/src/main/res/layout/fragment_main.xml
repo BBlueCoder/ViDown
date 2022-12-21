@@ -36,7 +36,6 @@
         app:boxStrokeWidth="0dp"
         android:hint="@string/link_hint"
         app:hintTextColor="@color/color_primary"
-
         >
 
         <com.google.android.material.textfield.TextInputEditText
