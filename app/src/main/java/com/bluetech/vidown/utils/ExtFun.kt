@@ -3,6 +3,8 @@ package com.bluetech.vidown.utils
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -24,4 +26,18 @@ fun Long.formatSizeToReadableFormat(): String{
     val units = arrayOf("B", "kB", "MB", "GB", "TB")
     val digitGroups = (log10(size.toDouble()) / log10(1024.0)).toInt()
     return DecimalFormat("#,##0.#").format(size / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
+}
+
+fun Long.formatDurationToReadableFormat(): String{
+    val durationDate = Date((this))
+    return when {
+        this / 1000 < 3600 -> {
+            val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
+            sdf.format(durationDate)
+        }
+        else -> {
+            val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
+            sdf.format(durationDate)
+        }
+    }
 }

@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.db.MediaEntity
+import com.bluetech.vidown.utils.formatDurationToReadableFormat
 import com.bumptech.glide.Glide
 import java.io.File
 import java.text.SimpleDateFormat
@@ -37,53 +38,28 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_video_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_video_title)
             val durationText = itemView.findViewById<TextView>(R.id.media_video_duration)
+            val editDots = itemView.findViewById<ImageView>(R.id.media_video_edit)
 
             val file = File(context.filesDir, mediaEntity.name)
 
-            val editDots = itemView.findViewById<ImageView>(R.id.media_video_edit)
+            title.text = mediaEntity.title
+            durationText.text = mediaEntity.duration.formatDurationToReadableFormat()
 
-            thumbnail.setOnClickListener {
-                itemClickListener?.invoke(mediaEntity)
-            }
+            if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
-            if (file.exists()) {
-                val uri = Uri.fromFile(file)
-                MediaPlayer.create(context, uri).also {
-                    it?.let {
-                        val durationDate = Date((it.duration).toLong())
-                        when {
-                            it.duration / 1000 < 3600 -> {
-                                val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
-                                durationText.text = sdf.format(durationDate)
-                            }
-                            else -> {
-                                val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
-                                durationText.text = sdf.format(durationDate)
-                            }
-                        }
-
-                        it.reset()
-                        it.release()
-
-                        Glide.with(context)
-                            .asBitmap()
-                            .load(Uri.fromFile(file))
-                            .error(R.drawable.ic_video_corrupted)
-                            .into(thumbnail)
-                        return@also
-                    }
-                }.setOnErrorListener { _, _, _ ->
-                    Glide.with(context)
-                        .load(R.drawable.ic_video_corrupted)
-                        .into(thumbnail)
-                    true
+                thumbnail.setOnClickListener {
+                    itemClickListener?.invoke(mediaEntity)
                 }
-
-                title.text = mediaEntity.title
 
                 editDots.setOnClickListener {
                     editClickListener?.invoke(mediaEntity,position)
                 }
+
+                Glide.with(context)
+                    .asBitmap()
+                    .load(Uri.fromFile(file))
+                    .error(R.drawable.ic_video_corrupted)
+                    .into(thumbnail)
 
             } else {
                 Glide.with(context)
@@ -111,11 +87,17 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
 
             val editDots = itemView.findViewById<ImageView>(R.id.media_image_edit)
 
+            title.text = mediaEntity.title
+
             val file = File(context.filesDir, mediaEntity.name)
-            if (file.exists()) {
+            if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
                     itemClickListener?.invoke(mediaEntity)
+                }
+
+                editDots.setOnClickListener {
+                    editClickListener?.invoke(mediaEntity,position)
                 }
 
                 Glide.with(context)
@@ -123,13 +105,11 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                     .error(R.drawable.ic_video_corrupted)
                     .into(thumbnail)
 
-                editDots.setOnClickListener {
-                    editClickListener?.invoke(mediaEntity,position)
-                }
+            }else{
+                Glide.with(context)
+                    .load(R.drawable.ic_video_corrupted)
+                    .into(thumbnail)
             }
-
-
-            title.text = mediaEntity.title
         }
 
         override fun renameItem(title: String) {
@@ -161,8 +141,9 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                 }
             }
             title.text = mediaEntity.title
+            durationText.text = mediaEntity.duration.formatDurationToReadableFormat()
             val file = File(context.filesDir, mediaEntity.name)
-            if (file.exists()) {
+            if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
                     itemClickListener?.invoke(mediaEntity)
@@ -172,28 +153,6 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                     editClickListener?.invoke(mediaEntity,position)
                 }
 
-                val uri = Uri.fromFile(file)
-                MediaPlayer.create(context, uri).also {
-                    val durationDate = Date((it.duration).toLong())
-                    when {
-                        it.duration / 1000 < 3600 -> {
-                            val sdf = SimpleDateFormat("m:ss", Locale.getDefault())
-                            durationText.text = sdf.format(durationDate)
-                        }
-                        else -> {
-                            val sdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
-                            durationText.text = sdf.format(durationDate)
-                        }
-                    }
-
-                    it.reset()
-                    it.release()
-                }.setOnErrorListener { _, _, _ ->
-                    Glide.with(context)
-                        .load(R.drawable.ic_video_corrupted)
-                        .into(thumbnail)
-                    true
-                }
             } else {
                 Glide.with(context)
                     .load(R.drawable.ic_video_corrupted)

@@ -12,11 +12,11 @@ data class MediaEntity(
     @PrimaryKey(autoGenerate = true) val uid : Int,
     var name : String,
     val mediaType : MediaType,
-    val title : String,
-    val thumbnail : String? = null,
-    var contentLength : Long?,
-    var downloadedLength : Long?,
+    var title : String,
+    var thumbnail : String? = null,
     val source: String,
     val downloadSource : String,
+    var duration : Long,
+    var isMediaCorrupted : Boolean = false,
     var favorite : Boolean = false
 ) : Parcelable

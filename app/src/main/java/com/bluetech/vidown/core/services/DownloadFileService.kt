@@ -3,6 +3,8 @@ package com.bluetech.vidown.core.services
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -21,10 +23,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -65,7 +69,16 @@ class DownloadFileService : Service() {
             else -> null
         }
 
-        val mediaEntity = MediaEntity(0,"",mediaType!!,mediaTitle,fileAudioThumbnail,null,0,source!!,fileUrl!!)
+        val mediaEntity = MediaEntity(
+            0,
+            "",
+            mediaType!!,
+            mediaTitle,
+            fileAudioThumbnail,
+            source!!,
+            fileUrl!!,
+            0
+        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(111,createNotification().build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
@@ -134,7 +147,7 @@ class DownloadFileService : Service() {
 //            connection.contentLength
 //        }
         val contentLength = connection.getHeaderField("Content-Length").toLong()
-        mediaEntity.contentLength = contentLength
+
         connection.requestMethod = "GET"
         connection.connect()
 
@@ -149,7 +162,7 @@ class DownloadFileService : Service() {
             fileOutputStream.write(buffer,0,length)
             length = inputStream.read(buffer)
             downloadedSize += length
-            mediaEntity.downloadedLength = downloadedSize
+
             try {
                 val progress = (downloadedSize * 100f/contentLength).roundToInt()
                 updateProgress(progress,contentLength,downloadedSize)
@@ -159,27 +172,29 @@ class DownloadFileService : Service() {
 
         }
         println("Download Service : finished downloading...")
-        var thumbnail :String? = null
-        if(mediaEntity.thumbnail != null){
-            thumbnail = saveThumbnail(mediaEntity)
-            val newMediaEntity = MediaEntity(
-                0,
-                mediaEntity.name,
-                mediaEntity.mediaType,
-                mediaEntity.title,
-                thumbnail,
-                mediaEntity.contentLength,
-                mediaEntity.downloadedLength,
-                mediaEntity.source,
-                mediaEntity.downloadSource,
-                mediaEntity.favorite
-            )
-            fileOutputStream.close()
-            saveFileToDB(newMediaEntity)
-            return
-        }
+
+        if(mediaEntity.thumbnail != null)
+            mediaEntity.thumbnail = saveThumbnail(mediaEntity)
 
         fileOutputStream.close()
+
+        //Get duration of media if it is video or audio and check if media is working fine
+        if(mediaEntity.mediaType == MediaType.Audio || mediaEntity.mediaType == MediaType.Video){
+            val file = File(filesDir,mediaEntity.name)
+            try{
+                MediaPlayer.create(this, Uri.fromFile(file)).also { mp ->
+                    mediaEntity.duration = mp.duration.toLong()
+                    mp.reset()
+                    mp.release()
+                }.setOnErrorListener { _, _, _ ->
+                    mediaEntity.isMediaCorrupted = true
+                    true
+                }
+            }catch (ex : Exception){
+                mediaEntity.isMediaCorrupted = true
+            }
+        }
+
         saveFileToDB(mediaEntity)
 
     }
