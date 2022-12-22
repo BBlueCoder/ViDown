@@ -65,7 +65,7 @@ class DownloadFileService : Service() {
             else -> null
         }
 
-        val mediaEntity = MediaEntity(0,"",mediaType!!,mediaTitle,fileAudioThumbnail,null,0,source!!,fileUrl!!,true)
+        val mediaEntity = MediaEntity(0,"",mediaType!!,mediaTitle,fileAudioThumbnail,null,0,source!!,fileUrl!!)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(111,createNotification().build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
@@ -135,7 +135,6 @@ class DownloadFileService : Service() {
 //        }
         val contentLength = connection.getHeaderField("Content-Length").toLong()
         mediaEntity.contentLength = contentLength
-        println("------------------------------- content length = $contentLength")
         connection.requestMethod = "GET"
         connection.connect()
 
@@ -161,8 +160,24 @@ class DownloadFileService : Service() {
         }
         println("Download Service : finished downloading...")
         var thumbnail :String? = null
-        if(mediaEntity.thumbnail != null)
+        if(mediaEntity.thumbnail != null){
             thumbnail = saveThumbnail(mediaEntity)
+            val newMediaEntity = MediaEntity(
+                0,
+                mediaEntity.name,
+                mediaEntity.mediaType,
+                mediaEntity.title,
+                thumbnail,
+                mediaEntity.contentLength,
+                mediaEntity.downloadedLength,
+                mediaEntity.source,
+                mediaEntity.downloadSource,
+                mediaEntity.favorite
+            )
+            fileOutputStream.close()
+            saveFileToDB(newMediaEntity)
+            return
+        }
 
         fileOutputStream.close()
         saveFileToDB(mediaEntity)

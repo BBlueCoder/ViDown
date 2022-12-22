@@ -86,7 +86,7 @@
         android:src="@drawable/ic_dots_black"
         android:layout_below="@id/media_audio_title"
         android:layout_centerHorizontal="true"
-        android:id="@+id/media_audio_more"
+        android:id="@+id/media_audio_edit"
         android:layout_marginTop="3dp"
         />
 

@@ -109,18 +109,32 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_image_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_image_title)
 
+            val editDots = itemView.findViewById<ImageView>(R.id.media_image_edit)
+
             val file = File(context.filesDir, mediaEntity.name)
             if (file.exists()) {
+
+                thumbnail.setOnClickListener {
+                    itemClickListener?.invoke(mediaEntity)
+                }
+
                 Glide.with(context)
                     .load(Uri.fromFile(file))
                     .error(R.drawable.ic_video_corrupted)
                     .into(thumbnail)
+
+                editDots.setOnClickListener {
+                    editClickListener?.invoke(mediaEntity,position)
+                }
             }
+
+
             title.text = mediaEntity.title
         }
 
         override fun renameItem(title: String) {
-
+            val titleTxt = itemView.findViewById<TextView>(R.id.media_image_title)
+            titleTxt.text = title
         }
     }
 
@@ -136,6 +150,8 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             val title = itemView.findViewById<TextView>(R.id.media_audio_title)
             val durationText = itemView.findViewById<TextView>(R.id.media_audio_duration)
 
+            val editDots = itemView.findViewById<ImageView>(R.id.media_audio_edit)
+
             mediaEntity.thumbnail?.let {
                 val file = File(context.filesDir, it)
                 if (file.exists()) {
@@ -147,6 +163,15 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             title.text = mediaEntity.title
             val file = File(context.filesDir, mediaEntity.name)
             if (file.exists()) {
+
+                thumbnail.setOnClickListener {
+                    itemClickListener?.invoke(mediaEntity)
+                }
+
+                editDots.setOnClickListener {
+                    editClickListener?.invoke(mediaEntity,position)
+                }
+
                 val uri = Uri.fromFile(file)
                 MediaPlayer.create(context, uri).also {
                     val durationDate = Date((it.duration).toLong())
@@ -179,7 +204,8 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         }
 
         override fun renameItem(title: String) {
-
+            val titleTxt = itemView.findViewById<TextView>(R.id.media_audio_title)
+            titleTxt.text = title
         }
     }
 

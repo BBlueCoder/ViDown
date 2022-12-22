@@ -44,7 +44,7 @@
             android:id="@+id/link_text"
             android:maxLines="1"
             android:inputType="text"
-            android:text="https://www.youtube.com/shorts/c_ZkRoZOAG4"
+            android:text="https://www.instagram.com/p/CmebjpTvdxq"
             />
 
     </com.google.android.material.textfield.TextInputLayout>

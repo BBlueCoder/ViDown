@@ -12,6 +12,21 @@
         android:layout_height="match_parent"
         android:id="@+id/video_view"
         android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/image_view"
+        android:visibility="gone"
+        />
+
+    <MediaController
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/audio_view"
+        android:visibility="gone"
         />
 
 </RelativeLayout>

@@ -89,22 +89,13 @@ class DownloadFragment : Fragment() {
         }
 
         adapter = DownloadsAdapter(requireContext(), { mediaEntity ->
-            when (mediaEntity.mediaType) {
-                MediaType.Video -> {
-                    val action = MainFragmentDirections.displayMedia(mediaEntity)
-                    Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
-                }
-                MediaType.Image -> {
-
-                }
-                MediaType.Audio -> {
-
-                }
-            }
-        }, { mediaEntity,position ->
-            val action = MainFragmentDirections.editMediaAction(mediaEntity,position)
+            val action = MainFragmentDirections.displayMedia(mediaEntity)
+            Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
+        }, { mediaEntity, position ->
+            val action = MainFragmentDirections.editMediaAction(mediaEntity, position)
             Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
         })
+
         recyclerView.adapter = adapter
         observeDownloads()
 
@@ -234,10 +225,10 @@ class DownloadFragment : Fragment() {
     private fun observeRenamingMedia() {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.renameMediaStateFlow.collect{ result ->
+                viewModel.renameMediaStateFlow.collect { result ->
                     result.onSuccess { itemPayload ->
-                        if(itemPayload != null) {
-                            adapter.notifyItemChanged(itemPayload.position,itemPayload.title)
+                        if (itemPayload != null) {
+                            adapter.notifyItemChanged(itemPayload.position, itemPayload.title)
                         }
                     }
                     result.onFailure {

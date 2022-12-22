@@ -29,26 +29,27 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
 
-    private lateinit var circularProgress : CircularProgressIndicator
-    private lateinit var lookUpBtn : Button
-    private lateinit var showAvailableFormatsBtn : Button
+    private lateinit var circularProgress: CircularProgressIndicator
+    private lateinit var lookUpBtn: Button
+    private lateinit var showAvailableFormatsBtn: Button
 
-    private lateinit var recentDownloadsRecyclerView : RecyclerView
-    private lateinit var recentDownloadsAdapter : HorizontalRecyclerViewAdapter
+    private lateinit var recentDownloadsRecyclerView: RecyclerView
+    private lateinit var recentDownloadsAdapter: HorizontalRecyclerViewAdapter
 
     private lateinit var favoritesRecyclerView: RecyclerView
     private lateinit var favoritesAdapter: HorizontalRecyclerViewAdapter
 
-    private lateinit var recentTextLayout : LinearLayout
-    private lateinit var favoritesLayout : LinearLayout
+    private lateinit var recentTextLayout: LinearLayout
+    private lateinit var favoritesLayout: LinearLayout
 
-    private lateinit var resultCard : ResultCardView
+    private lateinit var resultCard: ResultCardView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,14 +83,16 @@ class MainFragment : Fragment() {
 
         }
 
-        recentDownloadsRecyclerView.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
+        recentDownloadsRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         recentDownloadsAdapter = HorizontalRecyclerViewAdapter(
             emptyList(),
             requireContext()
         )
         recentDownloadsRecyclerView.adapter = recentDownloadsAdapter
 
-        favoritesRecyclerView.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
+        favoritesRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         favoritesAdapter = HorizontalRecyclerViewAdapter(
             emptyList(),
             requireContext()
@@ -100,7 +103,8 @@ class MainFragment : Fragment() {
         observeLastDownloads()
         observeLastFavorites()
 
-        showAvailableFormatsBtn.paintFlags = showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        showAvailableFormatsBtn.paintFlags =
+            showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         lookUpBtn.setOnClickListener {
             hideItemCard()
@@ -124,27 +128,31 @@ class MainFragment : Fragment() {
         }
 
         showAvailableFormatsBtn.setOnClickListener {
-            Navigation.findNavController(requireActivity() ,R.id.nav_host).navigate(R.id.show_available_formats)
+            Navigation.findNavController(requireActivity(), R.id.nav_host)
+                .navigate(R.id.show_available_formats)
         }
     }
 
     private fun observeSearchResults(view: View) {
-        lifecycleScope.launch(Dispatchers.Main){
+        lifecycleScope.launch(Dispatchers.IO) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.lookUpResults.collect { result ->
-                    circularProgress.visibility= View.GONE
-                    lookUpBtn.visibility = View.VISIBLE
-                    result.onFailure { exp ->
-                        view.snackBar(
-                            exp.message!!
-                        )
-                    }
-                    result.onSuccess {
-                        if(it.isEmpty())
-                            return@onSuccess
-                        val itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
-                        showItemInfoCard(itemInfo)
-                        showAvailableFormats()
+                    withContext(Dispatchers.Main) {
+                        circularProgress.visibility = View.GONE
+                        lookUpBtn.visibility = View.VISIBLE
+                        result.onFailure { exp ->
+                            view.snackBar(
+                                exp.message!!
+                            )
+                        }
+                        result.onSuccess {
+                            if (it.isEmpty())
+                                return@onSuccess
+                            val itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
+
+                            showItemInfoCard(itemInfo)
+                            showAvailableFormats()
+                        }
                     }
                 }
             }
@@ -166,8 +174,8 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun showAvailableFormats(){
-        if(!showAvailableFormatsBtn.isVisible){
+    private fun showAvailableFormats() {
+        if (!showAvailableFormatsBtn.isVisible) {
 
             val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down_with_fade)
             showAvailableFormatsBtn.visibility = View.VISIBLE
@@ -176,17 +184,17 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun observeLastDownloads(){
-        lifecycleScope.launch(Dispatchers.Main){
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.recentDownloads.collect{result ->
+    private fun observeLastDownloads() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.recentDownloads.collect { result ->
                     result.onSuccess {
 
                         recentDownloadsRecyclerView.isVisible = it.isNotEmpty()
-                        recentTextLayout.isVisible= it.isNotEmpty()
+                        recentTextLayout.isVisible = it.isNotEmpty()
 
                         recentDownloadsAdapter.recentDownloadList = it
-                        recentDownloadsAdapter.notifyItemRangeChanged(0,it.size)
+                        recentDownloadsAdapter.notifyItemRangeChanged(0, it.size)
                     }
                     result.onFailure {
                         recentTextLayout.visibility = View.INVISIBLE
@@ -197,16 +205,16 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun observeLastFavorites(){
-        lifecycleScope.launch(Dispatchers.Main){
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.lastFavorites.collect{ result ->
+    private fun observeLastFavorites() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.lastFavorites.collect { result ->
                     result.onSuccess {
                         favoritesLayout.isVisible = it.isNotEmpty()
                         favoritesRecyclerView.isVisible = it.isNotEmpty()
 
-                        favoritesAdapter.recentDownloadList =it
-                        favoritesAdapter.notifyItemChanged(0,it.size)
+                        favoritesAdapter.recentDownloadList = it
+                        favoritesAdapter.notifyItemChanged(0, it.size)
                     }
                     result.onFailure {
                         favoritesLayout.visibility = View.INVISIBLE
@@ -217,12 +225,13 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun hideItemCard(){
-        if(resultCard.visibility == View.GONE || resultCard.visibility == View.INVISIBLE)
+    private fun hideItemCard() {
+        if (resultCard.visibility == View.GONE || resultCard.visibility == View.INVISIBLE)
             return
 
-        val hideAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.slide_up_with_fade)
-        hideAnimation.setAnimationListener(object : AnimationListener{
+        val hideAnimation =
+            AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up_with_fade)
+        hideAnimation.setAnimationListener(object : AnimationListener {
             override fun onAnimationStart(animation: Animation?) {
 
             }
