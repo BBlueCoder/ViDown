@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -25,12 +26,15 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
+import com.bluetech.vidown.core.db.MediaEntity
+import com.bluetech.vidown.core.pojoclasses.SelectItem
 import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.utils.formatSizeToReadableFormat
 import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -58,6 +62,9 @@ class DownloadFragment : Fragment() {
 
     private lateinit var downloadFileService: DownloadFileService
 
+    private var isSelectionEnabled = false
+    private val selectedMedia = mutableListOf<SelectItem>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -82,19 +89,49 @@ class DownloadFragment : Fragment() {
             downloadTextProgress = findViewById(R.id.download_media_progress_text)
             downloadSizeProgress = findViewById(R.id.download_media_size)
 
+            val selectBtn = findViewById<MaterialButton>(R.id.download_select_btn)
+            val cancelSelectionBtn = findViewById<MaterialButton>(R.id.download_cancel_btn)
+            val editImageView = findViewById<ImageView>(R.id.download_edits)
+
+            selectBtn.setOnClickListener {
+                isSelectionEnabled = true
+                selectBtn.visibility = View.GONE
+                editImageView.visibility = View.INVISIBLE
+                cancelSelectionBtn.visibility = View.VISIBLE
+            }
+
+            cancelSelectionBtn.setOnClickListener {
+                isSelectionEnabled = false
+                cancelSelection()
+                cancelSelectionBtn.visibility = View.GONE
+                editImageView.visibility = View.VISIBLE
+                selectBtn.visibility = View.VISIBLE
+            }
+
             val cancelBtn = findViewById<ImageView>(R.id.download_media_cancel)
             cancelBtn.setOnClickListener {
                 downloadFileService.cancelDownload()
             }
         }
 
-        adapter = DownloadsAdapter(requireContext(), { mediaEntity ->
-            val action = MainFragmentDirections.displayMedia(mediaEntity)
-            Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
-        }, { mediaEntity, position ->
-            val action = MainFragmentDirections.editMediaAction(mediaEntity, position)
-            Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
-        })
+        adapter = DownloadsAdapter(
+            requireContext(),
+            { mediaEntity,position ->
+                if(isSelectionEnabled){
+                    selectMedia(mediaEntity,position)
+                }else{
+                    val action = MainFragmentDirections.displayMedia(mediaEntity)
+                    Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
+                }
+            },
+            { mediaEntity, position ->
+                val action = MainFragmentDirections.editMediaAction(mediaEntity, position)
+                Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
+            },
+            { mediaEntity, position ->
+                isSelectionEnabled = true
+                selectMedia(mediaEntity,position)
+            })
 
         recyclerView.adapter = adapter
         observeDownloads()
@@ -108,6 +145,24 @@ class DownloadFragment : Fragment() {
         observeRemovingMedia()
         observeRenamingMedia()
 
+    }
+
+    private fun selectMedia(mediaEntity: MediaEntity, position: Int) {
+        val selectItem = SelectItem(mediaEntity,position)
+        if(selectedMedia.contains(selectItem)){
+            selectedMedia.remove(selectItem)
+            adapter.notifyItemChanged(position,false)
+            return
+        }
+        selectedMedia.add(selectItem)
+        adapter.notifyItemChanged(position,true)
+    }
+
+    private fun cancelSelection(){
+        selectedMedia.forEach { selectedItem ->
+            adapter.notifyItemChanged(selectedItem.position,false)
+        }
+        selectedMedia.clear()
     }
 
     private fun adapterLoadStateListening(loadState: CombinedLoadStates) {

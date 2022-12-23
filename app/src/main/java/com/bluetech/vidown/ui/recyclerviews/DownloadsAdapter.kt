@@ -13,8 +13,9 @@ import java.io.File
 
 class DownloadsAdapter(
     private val context: Context,
-    private val itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-    private val editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit)?
+    private val itemClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit),
+    private val editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit),
+    private val longClickListener : ((mediaEntity: MediaEntity,position : Int) -> Unit)
 ) : PagingDataAdapter<MediaEntity, DownloadsAdapterHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsAdapterHolder {
@@ -41,7 +42,7 @@ class DownloadsAdapter(
     override fun onBindViewHolder(holder: DownloadsAdapterHolder, position: Int) {
         val item = getItem(position) as MediaEntity
 
-        holder.bind(item, context,position, itemClickListener,editClickListener)
+        holder.bind(item, context,position, itemClickListener,editClickListener,longClickListener)
     }
 
     override fun onBindViewHolder(
@@ -50,7 +51,12 @@ class DownloadsAdapter(
         payloads: MutableList<Any>
     ) {
         if(payloads.isNotEmpty()){
-            holder.renameItem(payloads.first() as String)
+            if(payloads.first() is String){
+                holder.renameItem(payloads.first() as String)
+            }
+            if(payloads.first() is Boolean){
+                holder.toggleItemSelection(payloads.first() as Boolean)
+            }
             return
         }
         super.onBindViewHolder(holder, position, payloads)

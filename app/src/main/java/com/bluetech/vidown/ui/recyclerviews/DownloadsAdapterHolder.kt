@@ -11,6 +11,7 @@ import com.bluetech.vidown.R
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.utils.formatDurationToReadableFormat
 import com.bumptech.glide.Glide
+import com.google.android.material.card.MaterialCardView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,19 +22,23 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         mediaEntity: MediaEntity,
         context: Context,
         position : Int,
-        itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-        editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit)?
+        itemClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit),
+        editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit),
+        longClickListener : ((mediaEntity: MediaEntity,position : Int) -> Unit)
     )
 
     abstract fun renameItem(title : String)
+
+    abstract fun toggleItemSelection(isItemSelected : Boolean)
 
     class VideoMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
         override fun bind(
             mediaEntity: MediaEntity,
             context: Context,
             position: Int,
-            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)?
+            itemClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit,
+            editClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit,
+            longClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_video_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_video_title)
@@ -48,11 +53,16 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
-                    itemClickListener?.invoke(mediaEntity)
+                    itemClickListener.invoke(mediaEntity,position)
+                }
+
+                thumbnail.setOnLongClickListener {
+                    longClickListener.invoke(mediaEntity,position)
+                    true
                 }
 
                 editDots.setOnClickListener {
-                    editClickListener?.invoke(mediaEntity,position)
+                    editClickListener.invoke(mediaEntity,position)
                 }
 
                 Glide.with(context)
@@ -72,6 +82,18 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             val titleTxt = itemView.findViewById<TextView>(R.id.media_video_title)
             titleTxt.text = title
         }
+
+        override fun toggleItemSelection(isItemSelected: Boolean) {
+            val cardView = itemView.findViewById<MaterialCardView>(R.id.media_video_card_view)
+            val selectedOverlay = itemView.findViewById<View>(R.id.media_video_selected_overlay)
+            if(isItemSelected){
+                cardView.strokeWidth = 3
+                selectedOverlay.visibility = View.VISIBLE
+            }else{
+                cardView.strokeWidth = 0
+                selectedOverlay.visibility = View.GONE
+            }
+        }
     }
 
     class ImageMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
@@ -79,8 +101,9 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             mediaEntity: MediaEntity,
             context: Context,
             position: Int,
-            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)?
+            itemClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit,
+            editClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit,
+            longClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_image_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_image_title)
@@ -93,11 +116,16 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
-                    itemClickListener?.invoke(mediaEntity)
+                    itemClickListener.invoke(mediaEntity,position)
+                }
+
+                thumbnail.setOnLongClickListener {
+                    longClickListener.invoke(mediaEntity,position)
+                    true
                 }
 
                 editDots.setOnClickListener {
-                    editClickListener?.invoke(mediaEntity,position)
+                    editClickListener.invoke(mediaEntity,position)
                 }
 
                 Glide.with(context)
@@ -116,6 +144,18 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             val titleTxt = itemView.findViewById<TextView>(R.id.media_image_title)
             titleTxt.text = title
         }
+
+        override fun toggleItemSelection(isItemSelected: Boolean) {
+            val cardView = itemView.findViewById<MaterialCardView>(R.id.media_image_card_view)
+            val selectedOverlay = itemView.findViewById<View>(R.id.media_image_selected_overlay)
+            if(isItemSelected){
+                cardView.strokeWidth = 3
+                selectedOverlay.visibility = View.VISIBLE
+            }else{
+                cardView.strokeWidth = 0
+                selectedOverlay.visibility = View.GONE
+            }
+        }
     }
 
     class AudioMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
@@ -123,8 +163,9 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             mediaEntity: MediaEntity,
             context: Context,
             position: Int,
-            itemClickListener: ((mediaEntity: MediaEntity) -> Unit)?,
-            editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)?
+            itemClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit,
+            editClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit,
+            longClickListener: (mediaEntity: MediaEntity, position: Int) -> Unit
         ) {
             val thumbnail = itemView.findViewById<ImageView>(R.id.media_audio_thumbnail)
             val title = itemView.findViewById<TextView>(R.id.media_audio_title)
@@ -146,11 +187,16 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
-                    itemClickListener?.invoke(mediaEntity)
+                    itemClickListener.invoke(mediaEntity,position)
+                }
+
+                thumbnail.setOnLongClickListener {
+                    longClickListener.invoke(mediaEntity,position)
+                    true
                 }
 
                 editDots.setOnClickListener {
-                    editClickListener?.invoke(mediaEntity,position)
+                    editClickListener.invoke(mediaEntity,position)
                 }
 
             } else {
@@ -165,6 +211,18 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         override fun renameItem(title: String) {
             val titleTxt = itemView.findViewById<TextView>(R.id.media_audio_title)
             titleTxt.text = title
+        }
+
+        override fun toggleItemSelection(isItemSelected: Boolean) {
+            val cardView = itemView.findViewById<MaterialCardView>(R.id.media_audio_card_view)
+            val selectedOverlay = itemView.findViewById<View>(R.id.media_audio_selected_overlay)
+            if(isItemSelected){
+                cardView.strokeWidth = 3
+                selectedOverlay.visibility = View.VISIBLE
+            }else{
+                cardView.strokeWidth = 0
+                selectedOverlay.visibility = View.GONE
+            }
         }
     }
 

@@ -11,6 +11,7 @@
         android:layout_height="120dp"
         android:clickable="true"
         app:cardCornerRadius="15dp"
+        app:strokeColor="@color/color_primary"
         android:id="@+id/media_audio_card_view"
         android:focusable="true">
 
@@ -61,6 +62,14 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:clickable="false"
+                android:id="@+id/media_audio_selected_overlay"
+                android:background="#4D695DED"/>
 
         </RelativeLayout>
 

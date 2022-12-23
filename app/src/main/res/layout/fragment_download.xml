@@ -7,16 +7,41 @@
     android:background="#fff"
     tools:context=".ui.fragments.DownloadFragment">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:text="Downloads"
-        android:textColor="@color/color_primary"
-        android:textSize="28sp"
-        android:id="@+id/downloads_download_text"
-        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:text="Select"
+        android:id="@+id/download_select_btn"
+        android:textSize="12sp"
+        android:textColor="#fff"
+        app:cornerRadius="15dp"
+        android:layout_toStartOf="@id/download_edits"
+        android:layout_marginEnd="10dp"
+        />
+
+    <ImageView
+        android:layout_width="34dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_dots_filled_purple"
+        android:id="@+id/download_edits"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="5dp"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:text="Cancel"
+        android:id="@+id/download_cancel_btn"
+        android:textSize="12sp"
+        android:textColor="#fff"
+        app:cornerRadius="15dp"
+        android:layout_marginEnd="10dp"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"
+        />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -25,7 +50,7 @@
         android:visibility="gone"
         tools:visibility="visible"
         android:layout_marginTop="5dp"
-        android:layout_below="@id/downloads_download_text"
+        android:layout_below="@id/download_edits"
         >
 
         <RelativeLayout

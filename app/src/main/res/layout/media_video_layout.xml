@@ -11,7 +11,8 @@
         android:layout_height="120dp"
         android:clickable="true"
         app:cardCornerRadius="15dp"
-        android:id="@+id/media_vide_card_view"
+        android:id="@+id/media_video_card_view"
+        app:strokeColor="@color/color_primary"
         android:focusable="true">
 
         <RelativeLayout
@@ -52,6 +53,14 @@
                 android:textColor="@color/white"
                 />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:clickable="false"
+                android:id="@+id/media_video_selected_overlay"
+                android:background="#4D695DED"/>
+
         </RelativeLayout>
 
     </com.google.android.material.card.MaterialCardView>
@@ -60,7 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/media_video_title"
-        android:layout_below="@id/media_vide_card_view"
+        android:layout_below="@id/media_video_card_view"
         android:layout_marginTop="5dp"
         tools:text="Don Big - M9tal"
         android:gravity="center"
