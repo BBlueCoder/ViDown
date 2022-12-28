@@ -22,7 +22,15 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
         }
     }
 
-    fun getMedia(limit : Int,offset : Int) = mediaDao.getAllMedia(limit,offset)
+    fun getMedia(limit : Int,offset : Int,orderByNewest : Boolean,onlyFavorites : Boolean): List<MediaEntity>{
+        if(!orderByNewest && onlyFavorites)
+            return mediaDao.getOnlyFavoritesByOld(limit,offset)
+        if(orderByNewest && onlyFavorites)
+            return mediaDao.getOnlyFavorites(limit,offset)
+        if(!orderByNewest)
+            return mediaDao.getAllMediaByOld(limit,offset)
+        return mediaDao.getAllMedia(limit,offset)
+    }
 
     fun getLastFavorites() = flow{
         try {

@@ -13,4 +13,5 @@
     <string name="delete_media_edit_sheet_btn_text">Delete</string>
     <string name="add_to_favorite_media_edit_sheet_btn">Add to favorite</string>
     <string name="remove_from_favorite_media_edit_sheet_btn_text">Remove from favorite</string>
+    <string name="selected_items_count">%1$d items selected</string>
 </resources>

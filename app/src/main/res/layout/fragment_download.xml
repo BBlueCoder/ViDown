@@ -16,7 +16,7 @@
         android:textSize="12sp"
         android:textColor="#fff"
         app:cornerRadius="15dp"
-        android:layout_toStartOf="@id/download_edits"
+        android:layout_alignParentEnd="true"
         android:layout_marginEnd="10dp"
         />
 
@@ -25,9 +25,8 @@
         android:layout_height="30dp"
         android:src="@drawable/ic_dots_filled_purple"
         android:id="@+id/download_edits"
-        android:layout_alignParentEnd="true"
         android:layout_marginTop="7dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
         />
 
     <com.google.android.material.button.MaterialButton
@@ -40,6 +39,19 @@
         app:cornerRadius="15dp"
         android:layout_marginEnd="10dp"
         android:layout_alignParentEnd="true"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/download_select_text"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="15dp"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/color_primary"
+        tools:text="0 items selected"
         android:visibility="gone"
         />
 

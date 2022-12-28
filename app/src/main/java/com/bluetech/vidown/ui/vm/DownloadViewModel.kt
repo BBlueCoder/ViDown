@@ -10,6 +10,7 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.paging.MediaPagingSource
 import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
 import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
+import com.bluetech.vidown.core.pojoclasses.FetchArgs
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.repos.DBRepo
 import com.bluetech.vidown.core.repos.DownloadRepo
@@ -42,13 +43,15 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
     var title : String = ""
     var thumbnail : String = ""
 
+    var fetchArgs = FetchArgs()
+
     val downloadsMedia = Pager(
         PagingConfig(
             pageSize = 30,
             enablePlaceholders = false,
             maxSize = 100
         ),){
-        MediaPagingSource(dbRepo)
+        MediaPagingSource(dbRepo,fetchArgs)
     }.flow.cachedIn(viewModelScope)
 
     fun updateProgress(progress : DownloadMediaProgress){

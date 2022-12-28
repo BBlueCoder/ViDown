@@ -32,4 +32,13 @@ interface MediaDao {
     @Query("update mediaentity set title = :title where uid = :id")
     fun updateMediaTitle(title : String,id: Int)
 
+    @Query("Select * from mediaentity where favorite = 1 limit :limit offset :offset")
+    fun getOnlyFavorites(limit: Int,offset: Int): List<MediaEntity>
+
+    @Query("Select * from mediaentity where favorite = 1 order by uid asc limit :limit offset :offset")
+    fun getOnlyFavoritesByOld(limit: Int,offset: Int): List<MediaEntity>
+
+    @Query("Select * from mediaentity order by uid asc limit :limit offset :offset")
+    fun getAllMediaByOld(limit: Int,offset: Int): List<MediaEntity>
+
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/popup_edit_order_by"
+        android:title="Order by Oldest"
+        android:visible="true"
+        />
+
+    <item
+        android:id="@+id/popup_edit_display_favorites"
+        android:title="Show only favorites"
+        />
+</menu>

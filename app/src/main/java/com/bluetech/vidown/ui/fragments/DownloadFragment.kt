@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -40,6 +41,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -62,8 +64,16 @@ class DownloadFragment : Fragment() {
 
     private lateinit var downloadFileService: DownloadFileService
 
+    private lateinit var selectBtn: MaterialButton
+    private lateinit var cancelSelectionBtn: MaterialButton
+    private lateinit var editImageView: ImageView
+
+
+    private var selectionFlow = MutableStateFlow(false)
     private var isSelectionEnabled = false
     private val selectedMedia = mutableListOf<SelectItem>()
+
+    private lateinit var selectedItemsText: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,38 +98,38 @@ class DownloadFragment : Fragment() {
             downloadProgress = findViewById(R.id.download_media_progress)
             downloadTextProgress = findViewById(R.id.download_media_progress_text)
             downloadSizeProgress = findViewById(R.id.download_media_size)
+            selectedItemsText = findViewById(R.id.download_select_text)
 
-            val selectBtn = findViewById<MaterialButton>(R.id.download_select_btn)
-            val cancelSelectionBtn = findViewById<MaterialButton>(R.id.download_cancel_btn)
-            val editImageView = findViewById<ImageView>(R.id.download_edits)
+            selectBtn = findViewById(R.id.download_select_btn)
+            cancelSelectionBtn = findViewById(R.id.download_cancel_btn)
+            editImageView = findViewById(R.id.download_edits)
+        }
 
-            selectBtn.setOnClickListener {
-                isSelectionEnabled = true
-                selectBtn.visibility = View.GONE
-                editImageView.visibility = View.INVISIBLE
-                cancelSelectionBtn.visibility = View.VISIBLE
+        val cancelBtn = view.findViewById<ImageView>(R.id.download_media_cancel)
+
+
+        selectBtn.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                selectionFlow.emit(true)
             }
+        }
 
-            cancelSelectionBtn.setOnClickListener {
-                isSelectionEnabled = false
-                cancelSelection()
-                cancelSelectionBtn.visibility = View.GONE
-                editImageView.visibility = View.VISIBLE
-                selectBtn.visibility = View.VISIBLE
+        cancelSelectionBtn.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                selectionFlow.emit(false)
             }
+        }
 
-            val cancelBtn = findViewById<ImageView>(R.id.download_media_cancel)
-            cancelBtn.setOnClickListener {
-                downloadFileService.cancelDownload()
-            }
+        cancelBtn.setOnClickListener {
+            downloadFileService.cancelDownload()
         }
 
         adapter = DownloadsAdapter(
             requireContext(),
-            { mediaEntity,position ->
-                if(isSelectionEnabled){
-                    selectMedia(mediaEntity,position)
-                }else{
+            { mediaEntity, position ->
+                if (isSelectionEnabled) {
+                    selectMedia(mediaEntity, position)
+                } else {
                     val action = MainFragmentDirections.displayMedia(mediaEntity)
                     Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
                 }
@@ -129,8 +139,10 @@ class DownloadFragment : Fragment() {
                 Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
             },
             { mediaEntity, position ->
-                isSelectionEnabled = true
-                selectMedia(mediaEntity,position)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    selectionFlow.emit(true)
+                }
+                selectMedia(mediaEntity, position)
             })
 
         recyclerView.adapter = adapter
@@ -140,27 +152,62 @@ class DownloadFragment : Fragment() {
             adapterLoadStateListening(loadState)
         }
 
+        editImageView.setOnClickListener {
+            val popupMenu = PopupMenu(requireContext(), it)
+            popupMenu.menuInflater.inflate(R.menu.popup_download_edit, popupMenu.menu)
+            val orderMenuItem = popupMenu.menu.findItem(R.id.popup_edit_order_by)
+            val favoritesMenuItem = popupMenu.menu.findItem(R.id.popup_edit_display_favorites)
+
+            if(viewModel.fetchArgs.orderByNewest)
+                orderMenuItem.title = "Order by oldest"
+            else
+                orderMenuItem.title = "Order by newest"
+
+            if(viewModel.fetchArgs.onlyFavorites)
+                favoritesMenuItem.title = "Show all"
+            else
+                favoritesMenuItem.title = "Show only favorites"
+
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.popup_edit_order_by -> {
+                        viewModel.fetchArgs.orderByNewest = !viewModel.fetchArgs.orderByNewest
+                        adapter.refresh()
+                    }
+                    R.id.popup_edit_display_favorites -> {
+                        viewModel.fetchArgs.onlyFavorites = !viewModel.fetchArgs.onlyFavorites
+                        adapter.refresh()
+                    }
+                }
+                true
+            }
+            popupMenu.show()
+        }
+
         observeItemInfo(view)
         observeDownloadProgress()
         observeRemovingMedia()
         observeRenamingMedia()
+        observeSelection()
 
     }
 
     private fun selectMedia(mediaEntity: MediaEntity, position: Int) {
-        val selectItem = SelectItem(mediaEntity,position)
-        if(selectedMedia.contains(selectItem)){
+        val selectItem = SelectItem(mediaEntity, position)
+        if (selectedMedia.contains(selectItem)) {
             selectedMedia.remove(selectItem)
-            adapter.notifyItemChanged(position,false)
-            return
+        } else {
+            selectedMedia.add(selectItem)
         }
-        selectedMedia.add(selectItem)
-        adapter.notifyItemChanged(position,true)
+
+        selectedItemsText.text =
+            resources.getString(R.string.selected_items_count, selectedMedia.count())
+        adapter.notifyItemChanged(position, selectedMedia.contains(selectItem))
     }
 
-    private fun cancelSelection(){
+    private fun cancelSelection() {
         selectedMedia.forEach { selectedItem ->
-            adapter.notifyItemChanged(selectedItem.position,false)
+            adapter.notifyItemChanged(selectedItem.position, false)
         }
         selectedMedia.clear()
     }
@@ -182,6 +229,33 @@ class DownloadFragment : Fragment() {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
             emptyText.text = "An error occurred while loading media"
+        }
+    }
+
+    private fun observeSelection() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                selectionFlow.collect {
+                    if (it) {
+                        isSelectionEnabled = true
+                        selectBtn.visibility = View.GONE
+                        editImageView.visibility = View.INVISIBLE
+                        cancelSelectionBtn.visibility = View.VISIBLE
+                        selectedItemsText.visibility = View.VISIBLE
+                        selectedItemsText.text = resources.getString(
+                            R.string.selected_items_count,
+                            selectedMedia.count()
+                        )
+                    } else {
+                        isSelectionEnabled = false
+                        cancelSelection()
+                        cancelSelectionBtn.visibility = View.GONE
+                        editImageView.visibility = View.VISIBLE
+                        selectBtn.visibility = View.VISIBLE
+                        selectedItemsText.visibility = View.GONE
+                    }
+                }
+            }
         }
     }
 
