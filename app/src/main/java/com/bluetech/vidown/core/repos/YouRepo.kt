@@ -3,6 +3,7 @@ package com.bluetech.vidown.core.repos
 import android.content.Context
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.utils.Constants.YOUTUBE
 import com.dabluecoder.youdownloaderlib.YouClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +32,8 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
                 ResultItem.ItemInfo(
                     url,
                     videoTitle,
-                    videoThumbnail
+                    videoThumbnail,
+                    YOUTUBE
                 )
             )
 
@@ -45,23 +47,39 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
                         results.size,
                         MediaType.Video,
                         it.qualityLabel?:it.quality,
-                        it.url!!
+                        it.url!!,
+                        true
                     )
                 )
             }
 
-//            vidResp.streamingData.adaptiveFormats!!.filter { format -> !format.mimeType.contains("audio") }.forEach {
-//                results.add(
-//                    ResultItem.ItemData(
-//                        results.size,
-//                        MediaType.Video,
-//                        it.qualityLabel?:it.quality,
-//                        it.url!!
-//                    )
-//                )
-//            }
+            vidResp.streamingData.adaptiveFormats!!.filter { format -> !format.mimeType.contains("audio")
+                    && format.mimeType.lowercase().contains("avc1")}.forEach {
+                if(!results.any { item -> item is ResultItem.ItemData && (item.quality == it.qualityLabel
+                            || item.quality == it.quality) }){
+                    results.add(
+                        ResultItem.ItemData(
+                            results.size,
+                            MediaType.Video,
+                            it.qualityLabel?:it.quality,
+                            it.url!!,
+                            false
+                        )
+                    )
+                }
+
+            }
+
+            results.sortWith(compareByDescending {
+                when(it){
+                    is ResultItem.ItemData -> it.quality.replace("p","").toInt()
+                    else -> Int.MAX_VALUE
+                }
+            })
+
             results.add(ResultItem.CategoryTitle("Audio"))
-            vidResp.streamingData.adaptiveFormats!!.filter { format -> format.mimeType.contains("audio") }.forEach {
+            vidResp.streamingData.adaptiveFormats!!.filter { format -> format.mimeType.contains("audio")
+                    && format.mimeType.contains("mp4a")}.forEach {
                 results.add(
                     ResultItem.ItemData(
                         results.size,
@@ -71,6 +89,8 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
                     )
                 )
             }
+
+
 
             emit(Result.success(results.toList()))
         }catch (ex : Exception){

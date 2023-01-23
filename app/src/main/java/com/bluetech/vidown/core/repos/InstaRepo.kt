@@ -3,6 +3,7 @@ package com.bluetech.vidown.core.repos
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.api.ApplicationApi
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.utils.Constants.INSTAGRAM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -31,7 +32,8 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                         ResultItem.ItemInfo(
                             url,
                             instaItem.mediaCaption.edges.first().node.text,
-                            instaItem.thumbnail
+                            instaItem.thumbnail,
+                            INSTAGRAM
                         )
                     )
                     results.add(ResultItem.ItemData(results.size, MediaType.Image, "",instaItem.thumbnail))
@@ -43,7 +45,8 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                         ResultItem.ItemInfo(
                             url,
                             instaItem.mediaCaption.edges.first().node.text,
-                            instaItem.thumbnail
+                            instaItem.thumbnail,
+                            INSTAGRAM
                         )
                     )
                     results.add(ResultItem.ItemData(results.size, MediaType.Video, "",instaItem.videoUrl!!))
@@ -54,7 +57,8 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
                         ResultItem.ItemInfo(
                             url,
                             instaItem.mediaCaption.edges.first().node.text,
-                            instaItem.thumbnail
+                            instaItem.thumbnail,
+                            INSTAGRAM
                         )
                     )
                     for (media in instaItem.mediaSideCar.edges) {

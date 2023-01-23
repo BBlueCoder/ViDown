@@ -141,6 +141,7 @@ class MainFragment : Fragment() {
                         circularProgress.visibility = View.GONE
                         lookUpBtn.visibility = View.VISIBLE
                         result.onFailure { exp ->
+                            exp.printStackTrace()
                             view.snackBar(
                                 exp.message!!
                             )

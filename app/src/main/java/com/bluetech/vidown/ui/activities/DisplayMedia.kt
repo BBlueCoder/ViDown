@@ -13,6 +13,13 @@ import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import java.io.File
 
 class DisplayMedia : AppCompatActivity() {
@@ -20,6 +27,8 @@ class DisplayMedia : AppCompatActivity() {
     private val args : DisplayMediaArgs by navArgs()
 
     private lateinit var media : MediaEntity
+
+    private lateinit var exoPlayer : ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,17 +55,29 @@ class DisplayMedia : AppCompatActivity() {
         if(!file.exists())
             throw Exception("File not found")
 
-        val videoView = findViewById<VideoView>(R.id.video_view)
+        val videoView = findViewById<StyledPlayerView>(R.id.video_view)
 
         videoView.visibility = View.VISIBLE
 
-        val mediaController = MediaController(this)
-        mediaController.setAnchorView(videoView)
+        val trackSelector = DefaultTrackSelector(this)
+        exoPlayer = ExoPlayer.Builder(this)
+            .setTrackSelector(trackSelector)
+            .build().apply {
+                trackSelectionParameters = DefaultTrackSelector.Parameters.Builder(this@DisplayMedia).build()
+                addListener(object : Player.Listener {
+                    override fun onPlayerError(error: PlaybackException) {
+                        super.onPlayerError(error)
+                        error.printStackTrace()
 
-        videoView.setMediaController(mediaController)
-        videoView.setVideoURI(Uri.fromFile(file))
-        videoView.requestFocus()
-        videoView.start()
+                    }
+                })
+                playWhenReady = false
+            }
+
+        videoView.player = exoPlayer
+        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
+        exoPlayer.prepare()
+        exoPlayer.playWhenReady = true
     }
 
     private fun setUpAudio(){
@@ -64,17 +85,29 @@ class DisplayMedia : AppCompatActivity() {
 
         if(!file.exists())
             throw Exception("File not found")
-        val videoView = findViewById<VideoView>(R.id.video_view)
+        val videoView = findViewById<StyledPlayerView>(R.id.video_view)
 
         videoView.visibility = View.VISIBLE
 
-        val mediaController = MediaController(this)
-        mediaController.setAnchorView(videoView)
+        val trackSelector = DefaultTrackSelector(this)
+        exoPlayer = ExoPlayer.Builder(this)
+            .setTrackSelector(trackSelector)
+            .build().apply {
+                trackSelectionParameters = DefaultTrackSelector.Parameters.Builder(this@DisplayMedia).build()
+                addListener(object : Player.Listener {
+                    override fun onPlayerError(error: PlaybackException) {
+                        super.onPlayerError(error)
+                        error.printStackTrace()
 
-        videoView.setMediaController(mediaController)
-        videoView.setVideoURI(Uri.fromFile(file))
-        videoView.requestFocus()
-        videoView.start()
+                    }
+                })
+                playWhenReady = false
+            }
+
+        videoView.player = exoPlayer
+        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
+        exoPlayer.prepare()
+        exoPlayer.playWhenReady = true
     }
 
     private fun setUpImage(){
@@ -89,5 +122,24 @@ class DisplayMedia : AppCompatActivity() {
                 .error(R.drawable.ic_video_corrupted)
                 .into(imageView)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        println("------------------------------- onpause")
+        exoPlayer.pause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        println("------------------------------- onstop")
+        exoPlayer.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println("------------------------------- ondestroy")
+        exoPlayer.stop()
+        exoPlayer.release()
     }
 }

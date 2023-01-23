@@ -27,6 +27,7 @@ import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.ui.vm.MainViewModel
+import com.bluetech.vidown.utils.Constants.YOUTUBE
 import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -83,6 +84,7 @@ class MediaSheet : BottomSheetDialogFragment() {
 
         setupRecyclerView()
         observeSearchResults(view)
+
     }
 
     private fun setupRecyclerView(){
@@ -137,8 +139,17 @@ class MediaSheet : BottomSheetDialogFragment() {
             it.putExtra("fileUrl",itemData.url)
             it.putExtra("mediaTitle",itemInfo!!.title)
             it.putExtra("source",itemInfo!!.link)
+            it.putExtra("platform",itemInfo!!.platform)
             when(itemData.format){
-                MediaType.Video->it.putExtra("fileType","video")
+                MediaType.Video->{
+                    it.putExtra("fileType","video")
+                    if(itemInfo!!.platform == YOUTUBE && itemData.hasAudio == false){
+                        println("--------------------------------- ${itemInfo!!.platform} ${adapter.getListData().size}")
+                        adapter.getListData().filterIsInstance<ResultItem.ItemData>().filter { item -> item.format == MediaType.Audio }.forEach { item ->
+                            it.putExtra("audioUrl",item.url)
+                        }
+                    }
+                }
                 MediaType.Image->it.putExtra("fileType","image")
                 MediaType.Audio->{
                     it.putExtra("fileType","audio")

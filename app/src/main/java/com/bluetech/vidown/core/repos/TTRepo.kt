@@ -3,6 +3,7 @@ package com.bluetech.vidown.core.repos
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.api.ApplicationApi
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.utils.Constants.TIKTOK
 import com.bluetech.vidown.utils.Constants.TT_BASE_URL_API
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -24,7 +25,8 @@ class TTRepo @Inject constructor(private val api : ApplicationApi): BaseRepo() {
             when(respBody.type){
                 "video" -> {
                     results.add(ResultItem.CategoryTitle("Video"))
-                    results.add(ResultItem.ItemInfo(url,respBody.videoTitle!!,respBody.videoThumbnail!!))
+                    results.add(ResultItem.ItemInfo(url,respBody.videoTitle!!,respBody.videoThumbnail!!,TIKTOK
+                    ))
                     results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.videoUrl!!))
                     results.add(ResultItem.CategoryTitle("Video without watermark"))
                     results.add(ResultItem.ItemData(results.size,MediaType.Video,"",respBody.videoUrlWithoutWatermark!!))
@@ -34,7 +36,7 @@ class TTRepo @Inject constructor(private val api : ApplicationApi): BaseRepo() {
                 }
                 "album" -> {
                     results.add(ResultItem.CategoryTitle("Image"))
-                    results.add(ResultItem.ItemInfo(url,respBody.albumTitle!!,respBody.albumUrls!!.first()))
+                    results.add(ResultItem.ItemInfo(url,respBody.albumTitle!!,respBody.albumUrls!!.first(),TIKTOK))
                     for ((id,thumbnail) in respBody.albumUrls.withIndex()){
                         results.add(ResultItem.ItemData(id,MediaType.Image,"",thumbnail))
                     }

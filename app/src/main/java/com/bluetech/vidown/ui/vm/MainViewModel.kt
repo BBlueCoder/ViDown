@@ -70,7 +70,7 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
         return when{
             url.contains("youtube") || url.contains("youtu.be") -> youRepo
             url.contains("instagram") || url.contains("instagra") -> instaRepo
-            url.contains("twitter") || url.contains("t.co") -> twRepo
+            //url.contains("twitter") || url.contains("t.co") -> twRepo
             url.contains("tiktok") -> ttRepo
            else -> null
         }

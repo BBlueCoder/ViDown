@@ -42,7 +42,7 @@ class TwRepo @Inject constructor(): BaseRepo(){
 
             if (typeOfTweet == "Image") {
                 val imgSource = elementsImg.first().attr("src")
-                results.add(ResultItem.ItemInfo(url,"", imgSource))
+                results.add(ResultItem.ItemInfo(url,"", imgSource,""))
                 results.add(ResultItem.ItemData(1, MediaType.Image, "",imgSource))
                 emit(Result.success(results.toList()))
                 return@flow
@@ -52,7 +52,8 @@ class TwRepo @Inject constructor(): BaseRepo(){
                 ResultItem.ItemInfo(
                     url,
                     elementsP.first().html(),
-                    elementsImg.first().attr("src")
+                    elementsImg.first().attr("src"),
+                    ""
                 )
             )
 

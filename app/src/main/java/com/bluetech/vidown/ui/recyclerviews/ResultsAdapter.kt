@@ -46,6 +46,16 @@ class ResultsAdapter(var resultsList : List<ResultItem>,
         }
     }
 
+    fun getListData(): MutableList<ResultItem> {
+        val itemsList = mutableListOf<ResultItem>()
+        for(i in 0 until itemCount){
+            getItem(i)?.let {
+                itemsList.add(it)
+            }
+        }
+        return itemsList
+    }
+
     companion object {
         private val COMPARATOR = object : DiffUtil.ItemCallback<ResultItem>(){
             override fun areItemsTheSame(oldItem: ResultItem, newItem: ResultItem): Boolean {
