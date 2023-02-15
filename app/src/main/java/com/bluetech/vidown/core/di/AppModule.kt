@@ -13,47 +13,18 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    private val DB_MIGRATION_2_3 = object : Migration(2,3){
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("ALTER table mediaEntity add column thumbnail TEXT")
-        }
-    }
-
-    private val DB_MIGRATION_3_4 = object : Migration(3,4){
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.beginTransaction()
-            database.execSQL("alter table mediaEntity add column contentLength INTEGER")
-        }
-    }
-
-    private val DB_MIGRATION_4_5 = object : Migration(4,5){
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.beginTransaction()
-            database.execSQL("alter table mediaEntity add column downloadedLength INTEGER")
-        }
-    }
-    private val DB_MIGRATION_5_6 = object : Migration(5,6){
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.beginTransaction()
-            database.execSQL("alter table mediaEntity add column source TEXT default '' not null")
-        }
-    }
-    private val DB_MIGRATION_6_7 = object : Migration(6,7){
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.beginTransaction()
-            database.execSQL("alter table mediaEntity add column downloadSource TEXT default '' not null")
-        }
-    }
 
     @Singleton
     @Provides

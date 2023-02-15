@@ -241,22 +241,22 @@ class DownloadFileService : Service() {
 
         println("---------------------------------- muxing video and audio")
 
-        val args = arrayOf(
-            "-i",
-            videoFile.path,
-            "-i",
-            audioFile.path,
-            "-c:v",
-            "copy",
-            "-c:a",
-            "copy",
-            "-strict",
-            "normal",
-            "-shortest",
-            outputFile.path
-        )
+//        val args = arrayOf(
+//            "-i",
+//            videoFile.path,
+//            "-i",
+//            audioFile.path,
+//            "-c:v",
+//            "copy",
+//            "-c:a",
+//            "copy",
+//            "-strict",
+//            "normal",
+//            "-shortest",
+//            outputFile.path
+//        )
 
-        FFmpeg(this).executeCommand(args)
+        FFmpegWrapper(this).mux(videoFile.path,audioFile.path,outputFile.path)
             .onCompletion {
                 if (it == null) {
                     //Get duration of media if it is video or audio and check if media is working fine

@@ -38,14 +38,13 @@ class DisplayMedia : AppCompatActivity() {
 
         try{
             when(media.mediaType){
-                MediaType.Video-> setUpVideo()
+                MediaType.Video->setUpVideo()
                 MediaType.Image->setUpImage()
                 MediaType.Audio->setUpAudio()
             }
         }catch (ex :Exception){
             ex.printStackTrace()
         }
-
 
     }
 
