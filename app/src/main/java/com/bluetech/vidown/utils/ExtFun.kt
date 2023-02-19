@@ -1,5 +1,7 @@
 package com.bluetech.vidown.utils
 
+import android.app.AlertDialog
+import android.content.Context
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
@@ -40,4 +42,13 @@ fun Long.formatDurationToReadableFormat(): String{
             sdf.format(durationDate)
         }
     }
+}
+
+fun Context.showPermissionRequestExplanation(permission : String, message : String, retry : (()-> Unit)? = null){
+    AlertDialog.Builder(this)
+        .setTitle("$permission required")
+        .setMessage(message)
+        .setPositiveButton("OK"){_,_->
+            retry?.invoke()
+        }.show()
 }

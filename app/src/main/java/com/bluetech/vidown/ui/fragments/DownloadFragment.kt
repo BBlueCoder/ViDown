@@ -60,6 +60,8 @@ class DownloadFragment : Fragment() {
     private lateinit var downloadTextProgress: TextView
     private lateinit var downloadSizeProgress: TextView
 
+    private lateinit var saveProgress: LinearProgressIndicator
+
     private var isDownloadServiceBound = false
 
     private lateinit var downloadFileService: DownloadFileService
@@ -74,6 +76,8 @@ class DownloadFragment : Fragment() {
     private val selectedMedia = mutableListOf<SelectItem>()
 
     private lateinit var selectedItemsText: TextView
+
+    private lateinit var rootView : View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,6 +94,8 @@ class DownloadFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        rootView = view
+
         view.apply {
             recyclerView = findViewById(R.id.download_recycler_view)
             emptyText = findViewById(R.id.download_empty_text)
@@ -99,6 +105,8 @@ class DownloadFragment : Fragment() {
             downloadTextProgress = findViewById(R.id.download_media_progress_text)
             downloadSizeProgress = findViewById(R.id.download_media_size)
             selectedItemsText = findViewById(R.id.download_select_text)
+
+            saveProgress = findViewById(R.id.download_save_progress)
 
             selectBtn = findViewById(R.id.download_select_btn)
             cancelSelectionBtn = findViewById(R.id.download_cancel_btn)
@@ -135,6 +143,7 @@ class DownloadFragment : Fragment() {
                 }
             },
             { mediaEntity, position ->
+                observeSaving()
                 val action = MainFragmentDirections.editMediaAction(mediaEntity, position)
                 Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
             },
@@ -190,6 +199,7 @@ class DownloadFragment : Fragment() {
         observeRenamingMedia()
         observeSelection()
 
+
     }
 
     private fun selectMedia(mediaEntity: MediaEntity, position: Int) {
@@ -229,6 +239,24 @@ class DownloadFragment : Fragment() {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
             emptyText.text = "An error occurred while loading media"
+        }
+    }
+
+    private fun observeSaving(){
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.saveProgress.collect{
+                    it.onSuccess { msg ->
+                        if(msg.isNotEmpty())
+                            requireView().snackBar(msg)
+                    }
+                    it.onFailure { ex ->
+                        ex.message?.let { msg ->
+                            requireView().snackBar(msg)
+                        }
+                    }
+                }
+            }
         }
     }
 

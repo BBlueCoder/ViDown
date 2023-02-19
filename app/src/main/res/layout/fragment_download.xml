@@ -7,7 +7,6 @@
     android:background="#fff"
     tools:context=".ui.fragments.DownloadFragment">
 
-
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
         android:layout_height="45dp"
@@ -141,6 +140,7 @@
     </com.google.android.material.card.MaterialCardView>
 
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -191,6 +191,17 @@
         android:layout_centerInParent="true"
         android:gravity="center"
         android:visibility="gone"
+        />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:id="@+id/download_save_progress"
+        app:indicatorColor="@color/color_primary"
+        app:trackColor="@color/white"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:progress="55"
         />
 
 </RelativeLayout>

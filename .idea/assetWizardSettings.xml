@@ -320,7 +320,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/audiotrack/baseline_audiotrack_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/arrow_circle_down/baseline_arrow_circle_down_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -330,8 +330,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="695ded" />
-                            <entry key="outputName" value="ic_audio_purple" />
+                            <entry key="color" value="1a1a1a" />
+                            <entry key="outputName" value="ic_save_black" />
                             <entry key="sourceFile" value="C:\Users\Blue\StudioProjects\ViDown" />
                           </map>
                         </option>

@@ -2,27 +2,45 @@ package com.bluetech.vidown.ui.fragments
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.bluetech.vidown.R
+import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.ui.vm.MainViewModel
+import com.bluetech.vidown.utils.showPermissionRequestExplanation
 import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 
 class MediaEditSheet : BottomSheetDialogFragment() {
 
@@ -33,9 +51,7 @@ class MediaEditSheet : BottomSheetDialogFragment() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var downloadViewModel: DownloadViewModel
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState)
-    }
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,9 +69,12 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         currentMedia = args.mediaEntity
 
+        requestPermissionLauncher = registerForPermission()
+
         view.apply {
             val favoriteBtn = findViewById<Button>(R.id.media_edit_favorite_btn)
             val favoriteIcon = findViewById<ImageView>(R.id.media_edit_favorite_ic)
+            val saveBtn = findViewById<Button>(R.id.media_edit_save_btn)
             val renameBtn = findViewById<Button>(R.id.media_edit_rename_btn)
             val deleteBtn = findViewById<Button>(R.id.media_edit_delete_btn)
 
@@ -66,6 +85,15 @@ class MediaEditSheet : BottomSheetDialogFragment() {
                 toggleFavoriteBtnAndIcon(favoriteBtn, favoriteIcon)
             }
 
+            saveBtn.setOnClickListener {
+                try {
+                    saveMediaToDevice()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    downloadViewModel.updateSaveProgress(Result.failure(ex))
+                }
+            }
+
             renameBtn.setOnClickListener {
                 renameMedia()
             }
@@ -74,12 +102,12 @@ class MediaEditSheet : BottomSheetDialogFragment() {
                 val dialogBuilder = AlertDialog.Builder(requireContext())
                     .setTitle("Remove Media")
                     .setMessage("Are you sure you want to remove the media")
-                    .setNegativeButton("Cancel"){ dialog,_->
+                    .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
-                    .setPositiveButton("YES"){dialog,_->
+                    .setPositiveButton("YES") { dialog, _ ->
                         observeRemovingMedia(this)
-                        downloadViewModel.removeMedia(currentMedia,requireContext())
+                        downloadViewModel.removeMedia(currentMedia, requireContext())
                         dialog.dismiss()
                     }
                 val dialog = dialogBuilder.create()
@@ -99,12 +127,12 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun observeRemovingMedia(view : View) {
+    private fun observeRemovingMedia(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                downloadViewModel.removeMediaStateFlow.collect{ result ->
+                downloadViewModel.removeMediaStateFlow.collect { result ->
                     result.onSuccess {
-                        if(it != null){
+                        if (it != null) {
                             view.snackBar("Media removed")
                             dismiss()
                         }
@@ -117,9 +145,9 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun renameMedia(){
+    private fun renameMedia() {
         val inflater = LayoutInflater.from(requireContext())
-        val alertDialogView = inflater.inflate(R.layout.rename_media_alert_dialog_layout,null)
+        val alertDialogView = inflater.inflate(R.layout.rename_media_alert_dialog_layout, null)
 
         val renameEditText = alertDialogView.findViewById<EditText>(R.id.rename_media_edit_text)
 
@@ -128,16 +156,17 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         val dialogBuilder = AlertDialog.Builder(requireContext())
             .setTitle("Rename Media")
             .setView(alertDialogView)
-            .setNegativeButton("CANCEL"){dialog,_->
+            .setNegativeButton("CANCEL") { dialog, _ ->
                 dialog.dismiss()
             }
-            .setPositiveButton("OK"){dialog,_->
-                if(renameEditText.text.isEmpty() && renameEditText.text.toString() == currentMedia.title)
+            .setPositiveButton("OK") { dialog, _ ->
+                if (renameEditText.text.isEmpty() && renameEditText.text.toString() == currentMedia.title)
                     return@setPositiveButton
 
                 val newTitle = renameEditText.text.toString()
-                downloadViewModel.renameMedia(currentMedia.uid,newTitle,
-                    DownloadItemPayload(args.position,newTitle)
+                downloadViewModel.renameMedia(
+                    currentMedia.uid, newTitle,
+                    DownloadItemPayload(args.position, newTitle)
                 )
                 dialog.dismiss()
                 dismiss()
@@ -145,5 +174,251 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         val dialog = dialogBuilder.create()
         dialog.show()
     }
-}
 
+    private fun saveMediaToDevice() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && !isAppHaveWriteExternalStoragePermission()) {
+            requestWriteStoragePermission()
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            when (currentMedia.mediaType) {
+                MediaType.Video -> saveVideoToDevice()
+                MediaType.Audio -> saveAudioToDevice()
+                MediaType.Image -> saveImageToDevice()
+            }
+        }
+
+    }
+
+    private fun saveVideoToDevice() {
+        val name = "ViDown_${currentMedia.name}"
+
+        val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Environment.DIRECTORY_DCIM
+        } else {
+            val file =
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath)
+            if (!file.exists())
+                file.mkdir()
+            File(file, name).absolutePath
+        }
+
+        val pathColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.MediaColumns.RELATIVE_PATH
+        } else {
+            MediaStore.MediaColumns.DATA
+        }
+
+        var outputStream: OutputStream?
+        val inputStream = File(requireContext().filesDir, name).inputStream()
+
+        requireContext().contentResolver.also { resolver ->
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, currentMedia.title)
+                put(MediaStore.MediaColumns.MIME_TYPE, "video/*")
+                put(pathColumn, path)
+            }
+            val uri = resolver.insert(
+                getUrl(),
+                contentValues
+            )
+
+            outputStream = uri?.let {
+                resolver.openOutputStream(it)
+            }
+        }
+
+        outputStream?.use {
+            inputStream.copyTo(it)
+        }
+
+        downloadViewModel.updateSaveProgress(Result.success("Video saved!"))
+        dismiss()
+    }
+
+    private fun saveAudioToDevice() {
+        val name = "ViDown_${currentMedia.name}"
+
+        val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Environment.DIRECTORY_MUSIC
+        } else {
+            val file =
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).absolutePath)
+            if (!file.exists())
+                file.mkdir()
+            File(file, currentMedia.name).absolutePath
+        }
+
+        val pathColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.MediaColumns.RELATIVE_PATH
+        } else {
+            MediaStore.MediaColumns.DATA
+        }
+
+        var outputStream: OutputStream?
+        val inputStream = File(requireContext().filesDir, currentMedia.name).inputStream()
+
+        requireContext().contentResolver.also { resolver ->
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, currentMedia.title)
+                put(MediaStore.MediaColumns.MIME_TYPE, "audio/*")
+                put(pathColumn, path)
+            }
+            val uri = resolver.insert(
+                getUrl(),
+                contentValues
+            )
+
+            outputStream = uri?.let {
+                resolver.openOutputStream(it)
+            }
+        }
+
+        outputStream?.use {
+            inputStream.copyTo(it)
+        }
+
+        downloadViewModel.updateSaveProgress(Result.success("Audio saved!"))
+        dismiss()
+    }
+
+    private fun saveImageToDevice() {
+        val name = "ViDown_${currentMedia.name}"
+
+        val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Environment.DIRECTORY_PICTURES
+        } else {
+            val file =
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath)
+            if (!file.exists())
+                file.mkdir()
+            File(file, currentMedia.name).absolutePath
+        }
+
+        val pathColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.MediaColumns.RELATIVE_PATH
+        } else {
+            MediaStore.MediaColumns.DATA
+        }
+
+        var outputStream: OutputStream?
+        val inputStream = File(requireContext().filesDir, currentMedia.name).inputStream()
+
+        requireContext().contentResolver.also { resolver ->
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, currentMedia.title)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/*")
+                put(pathColumn, path)
+            }
+            val uri = resolver.insert(
+                getUrl(),
+                contentValues
+            )
+
+            outputStream = uri?.let {
+                resolver.openOutputStream(it)
+            }
+        }
+
+        outputStream?.use {
+            inputStream.copyTo(it)
+        }
+
+        downloadViewModel.updateSaveProgress(Result.success("Image saved!"))
+        dismiss()
+    }
+
+    private fun getUrl(): Uri {
+        return when (currentMedia.mediaType) {
+            MediaType.Video -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Video.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL_PRIMARY
+                    )
+                } else {
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                }
+            }
+            MediaType.Audio -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Audio.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL_PRIMARY
+                    )
+                } else {
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                }
+            }
+            MediaType.Image -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Images.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL_PRIMARY
+                    )
+                } else {
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                }
+            }
+        }
+    }
+
+
+    private fun isAppHaveWriteExternalStoragePermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun registerForPermission(): ActivityResultLauncher<String> {
+        return registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                saveMediaToDevice()
+            } else {
+                if (!shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    val sharedPreferences = requireContext().getSharedPreferences(
+                        getString(R.string.preference_file_key),
+                        Context.MODE_PRIVATE
+                    )
+                    with(sharedPreferences.edit()){
+                        putBoolean(getString(R.string.write_permission_key),true)
+                        apply()
+                    }
+                }
+                downloadViewModel.updateSaveProgress(Result.failure(Exception("Permission Denied, failed to save media")))
+                dismiss()
+            }
+        }
+    }
+
+    private fun requestWriteStoragePermission() {
+        val sharedPreferences = requireContext().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+
+        val isPermissionDeniedForGood = sharedPreferences.getBoolean(getString(R.string.write_permission_key),false)
+        if(isPermissionDeniedForGood){
+            requireContext().showPermissionRequestExplanation(
+                getString(R.string.storage_permission_dialog_title),
+                getString(R.string.storage_permission_denied_exp)
+            ){
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package",context?.packageName,null)
+                intent.data = uri
+                startActivity(intent)
+            }
+            return
+        }
+
+        if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            requireContext().showPermissionRequestExplanation(
+                getString(R.string.storage_permission_dialog_title),
+                getString(R.string.storage_permission_exp)
+            ) {
+                requestPermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+            return
+        }
+        requestPermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
+
+}

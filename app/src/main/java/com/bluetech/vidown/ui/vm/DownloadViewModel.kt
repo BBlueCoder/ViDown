@@ -40,6 +40,9 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
     private val _renameMediaStateFlow = MutableStateFlow<Result<DownloadItemPayload?>>(Result.success(null))
     val renameMediaStateFlow = _renameMediaStateFlow.asStateFlow()
 
+    private val _savingProgress = MutableStateFlow(Result.success(""))
+    val saveProgress = _savingProgress.asStateFlow()
+
     var title : String = ""
     var thumbnail : String = ""
 
@@ -85,6 +88,12 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
             dbRepo.renameMedia(id,title,downloadItemPayload).collect{
                 _renameMediaStateFlow.emit(it)
             }
+        }
+    }
+
+    fun updateSaveProgress(result : Result<String>){
+        viewModelScope.launch(Dispatchers.IO){
+            _savingProgress.emit(result)
         }
     }
 

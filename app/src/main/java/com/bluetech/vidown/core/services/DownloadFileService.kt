@@ -239,23 +239,6 @@ class DownloadFileService : Service() {
 
         val outputFile = File(filesDir, savedFileName)
 
-        println("---------------------------------- muxing video and audio")
-
-//        val args = arrayOf(
-//            "-i",
-//            videoFile.path,
-//            "-i",
-//            audioFile.path,
-//            "-c:v",
-//            "copy",
-//            "-c:a",
-//            "copy",
-//            "-strict",
-//            "normal",
-//            "-shortest",
-//            outputFile.path
-//        )
-
         FFmpegWrapper(this).mux(videoFile.path,audioFile.path,outputFile.path)
             .onCompletion {
                 if (it == null) {
@@ -271,12 +254,10 @@ class DownloadFileService : Service() {
                                     mp.reset()
                                     mp.release()
                                 }.setOnErrorListener { _, _, _ ->
-                                println("---------------- create media player error")
                                 mediaEntity.isMediaCorrupted = true
                                 true
                             }
                         } catch (ex: Exception) {
-                            println("---------------- create media player exception")
                             mediaEntity.isMediaCorrupted = true
                         }
                     }
@@ -287,8 +268,8 @@ class DownloadFileService : Service() {
                 } else {
                     outputFile.delete()
                 }
-//                videoFile.delete()
-//                audioFile.delete()
+                videoFile.delete()
+                audioFile.delete()
 
             }.catch {
                 it.printStackTrace()

@@ -19,6 +19,9 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
+import com.bluetech.vidown.core.MediaType
+import com.bluetech.vidown.core.db.MediaDao
+import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.ui.customviews.ResultCardView
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.ui.recyclerviews.HorizontalRecyclerViewAdapter
@@ -27,9 +30,12 @@ import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -50,6 +56,9 @@ class MainFragment : Fragment() {
     private lateinit var favoritesLayout: LinearLayout
 
     private lateinit var resultCard: ResultCardView
+
+    @Inject
+    lateinit var mediaDao : MediaDao
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -107,29 +116,42 @@ class MainFragment : Fragment() {
             showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         lookUpBtn.setOnClickListener {
-            hideItemCard()
+//            hideItemCard()
 
-            val link = view.findViewById<TextInputEditText>(R.id.link_text)
-            link.clearFocus()
-            val url = link.text.toString()
-            //link.setText("https://www.youtube.com/shorts/lZEDLCk6drY")
-
-            //check if input is a valid url
-            if (!url.matches(Regex("(https)?(:\\/\\/)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.([a-zA-Z0-9()]{1,6})(?=)\\/.+"))) {
-                view.snackBar(resources.getString(R.string.input_is_not_an_url))
-                return@setOnClickListener
-            }
-            circularProgress.visibility = View.VISIBLE
-            lookUpBtn.visibility = View.INVISIBLE
-
-            lifecycleScope.launch {
-                viewModel.searchForResult(url)
-            }
+//            val link = view.findViewById<TextInputEditText>(R.id.link_text)
+//            link.clearFocus()
+//            val url = link.text.toString()
+//            //link.setText("https://www.youtube.com/shorts/lZEDLCk6drY")
+//
+//            //check if input is a valid url
+//            if (!url.matches(Regex("(https)?(:\\/\\/)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.([a-zA-Z0-9()]{1,6})(?=)\\/.+"))) {
+//                view.snackBar(resources.getString(R.string.input_is_not_an_url))
+//                return@setOnClickListener
+//            }
+//            circularProgress.visibility = View.VISIBLE
+//            lookUpBtn.visibility = View.INVISIBLE
+//
+//            lifecycleScope.launch {
+//                viewModel.searchForResult(url)
+//            }
+            copyFileToExternalStorage(R.raw.audio_t,"audio_t.m4a")
         }
 
         showAvailableFormatsBtn.setOnClickListener {
             Navigation.findNavController(requireActivity(), R.id.nav_host)
                 .navigate(R.id.show_available_formats)
+        }
+    }
+
+    private fun copyFileToExternalStorage(resource: Int, outputName: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val inputStream = resources.openRawResource(resource)
+            File(requireContext().filesDir, outputName).outputStream().use {
+                inputStream.copyTo(it)
+            }
+            val mediaEntity = MediaEntity(0,outputName,MediaType.Audio,"audio_t",null,"Youtube","youtube",0)
+            mediaDao.addMedia(mediaEntity)
+            println("-------------------------------------- media added!")
         }
     }
 
