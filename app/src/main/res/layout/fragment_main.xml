@@ -44,7 +44,7 @@
             android:id="@+id/link_text"
             android:maxLines="1"
             android:inputType="text"
-            android:text="https://www.tiktok.com/@anishou3/video/7178355611355057413"
+            android:text="https://www.tiktok.com/@rjclick6/video/7239443801914346779"
             />
 
     </com.google.android.material.textfield.TextInputLayout>

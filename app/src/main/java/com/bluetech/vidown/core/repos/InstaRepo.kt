@@ -17,7 +17,7 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
         val results = mutableListOf<ResultItem>()
 
         try {
-            val resp = api.getInstaPostJSONData("$url?__a=1&__d=dis")
+            val resp = api.getInstaPostJSONData("${removeUrlParams(url)}?__a=1&__d=dis")
             if (!resp.isSuccessful)
                 throw Exception("Error : url is invalid")
 
@@ -94,5 +94,12 @@ class InstaRepo @Inject constructor(private val api: ApplicationApi): BaseRepo()
         }catch (ex : Exception){
             emit(Result.failure(ex))
         }
+    }
+
+    private fun removeUrlParams(url : String): String{
+        val indexOfTheStartOfTheParams = url.indexOfFirst { it == '?' }
+        if(indexOfTheStartOfTheParams == -1)
+            return url
+        return url.substring(0,url.indexOfFirst { it == '?' })
     }
 }

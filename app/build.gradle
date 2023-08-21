@@ -62,7 +62,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
 
     //Youtube download lib
-    implementation 'com.github.RaIsseMa:YouDownloaderDemo:2.1.2'
+    implementation 'com.github.RaIsseMa:YouDownloaderDemo:2.1.3'
 
     //Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'

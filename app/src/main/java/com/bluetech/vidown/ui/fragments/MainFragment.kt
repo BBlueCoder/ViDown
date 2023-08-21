@@ -1,5 +1,6 @@
 package com.bluetech.vidown.ui.fragments
 
+import android.content.Context
 import android.graphics.Paint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,7 +10,9 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -57,8 +60,12 @@ class MainFragment : Fragment() {
 
     private lateinit var resultCard: ResultCardView
 
+    private lateinit var rootView: View
+
     @Inject
-    lateinit var mediaDao : MediaDao
+    lateinit var mediaDao: MediaDao
+
+    var showSearchBtn = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,6 +81,8 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        rootView = view
 
         view.apply {
             circularProgress = findViewById(R.id.main_progress)
@@ -97,7 +106,10 @@ class MainFragment : Fragment() {
         recentDownloadsAdapter = HorizontalRecyclerViewAdapter(
             emptyList(),
             requireContext()
-        )
+        ){
+            val action = MainFragmentDirections.displayMediaAction(it)
+            Navigation.findNavController(requireActivity(),R.id.nav_host).navigate(action)
+        }
         recentDownloadsRecyclerView.adapter = recentDownloadsAdapter
 
         favoritesRecyclerView.layoutManager =
@@ -105,10 +117,15 @@ class MainFragment : Fragment() {
         favoritesAdapter = HorizontalRecyclerViewAdapter(
             emptyList(),
             requireContext()
-        )
+        ){
+            val action = MainFragmentDirections.displayMediaAction(it)
+            Navigation.findNavController(requireActivity(),R.id.nav_host).navigate(action)
+        }
+
         favoritesRecyclerView.adapter = favoritesAdapter
 
-        observeSearchResults(view)
+        observeMediaLink()
+        observeSearchResults()
         observeLastDownloads()
         observeLastFavorites()
 
@@ -116,25 +133,14 @@ class MainFragment : Fragment() {
             showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         lookUpBtn.setOnClickListener {
-//            hideItemCard()
+            val link = view.findViewById<TextInputEditText>(R.id.link_text)
+            link.clearFocus()
+            val url = link.text.toString()
 
-//            val link = view.findViewById<TextInputEditText>(R.id.link_text)
-//            link.clearFocus()
-//            val url = link.text.toString()
-//            //link.setText("https://www.youtube.com/shorts/lZEDLCk6drY")
-//
-//            //check if input is a valid url
-//            if (!url.matches(Regex("(https)?(:\\/\\/)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.([a-zA-Z0-9()]{1,6})(?=)\\/.+"))) {
-//                view.snackBar(resources.getString(R.string.input_is_not_an_url))
-//                return@setOnClickListener
-//            }
-//            circularProgress.visibility = View.VISIBLE
-//            lookUpBtn.visibility = View.INVISIBLE
-//
-//            lifecycleScope.launch {
-//                viewModel.searchForResult(url)
-//            }
-            copyFileToExternalStorage(R.raw.audio_t,"audio_t.m4a")
+            val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(lookUpBtn.windowToken, 0)
+
+            searchButtonAction(url)
         }
 
         showAvailableFormatsBtn.setOnClickListener {
@@ -143,28 +149,60 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun copyFileToExternalStorage(resource: Int, outputName: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val inputStream = resources.openRawResource(resource)
-            File(requireContext().filesDir, outputName).outputStream().use {
-                inputStream.copyTo(it)
-            }
-            val mediaEntity = MediaEntity(0,outputName,MediaType.Audio,"audio_t",null,"Youtube","youtube",0)
-            mediaDao.addMedia(mediaEntity)
-            println("-------------------------------------- media added!")
+    private fun isUrlValid(url: String): Boolean {
+        return url.matches(Regex("(https)?(:\\/\\/)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.([a-zA-Z0-9()]{1,6})(?=)\\/.+"))
+    }
+
+    private fun searchForMedia(url: String) {
+        hideItemCard()
+
+        circularProgress.visibility = View.VISIBLE
+        lookUpBtn.visibility = View.INVISIBLE
+
+        lifecycleScope.launch {
+            viewModel.searchForResult(url)
         }
     }
 
-    private fun observeSearchResults(view: View) {
+    private fun searchButtonAction(url: String) {
+
+        if (url.isEmpty())
+            return
+
+        if (!isUrlValid(url)) {
+            rootView.snackBar(resources.getString(R.string.input_is_not_an_url))
+            return
+        }
+
+        showSearchBtn = false
+
+        searchForMedia(url)
+    }
+
+    private fun observeMediaLink() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mediaLink.collect {
+                    if(it == "")
+                        return@collect
+
+                    val link = rootView.findViewById<TextInputEditText>(R.id.link_text)
+                    link.setText(it)
+                    searchButtonAction(link.text.toString())
+                }
+            }
+        }
+    }
+
+    private fun observeSearchResults() {
         lifecycleScope.launch(Dispatchers.IO) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.lookUpResults.collect { result ->
                     withContext(Dispatchers.Main) {
-                        circularProgress.visibility = View.GONE
-                        lookUpBtn.visibility = View.VISIBLE
                         result.onFailure { exp ->
+                            showAndHideLookUpButtonAndProgress()
                             exp.printStackTrace()
-                            view.snackBar(
+                            rootView.snackBar(
                                 exp.message!!
                             )
                         }
@@ -203,8 +241,16 @@ class MainFragment : Fragment() {
             val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down_with_fade)
             showAvailableFormatsBtn.visibility = View.VISIBLE
             showAvailableFormatsBtn.startAnimation(anim)
+
+            showAndHideLookUpButtonAndProgress()
+
             return
         }
+    }
+
+    private fun showAndHideLookUpButtonAndProgress(){
+        circularProgress.visibility = View.GONE
+        lookUpBtn.visibility = View.VISIBLE
     }
 
     private fun observeLastDownloads() {

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -38,6 +39,13 @@ class MainActivity : AppCompatActivity() {
         mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         setUpNavigationBottom()
+
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+
 
     }
 
@@ -112,6 +120,22 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        handleSendIntent(intent)
+
+    }
+
+    private fun handleSendIntent(intent : Intent?){
+        if(intent?.action.equals(Intent.ACTION_SEND) && intent?.type.equals("text/plain")){
+            val link = intent?.getStringExtra(Intent.EXTRA_TEXT)
+
+            link?.let {
+                mainViewModel.updateMediaLink(it)
+            }
+        }
     }
 
 }

@@ -14,7 +14,11 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bumptech.glide.Glide
 import java.io.File
 
-class HorizontalRecyclerViewAdapter(var recentDownloadList : List<MediaEntity>, private val context: Context)
+class HorizontalRecyclerViewAdapter(
+    var recentDownloadList : List<MediaEntity>,
+    private val context: Context,
+    private val itemClickListener : ((mediaEntity : MediaEntity) -> Unit)
+    )
     : RecyclerView.Adapter<HorizontalRecyclerViewAdapter.RecentDownloadAdapterHolder>()
 {
 
@@ -43,6 +47,9 @@ class HorizontalRecyclerViewAdapter(var recentDownloadList : List<MediaEntity>, 
                             .load(Uri.fromFile(file))
                             .into(thumbnail)
                     }
+                }
+                thumbnail.setOnClickListener {
+                    itemClickListener.invoke(mediaEntity)
                 }
             }
         }

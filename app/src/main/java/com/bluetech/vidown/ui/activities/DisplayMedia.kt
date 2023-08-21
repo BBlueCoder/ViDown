@@ -24,11 +24,11 @@ import java.io.File
 
 class DisplayMedia : AppCompatActivity() {
 
-    private val args : DisplayMediaArgs by navArgs()
+    private val args: DisplayMediaArgs by navArgs()
 
-    private lateinit var media : MediaEntity
+    private lateinit var media: MediaEntity
 
-    private lateinit var exoPlayer : ExoPlayer
+    private lateinit var exoPlayer: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,22 +36,22 @@ class DisplayMedia : AppCompatActivity() {
 
         media = args.mediaEntity
 
-        try{
-            when(media.mediaType){
-                MediaType.Video->setUpVideo()
-                MediaType.Image->setUpImage()
-                MediaType.Audio->setUpAudio()
+        try {
+            when (media.mediaType) {
+                MediaType.Video -> setUpVideo()
+                MediaType.Image -> setUpImage()
+                MediaType.Audio -> setUpAudio()
             }
-        }catch (ex :Exception){
+        } catch (ex: Exception) {
             ex.printStackTrace()
         }
 
     }
 
-    private fun setUpVideo(){
-        val file = File(filesDir,media.name)
+    private fun setUpVideo() {
+        val file = File(filesDir, media.name)
 
-        if(!file.exists())
+        if (!file.exists())
             throw Exception("File not found")
 
         val videoView = findViewById<StyledPlayerView>(R.id.video_view)
@@ -62,7 +62,40 @@ class DisplayMedia : AppCompatActivity() {
         exoPlayer = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
             .build().apply {
-                trackSelectionParameters = DefaultTrackSelector.Parameters.Builder(this@DisplayMedia).build()
+                trackSelectionParameters =
+                    DefaultTrackSelector.Parameters.Builder(this@DisplayMedia).build()
+                addListener(object : Player.Listener {
+                    override fun onPlayerError(error: PlaybackException) {
+                        super.onPlayerError(error)
+                        error.printStackTrace()
+
+                    }
+                })
+                playWhenReady = false
+            }
+
+        videoView.player = exoPlayer
+        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
+        exoPlayer.prepare()
+        println("********************** dure = ${exoPlayer.duration}")
+        exoPlayer.playWhenReady = true
+    }
+
+    private fun setUpAudio() {
+        val file = File(filesDir, media.name)
+
+        if (!file.exists())
+            throw Exception("File not found")
+        val videoView = findViewById<StyledPlayerView>(R.id.video_view)
+
+        videoView.visibility = View.VISIBLE
+
+        val trackSelector = DefaultTrackSelector(this)
+        exoPlayer = ExoPlayer.Builder(this)
+            .setTrackSelector(trackSelector)
+            .build().apply {
+                trackSelectionParameters =
+                    DefaultTrackSelector.Parameters.Builder(this@DisplayMedia).build()
                 addListener(object : Player.Listener {
                     override fun onPlayerError(error: PlaybackException) {
                         super.onPlayerError(error)
@@ -79,38 +112,8 @@ class DisplayMedia : AppCompatActivity() {
         exoPlayer.playWhenReady = true
     }
 
-    private fun setUpAudio(){
-        val file = File(filesDir,media.name)
-
-        if(!file.exists())
-            throw Exception("File not found")
-        val videoView = findViewById<StyledPlayerView>(R.id.video_view)
-
-        videoView.visibility = View.VISIBLE
-
-        val trackSelector = DefaultTrackSelector(this)
-        exoPlayer = ExoPlayer.Builder(this)
-            .setTrackSelector(trackSelector)
-            .build().apply {
-                trackSelectionParameters = DefaultTrackSelector.Parameters.Builder(this@DisplayMedia).build()
-                addListener(object : Player.Listener {
-                    override fun onPlayerError(error: PlaybackException) {
-                        super.onPlayerError(error)
-                        error.printStackTrace()
-
-                    }
-                })
-                playWhenReady = false
-            }
-
-        videoView.player = exoPlayer
-        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
-        exoPlayer.prepare()
-        exoPlayer.playWhenReady = true
-    }
-
-    private fun setUpImage(){
-        val file = File(filesDir,media.name)
+    private fun setUpImage() {
+        val file = File(filesDir, media.name)
         val imageView = findViewById<ImageView>(R.id.image_view)
 
         imageView.visibility = View.VISIBLE
@@ -125,20 +128,28 @@ class DisplayMedia : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        println("------------------------------- onpause")
-        exoPlayer.pause()
+        pauseExoPlayer()
     }
 
     override fun onStop() {
         super.onStop()
-        println("------------------------------- onstop")
-        exoPlayer.pause()
+        pauseExoPlayer()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        println("------------------------------- ondestroy")
-        exoPlayer.stop()
-        exoPlayer.release()
+        pauseExoPlayer(true)
+    }
+
+    private fun pauseExoPlayer(stopPlayer: Boolean = false){
+        if (media.mediaType == MediaType.Audio || media.mediaType == MediaType.Video) {
+            try {
+                exoPlayer.pause()
+                if(stopPlayer)
+                    exoPlayer.stop()
+            }catch (ex : Exception){
+                ex.printStackTrace()
+            }
+        }
     }
 }

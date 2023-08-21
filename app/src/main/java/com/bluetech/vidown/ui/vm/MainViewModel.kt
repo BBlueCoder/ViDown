@@ -39,6 +39,9 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
     private val _lastFavorites = MutableStateFlow<Result<List<MediaEntity>>>(Result.success(emptyList()))
     val lastFavorites = _lastFavorites.asStateFlow()
 
+    private val _mediaLink = MutableStateFlow("")
+    val mediaLink = _mediaLink.asStateFlow()
+
     fun searchForResult(url : String){
         viewModelScope.launch(Dispatchers.IO){
             val repo = verifyUrlAndMatchItToRepo(url)
@@ -48,6 +51,10 @@ class MainViewModel @Inject constructor(private var dbRepo: DBRepo): ViewModel()
                 _lookUpResults.emit(it)
             }
         }
+    }
+
+    fun updateMediaLink(link : String){
+        _mediaLink.value = link
     }
 
     fun getLastDownloads(){

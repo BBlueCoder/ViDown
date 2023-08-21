@@ -1,8 +1,8 @@
 package com.bluetech.vidown.ui.recyclerviews
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,23 +13,23 @@ import com.bluetech.vidown.utils.formatDurationToReadableFormat
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
+
 
 sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     abstract fun bind(
         mediaEntity: MediaEntity,
         context: Context,
-        position : Int,
-        itemClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit),
-        editClickListener: ((mediaEntity: MediaEntity,position : Int) -> Unit),
-        longClickListener : ((mediaEntity: MediaEntity,position : Int) -> Unit)
+        position: Int,
+        itemClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit),
+        editClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit),
+        longClickListener: ((mediaEntity: MediaEntity, position: Int) -> Unit)
     )
 
-    abstract fun renameItem(title : String)
+    abstract fun renameItem(title: String)
 
-    abstract fun toggleItemSelection(isItemSelected : Boolean)
+    abstract fun toggleItemSelection(isItemSelected: Boolean)
 
     class VideoMediaViewHolder(itemView: View) : DownloadsAdapterHolder(itemView) {
         override fun bind(
@@ -50,19 +50,41 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             title.text = mediaEntity.title
             durationText.text = mediaEntity.duration.formatDurationToReadableFormat()
 
-            if (file.exists() && !mediaEntity.isMediaCorrupted) {
+            if (file.exists()) {
+
+                try {
+                    var duration = 0L
+                    val cursor = MediaStore.Video.query(
+                        context.contentResolver,
+                        Uri.fromFile(file),
+                        arrayOf<String>(MediaStore.Video.VideoColumns.DURATION)
+                    )
+                    println("----------- cursor $cursor")
+                    if (cursor != null) {
+
+                        cursor.moveToFirst()
+                        val c = cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION)
+                        duration =
+                            cursor.getLong(c)
+                        cursor.close()
+                        println("--------------- dure $duration")
+                    }
+                }catch (e : Exception){
+                    println("--------------- duration exp ${e.message}")
+                }
+
 
                 thumbnail.setOnClickListener {
-                    itemClickListener.invoke(mediaEntity,position)
+                    itemClickListener.invoke(mediaEntity, position)
                 }
 
                 thumbnail.setOnLongClickListener {
-                    longClickListener.invoke(mediaEntity,position)
+                    longClickListener.invoke(mediaEntity, position)
                     true
                 }
 
                 editDots.setOnClickListener {
-                    editClickListener.invoke(mediaEntity,position)
+                    editClickListener.invoke(mediaEntity, position)
                 }
 
                 Glide.with(context)
@@ -86,10 +108,10 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         override fun toggleItemSelection(isItemSelected: Boolean) {
             val cardView = itemView.findViewById<MaterialCardView>(R.id.media_video_card_view)
             val selectedOverlay = itemView.findViewById<View>(R.id.media_video_selected_overlay)
-            if(isItemSelected){
+            if (isItemSelected) {
                 cardView.strokeWidth = 3
                 selectedOverlay.visibility = View.VISIBLE
-            }else{
+            } else {
                 cardView.strokeWidth = 0
                 selectedOverlay.visibility = View.GONE
             }
@@ -116,16 +138,16 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
-                    itemClickListener.invoke(mediaEntity,position)
+                    itemClickListener.invoke(mediaEntity, position)
                 }
 
                 thumbnail.setOnLongClickListener {
-                    longClickListener.invoke(mediaEntity,position)
+                    longClickListener.invoke(mediaEntity, position)
                     true
                 }
 
                 editDots.setOnClickListener {
-                    editClickListener.invoke(mediaEntity,position)
+                    editClickListener.invoke(mediaEntity, position)
                 }
 
                 Glide.with(context)
@@ -133,7 +155,7 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
                     .error(R.drawable.ic_video_corrupted)
                     .into(thumbnail)
 
-            }else{
+            } else {
                 Glide.with(context)
                     .load(R.drawable.ic_video_corrupted)
                     .into(thumbnail)
@@ -148,10 +170,10 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         override fun toggleItemSelection(isItemSelected: Boolean) {
             val cardView = itemView.findViewById<MaterialCardView>(R.id.media_image_card_view)
             val selectedOverlay = itemView.findViewById<View>(R.id.media_image_selected_overlay)
-            if(isItemSelected){
+            if (isItemSelected) {
                 cardView.strokeWidth = 3
                 selectedOverlay.visibility = View.VISIBLE
-            }else{
+            } else {
                 cardView.strokeWidth = 0
                 selectedOverlay.visibility = View.GONE
             }
@@ -184,19 +206,20 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
             title.text = mediaEntity.title
             durationText.text = mediaEntity.duration.formatDurationToReadableFormat()
             val file = File(context.filesDir, mediaEntity.name)
+
             if (file.exists() && !mediaEntity.isMediaCorrupted) {
 
                 thumbnail.setOnClickListener {
-                    itemClickListener.invoke(mediaEntity,position)
+                    itemClickListener.invoke(mediaEntity, position)
                 }
 
                 thumbnail.setOnLongClickListener {
-                    longClickListener.invoke(mediaEntity,position)
+                    longClickListener.invoke(mediaEntity, position)
                     true
                 }
 
                 editDots.setOnClickListener {
-                    editClickListener.invoke(mediaEntity,position)
+                    editClickListener.invoke(mediaEntity, position)
                 }
 
             } else {
@@ -216,10 +239,10 @@ sealed class DownloadsAdapterHolder(itemView: View) : RecyclerView.ViewHolder(it
         override fun toggleItemSelection(isItemSelected: Boolean) {
             val cardView = itemView.findViewById<MaterialCardView>(R.id.media_audio_card_view)
             val selectedOverlay = itemView.findViewById<View>(R.id.media_audio_selected_overlay)
-            if(isItemSelected){
+            if (isItemSelected) {
                 cardView.strokeWidth = 3
                 selectedOverlay.visibility = View.VISIBLE
-            }else{
+            } else {
                 cardView.strokeWidth = 0
                 selectedOverlay.visibility = View.GONE
             }

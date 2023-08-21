@@ -19,6 +19,9 @@
         <action
             android:id="@+id/edit_media_action"
             app:destination="@id/MediaEditSheet" />
+        <action
+            android:id="@+id/display_media_action"
+            app:destination="@id/displayMedia" />
     </fragment>
     <fragment
         android:id="@+id/downloadFragment"

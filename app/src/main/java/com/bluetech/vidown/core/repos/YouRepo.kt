@@ -80,6 +80,7 @@ class YouRepo @Inject constructor(@ApplicationContext val context : Context): Ba
             results.add(ResultItem.CategoryTitle("Audio"))
             vidResp.streamingData.adaptiveFormats!!.filter { format -> format.mimeType.contains("audio")
                     && format.mimeType.contains("mp4a")}.forEach {
+                println("audio url ${it.qualityLabel?: it.audioQuality?: it.quality} : ${it.url}")
                 results.add(
                     ResultItem.ItemData(
                         results.size,

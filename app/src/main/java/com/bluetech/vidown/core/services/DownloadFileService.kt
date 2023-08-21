@@ -3,6 +3,7 @@ package com.bluetech.vidown.core.services
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Binder
@@ -22,6 +23,13 @@ import com.bluetech.vidown.utils.Constants.DOWNLOAD_SERVICE_ACTION
 import com.bluetech.vidown.utils.Constants.FILE_PREFIX_NAME
 import com.bluetech.vidown.utils.Constants.NOTIFICATION_CHANNEL_ID
 import com.bluetech.vidown.utils.Constants.USER_AGENT
+import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.DefaultRenderersFactory
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -36,17 +45,19 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class DownloadFileService : Service() {
 
-    inner class DownloadFileServiceBinder : Binder(){
-        val service : DownloadFileService
-        get()=this@DownloadFileService
+    inner class DownloadFileServiceBinder : Binder() {
+        val service: DownloadFileService
+            get() = this@DownloadFileService
     }
 
-    private val binder : IBinder = DownloadFileServiceBinder()
+    private val binder: IBinder = DownloadFileServiceBinder()
     private val scope = CoroutineScope(Dispatchers.IO)
 
     override fun onBind(p0: Intent?): IBinder {
@@ -54,7 +65,7 @@ class DownloadFileService : Service() {
     }
 
     @Inject
-    lateinit var mediaDao : MediaDao
+    lateinit var mediaDao: MediaDao
 
     private var isServiceStopped = false
 
@@ -68,16 +79,15 @@ class DownloadFileService : Service() {
         val audioUrl = intent?.getStringExtra("audioUrl")
 
 
-
         val action = intent?.action
         action?.let {
             fileUrl
         }
 
-        val mediaType = when(fileType){
-            "image"->MediaType.Image
-            "video"->MediaType.Video
-            "audio"->MediaType.Audio
+        val mediaType = when (fileType) {
+            "image" -> MediaType.Image
+            "video" -> MediaType.Video
+            "audio" -> MediaType.Audio
             else -> null
         }
 
@@ -93,33 +103,34 @@ class DownloadFileService : Service() {
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(111,createNotification().build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
-        }else{
-            startForeground(111,createNotification().build())
+            startForeground(111, createNotification().build(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            startForeground(111, createNotification().build())
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 println("------------------------------- audio Url : $audioUrl")
                 println("------------------------------- video Url : $fileUrl")
-                if(audioUrl != null){
+                if (audioUrl != null) {
                     println("------------------------ download youtube video and mux audio")
-                    downloadYoutubeVideoWithSound(mediaEntity,fileUrl,audioUrl)
-                }else{
+                    downloadYoutubeVideoWithSound(mediaEntity, fileUrl, audioUrl)
+                } else {
                     downloadFile(mediaEntity)
                 }
-            }catch (ex : Exception){
+            } catch (ex: Exception) {
                 println("DownloadServiceException : ${ex.printStackTrace()}")
                 val notificationManager = NotificationManagerCompat.from(this@DownloadFileService)
-                val notification = NotificationCompat.Builder(this@DownloadFileService, NOTIFICATION_CHANNEL_ID)
-                    .setContentText("An error occurred when saving videos")
-                    .setTicker("Error Saving videos!")
-                    .setSmallIcon(R.drawable.ic_downloand_notification)
+                val notification =
+                    NotificationCompat.Builder(this@DownloadFileService, NOTIFICATION_CHANNEL_ID)
+                        .setContentText("An error occurred when saving videos")
+                        .setTicker("Error Saving videos!")
+                        .setSmallIcon(R.drawable.ic_downloand_notification)
 
                 notificationManager.notify(111, notification.build())
 
                 Intent(DOWNLOAD_SERVICE_ACTION).also {
-                    it.putExtra("result","fail")
+                    it.putExtra("result", "fail")
                     LocalBroadcastManager.getInstance(this@DownloadFileService).sendBroadcast(it)
                 }
 
@@ -131,11 +142,15 @@ class DownloadFileService : Service() {
         return START_STICKY
     }
 
-    private fun setUpDownload(){
+    private fun setUpDownload() {
 
     }
 
-    private suspend fun downloadYoutubeVideoWithSound(mediaEntity: MediaEntity,videoSource : String,audioSource : String) {
+    private suspend fun downloadYoutubeVideoWithSound(
+        mediaEntity: MediaEntity,
+        videoSource: String,
+        audioSource: String
+    ) {
 
         var totalDownloadedSize: Long = 0
         var totalContentLength: Long = 0
@@ -150,9 +165,27 @@ class DownloadFileService : Service() {
         val videoFileName = "${timeInMillis}_temp_video.mp4"
         val audioFileName = "${timeInMillis}_temp_audio.m4a"
 
-        val videoMediaEntity = MediaEntity(55,videoFileName,mediaEntity.mediaType,mediaEntity.title,mediaEntity.thumbnail,mediaEntity.source,mediaEntity.downloadSource,mediaEntity.duration)
+        val videoMediaEntity = MediaEntity(
+            55,
+            videoFileName,
+            mediaEntity.mediaType,
+            mediaEntity.title,
+            mediaEntity.thumbnail,
+            mediaEntity.source,
+            mediaEntity.downloadSource,
+            mediaEntity.duration
+        )
 
-        val audioMediaEntity = MediaEntity(65,audioFileName,MediaType.Audio,mediaEntity.title,mediaEntity.thumbnail,mediaEntity.source,mediaEntity.downloadSource,mediaEntity.duration)
+        val audioMediaEntity = MediaEntity(
+            65,
+            audioFileName,
+            MediaType.Audio,
+            mediaEntity.title,
+            mediaEntity.thumbnail,
+            mediaEntity.source,
+            mediaEntity.downloadSource,
+            mediaEntity.duration
+        )
 
 
         val videoDownloadJob = scope.launch {
@@ -239,7 +272,7 @@ class DownloadFileService : Service() {
 
         val outputFile = File(filesDir, savedFileName)
 
-        FFmpegWrapper(this).mux(videoFile.path,audioFile.path,outputFile.path)
+        FFmpegWrapper(this).mux(videoFile.path, audioFile.path, outputFile.path)
             .onCompletion {
                 if (it == null) {
                     //Get duration of media if it is video or audio and check if media is working fine
@@ -254,9 +287,9 @@ class DownloadFileService : Service() {
                                     mp.reset()
                                     mp.release()
                                 }.setOnErrorListener { _, _, _ ->
-                                mediaEntity.isMediaCorrupted = true
-                                true
-                            }
+                                    mediaEntity.isMediaCorrupted = true
+                                    true
+                                }
                         } catch (ex: Exception) {
                             mediaEntity.isMediaCorrupted = true
                         }
@@ -289,10 +322,10 @@ class DownloadFileService : Service() {
             .setTicker("Download started")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOngoing(true)
-            .setProgress(100,0,true)
+            .setProgress(100, 0, true)
     }
 
-    private fun downloadFile(mediaEntity: MediaEntity){
+    private suspend fun downloadFile(mediaEntity: MediaEntity) {
 
         val timeInMillis = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             DateTimeFormatter.ISO_INSTANT.format(Instant.now())
@@ -322,67 +355,80 @@ class DownloadFileService : Service() {
 
         val buffer = ByteArray(1024)
         var length = inputStream.read(buffer)
-        var downloadedSize : Long = 0
+        var downloadedSize: Long = 0
 
         println("Download Service : downloading...")
-        while(length > 0 && !isServiceStopped){
-            fileOutputStream.write(buffer,0,length)
+        while (length > 0 && !isServiceStopped) {
+            fileOutputStream.write(buffer, 0, length)
             length = inputStream.read(buffer)
             downloadedSize += length
 
             try {
-                val progress = (downloadedSize * 100f/contentLength).roundToInt()
-                updateProgress(progress,contentLength,downloadedSize)
-            }catch (ex : Exception){
+                val progress = (downloadedSize * 100f / contentLength).roundToInt()
+                updateProgress(progress, contentLength, downloadedSize)
+            } catch (ex: Exception) {
                 println("------------------- progress exp : ${ex.printStackTrace()}")
             }
 
         }
         println("Download Service : finished downloading...")
 
-        if(mediaEntity.thumbnail != null)
+        if (mediaEntity.thumbnail != null)
             mediaEntity.thumbnail = saveThumbnail(mediaEntity)
 
         fileOutputStream.close()
 
-        if(isServiceStopped){
-            val file = File(filesDir,savedFileName)
-            if(file.exists())
+        if (isServiceStopped) {
+            val file = File(filesDir, savedFileName)
+            if (file.exists())
                 file.delete()
             return
         }
 
         //Get duration of media if it is video or audio and check if media is working fine
-        if(mediaEntity.mediaType == MediaType.Audio || mediaEntity.mediaType == MediaType.Video){
-            val file = File(filesDir,mediaEntity.name)
-            try{
-                MediaPlayer.create(this, Uri.fromFile(file)).also { mp ->
-                    mediaEntity.duration = mp.duration.toLong()
-                    mp.reset()
-                    mp.release()
-                }.setOnErrorListener { _, _, _ ->
-                    println("---------------- create media player error")
-                    mediaEntity.isMediaCorrupted = true
-                    true
+        if (mediaEntity.mediaType == MediaType.Audio || mediaEntity.mediaType == MediaType.Video) {
+            val file = File(filesDir, mediaEntity.name)
+
+            try {
+                withContext(Dispatchers.Main){
+                    suspendCoroutine<Long> { coroutine ->
+                        ExoPlayer.Builder(this@DownloadFileService).build().also {
+                            it.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
+                            it.prepare()
+                            it.addListener(object : Player.Listener {
+                                override fun onPlaybackStateChanged(playbackState: Int) {
+                                    if (playbackState == Player.STATE_READY) {
+                                        it.removeListener(this)
+                                        it.release()
+                                        mediaEntity.duration = it.duration
+                                        coroutine.resume(it.duration)
+                                    }
+                                }
+                            })
+                        }
+                    }
                 }
-            }catch (ex : Exception){
-                println("---------------- create media player exception")
-                mediaEntity.isMediaCorrupted = true
+
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+
         }
 
         saveFileToDB(mediaEntity)
 
     }
 
-    private fun saveThumbnail(mediaEntity: MediaEntity) : String {
+    private fun saveThumbnail(mediaEntity: MediaEntity): String {
         val fileName = "${mediaEntity.name}_thumbnail"
         val outputStream = openFileOutput(fileName, MODE_PRIVATE)
 
         val url = URL(mediaEntity.thumbnail)
         val connection = url.openConnection() as HttpURLConnection
-        connection.setRequestProperty("User-Agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36")
+        connection.setRequestProperty(
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
+        )
         connection.requestMethod = "GET"
         connection.connect()
 
@@ -392,21 +438,21 @@ class DownloadFileService : Service() {
         var length = inputStream.read(buffer)
 
         println("Download Service : downloading thumbnail...")
-        while(length > 0 && !isServiceStopped){
-            outputStream.write(buffer,0,length)
+        while (length > 0 && !isServiceStopped) {
+            outputStream.write(buffer, 0, length)
             length = inputStream.read(buffer)
         }
         println("Download Service : finished downloading thumbnail ...")
         outputStream.close()
-        if(isServiceStopped){
-            val file = File(filesDir,fileName)
-            if(file.exists())
+        if (isServiceStopped) {
+            val file = File(filesDir, fileName)
+            if (file.exists())
                 file.delete()
         }
         return fileName
     }
 
-    private fun saveFileToDB(mediaEntity: MediaEntity){
+    private fun saveFileToDB(mediaEntity: MediaEntity) {
 
         mediaDao.addMedia(mediaEntity)
 
@@ -422,7 +468,7 @@ class DownloadFileService : Service() {
         println("Download Service : download finished")
 
         Intent(DOWNLOAD_SERVICE_ACTION).also {
-            it.putExtra("result","success")
+            it.putExtra("result", "success")
             LocalBroadcastManager.getInstance(this).sendBroadcast(it)
         }
 
@@ -430,34 +476,34 @@ class DownloadFileService : Service() {
 
     }
 
-    private fun updateProgress(progress: Int, contentLength: Long, downloadedSize: Long){
+    private fun updateProgress(progress: Int, contentLength: Long, downloadedSize: Long) {
         Intent(DOWNLOAD_FILE_PROGRESS_ACTION).also {
-            it.putExtra("progress",progress)
-            it.putExtra("fileSizeInByte",contentLength)
-            it.putExtra("downloadSizeInByte",downloadedSize)
+            it.putExtra("progress", progress)
+            it.putExtra("fileSizeInByte", contentLength)
+            it.putExtra("downloadSizeInByte", downloadedSize)
             LocalBroadcastManager.getInstance(this).sendBroadcast(it)
         }
     }
 
-    private fun stopService(){
+    private fun stopService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_DETACH)
-        }else{
+        } else {
             stopForeground(false)
         }
         stopSelf()
     }
 
-    fun cancelDownload(){
+    fun cancelDownload() {
         println("-------------------------------Service stopped")
         isServiceStopped = true
         Intent(DOWNLOAD_SERVICE_ACTION).also {
-            it.putExtra("result","canceled")
+            it.putExtra("result", "canceled")
             LocalBroadcastManager.getInstance(this).sendBroadcast(it)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)
-        }else{
+        } else {
             stopForeground(true)
         }
         stopSelf()
