@@ -5,9 +5,10 @@ buildscript {
         hiltAndroidXVersion = '1.0.0-alpha03'
         hiltVersion = '2.43.2'
         retrofitVersion = '2.9.0'
-        roomVersion = '2.4.3'
+        roomVersion = '2.5.2'
         paging_version = "3.1.1"
         lottieVersion = "3.4.0"
+        work_version = "2.8.1"
     }
     repositories {
         google()

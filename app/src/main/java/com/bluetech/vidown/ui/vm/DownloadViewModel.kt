@@ -22,17 +22,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
 class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewModel(){
-
-    private val _downloadProgress = MutableStateFlow(DownloadMediaProgress(0,0,0))
-    val downloadProgress = _downloadProgress.asStateFlow()
-
-    private val _downloadItemInfo = MutableStateFlow<ResultItem.ItemInfo?>(null)
-    val downloadItemInfo = _downloadItemInfo.asStateFlow()
 
     private val _removeMediaStateFlow = MutableStateFlow<Result<Boolean?>>(Result.success(null))
     val removeMediaStateFlow = _removeMediaStateFlow.asStateFlow()
@@ -42,6 +37,9 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
 
     private val _savingProgress = MutableStateFlow(Result.success(""))
     val saveProgress = _savingProgress.asStateFlow()
+
+    var currentWorkId  = MutableStateFlow<UUID?>(null)
+        private set
 
     var title : String = ""
     var thumbnail : String = ""
@@ -57,22 +55,14 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         MediaPagingSource(dbRepo,fetchArgs)
     }.flow.cachedIn(viewModelScope)
 
-    fun updateProgress(progress : DownloadMediaProgress){
-        viewModelScope.launch(Dispatchers.Default){
-            _downloadProgress.emit(progress)
-        }
-    }
-
-    fun updateItemInfo(itemInfo: ResultItem.ItemInfo?){
-        viewModelScope.launch {
-            _downloadItemInfo.emit(itemInfo)
-        }
-    }
-
     fun updateMediaFavorite(id : Int,favorite : Boolean){
         viewModelScope.launch(Dispatchers.IO){
             dbRepo.updateMediaFavorite(id,favorite)
         }
+    }
+
+    fun updateRequestUUID(uuid: UUID?){
+        currentWorkId.value = uuid
     }
 
     fun removeMedia(mediaEntity: MediaEntity,context: Context){

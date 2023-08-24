@@ -18,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -25,13 +26,17 @@ import androidx.navigation.Navigation
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.pojoclasses.SelectItem
 import com.bluetech.vidown.core.services.DownloadFileService
+import com.bluetech.vidown.core.workers.DownloadFileWorker
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
+import com.bluetech.vidown.utils.CustomWorkerFactory
 import com.bluetech.vidown.utils.formatSizeToReadableFormat
 import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
@@ -77,7 +82,11 @@ class DownloadFragment : Fragment() {
 
     private lateinit var selectedItemsText: TextView
 
-    private lateinit var rootView : View
+    private lateinit var rootView: View
+
+    private lateinit var workManager: WorkManager
+
+    private var mediaTitle = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -115,6 +124,7 @@ class DownloadFragment : Fragment() {
 
         val cancelBtn = view.findViewById<ImageView>(R.id.download_media_cancel)
 
+        workManager = WorkManager.getInstance(requireContext())
 
         selectBtn.setOnClickListener {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -129,7 +139,7 @@ class DownloadFragment : Fragment() {
         }
 
         cancelBtn.setOnClickListener {
-            downloadFileService.cancelDownload()
+            workManager.cancelAllWork()
         }
 
         adapter = DownloadsAdapter(
@@ -167,12 +177,12 @@ class DownloadFragment : Fragment() {
             val orderMenuItem = popupMenu.menu.findItem(R.id.popup_edit_order_by)
             val favoritesMenuItem = popupMenu.menu.findItem(R.id.popup_edit_display_favorites)
 
-            if(viewModel.fetchArgs.orderByNewest)
+            if (viewModel.fetchArgs.orderByNewest)
                 orderMenuItem.title = "Order by oldest"
             else
                 orderMenuItem.title = "Order by newest"
 
-            if(viewModel.fetchArgs.onlyFavorites)
+            if (viewModel.fetchArgs.onlyFavorites)
                 favoritesMenuItem.title = "Show all"
             else
                 favoritesMenuItem.title = "Show only favorites"
@@ -183,6 +193,7 @@ class DownloadFragment : Fragment() {
                         viewModel.fetchArgs.orderByNewest = !viewModel.fetchArgs.orderByNewest
                         adapter.refresh()
                     }
+
                     R.id.popup_edit_display_favorites -> {
                         viewModel.fetchArgs.onlyFavorites = !viewModel.fetchArgs.onlyFavorites
                         adapter.refresh()
@@ -193,8 +204,7 @@ class DownloadFragment : Fragment() {
             popupMenu.show()
         }
 
-        observeItemInfo(view)
-        observeDownloadProgress()
+        observeDownloadProgress(view)
         observeRemovingMedia()
         observeRenamingMedia()
         observeSelection()
@@ -242,12 +252,12 @@ class DownloadFragment : Fragment() {
         }
     }
 
-    private fun observeSaving(){
+    private fun observeSaving() {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.saveProgress.collect{
+                viewModel.saveProgress.collect {
                     it.onSuccess { msg ->
-                        if(msg.isNotEmpty())
+                        if (msg.isNotEmpty())
                             requireView().snackBar(msg)
                     }
                     it.onFailure { ex ->
@@ -297,52 +307,77 @@ class DownloadFragment : Fragment() {
         }
     }
 
-    private fun observeItemInfo(view: View) {
-        lifecycleScope.launch(Dispatchers.Main) {
+    private fun observeDownloadProgress(view: View) {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.downloadItemInfo.collectLatest { resultItemInfo ->
-                    val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
-                    if (resultItemInfo == null) {
-                        card.visibility = View.GONE
-                        adapter.refresh()
-                    } else {
-                        val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
-                        val title = view.findViewById<TextView>(R.id.download_media_title)
-                        title.text = resultItemInfo.title
-                        Glide.with(requireContext())
-                            .load(resultItemInfo.thumbnail)
-                            .into(thumbnail)
-                        card.visibility = View.VISIBLE
-                        if (!isDownloadServiceBound)
-                            bindToDownloadService()
+                viewModel.currentWorkId.collect { uuid ->
+
+                    if(uuid == null){
+                        updateDownloadEnd(view)
+                    }
+
+                    uuid?.let { id ->
+                        workManager.getWorkInfoByIdLiveData(id)
+                            .observe(viewLifecycleOwner) { workInfo ->
+                                if(workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED){
+                                    viewModel.updateRequestUUID(null)
+                                }
+                                workInfo?.let {
+                                    updateDownloadedMediaInfo(view, workInfo)
+                                    updateDownloadProgress(workInfo)
+                                }
+                            }
                     }
                 }
             }
         }
     }
 
-    private fun observeDownloadProgress() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.downloadProgress.collectLatest { progressData ->
-                    progressData.progress?.let {
-                        downloadProgress.progress = it
-                        downloadTextProgress.text = "$it%"
-                    }
-                    if (progressData.progress == null) {
-                        downloadProgress.isIndeterminate = true
-                        downloadTextProgress.text = ""
-                        downloadSizeProgress.text =
-                            progressData.downloadedSize.formatSizeToReadableFormat()
-                    } else {
-                        downloadProgress.isIndeterminate = false
-                        downloadSizeProgress.text =
-                            "${progressData.downloadedSize.formatSizeToReadableFormat()}/${progressData.fileSize!!.formatSizeToReadableFormat()}"
-                    }
+    private fun updateDownloadEnd(view: View){
+        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
 
-                }
-            }
+        card.visibility = View.GONE
+        adapter.refresh()
+    }
+
+    private fun updateDownloadedMediaInfo(view: View,workInfo: WorkInfo){
+        val mediaTitle = workInfo.progress.getString(DownloadFileWorker.PARAMS_MEDIA_TITLE)
+        val mediaThumbnail = workInfo.progress.getString(DownloadFileWorker.PARAMS_MEDIA_THUMBNAIL)
+
+        if(mediaTitle == null || mediaThumbnail == null)
+            return
+
+        val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
+        val title = view.findViewById<TextView>(R.id.download_media_title)
+        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
+
+        title.text = mediaTitle
+        Glide.with(requireContext())
+            .load(mediaThumbnail)
+            .into(thumbnail)
+        card.visibility = View.VISIBLE
+    }
+    private fun updateDownloadProgress(workInfo: WorkInfo) {
+        val progress = workInfo.progress.getInt(DownloadFileWorker.KEY_DOWNLOAD_PROGRESS, -1)
+        val fileSize = workInfo.progress.getLong(DownloadFileWorker.KEY_FILE_SIZE_IN_BYTES, 0)
+        val downloadedSize =
+            workInfo.progress.getLong(DownloadFileWorker.KEY_DOWNLOADED_SIZE_IN_BYTES, 0)
+
+        if (progress != -1) {
+            downloadProgress.isIndeterminate = false
+            downloadSizeProgress.text =
+                "${downloadedSize.formatSizeToReadableFormat()}/${fileSize.formatSizeToReadableFormat()}"
+
+            downloadProgress.progress = progress
+            downloadTextProgress.text = "$progress%"
+
+            return
         }
+
+        downloadProgress.isIndeterminate = true
+        downloadTextProgress.text = ""
+        downloadSizeProgress.text = downloadedSize.formatSizeToReadableFormat()
+
     }
 
     private fun bindToDownloadService() {

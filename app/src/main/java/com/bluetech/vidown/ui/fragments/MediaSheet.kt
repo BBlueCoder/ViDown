@@ -20,10 +20,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.core.services.DownloadFileService
+import com.bluetech.vidown.core.workers.DownloadFileWorker
 import com.bluetech.vidown.ui.recyclerviews.ResultsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.ui.vm.MainViewModel
@@ -39,15 +43,17 @@ import kotlinx.coroutines.launch
 class MediaSheet : BottomSheetDialogFragment() {
 
     private lateinit var viewModel: MainViewModel
-    private lateinit var downloadViewModel : DownloadViewModel
+    private lateinit var downloadViewModel: DownloadViewModel
 
     private lateinit var adapter: ResultsAdapter
     private lateinit var recyclerView: RecyclerView
 
-    private lateinit var dialog : BottomSheetDialog
-    private lateinit var bottomSheetBehavior : BottomSheetBehavior<View>
+    private lateinit var dialog: BottomSheetDialog
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
-    private var itemInfo : ResultItem.ItemInfo ? = null
+    private lateinit var workManager: WorkManager
+
+    private var itemInfo: ResultItem.ItemInfo? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
@@ -60,10 +66,12 @@ class MediaSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_media_sheet,container,false)
+        val view = inflater.inflate(R.layout.fragment_media_sheet, container, false)
 
         viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         downloadViewModel = ViewModelProvider(requireActivity())[DownloadViewModel::class.java]
+
+
 
         return view
     }
@@ -75,19 +83,22 @@ class MediaSheet : BottomSheetDialogFragment() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         val mediaSheetLayout = view.findViewById<RelativeLayout>(R.id.media_sheet_layout)
-        mediaSheetLayout.minimumHeight = Resources.getSystem().displayMetrics.heightPixels-180
+        mediaSheetLayout.minimumHeight = Resources.getSystem().displayMetrics.heightPixels - 180
 
         recyclerView = view.findViewById(R.id.media_recycler_view)
-        adapter = ResultsAdapter(mutableListOf()){ itemData ->
-            downloadMedia(itemData)
+        adapter = ResultsAdapter(mutableListOf()) { itemData ->
+            if (itemData.url != "")
+                sendRequestToDownloadWorker(itemData)
         }
+
+        workManager = WorkManager.getInstance(requireContext())
 
         setupRecyclerView()
         observeSearchResults(view)
 
     }
 
-    private fun setupRecyclerView(){
+    private fun setupRecyclerView() {
 //        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
 //        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
 //            override fun getSpanSize(position: Int): Int {
@@ -104,7 +115,7 @@ class MediaSheet : BottomSheetDialogFragment() {
     }
 
     private fun observeSearchResults(view: View) {
-        lifecycleScope.launch(Dispatchers.Main){
+        lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.lookUpResults.collect { result ->
                     result.onFailure { exp ->
@@ -113,7 +124,7 @@ class MediaSheet : BottomSheetDialogFragment() {
                         )
                     }
                     result.onSuccess {
-                        if(it.isEmpty())
+                        if (it.isEmpty())
                             return@onSuccess
                         itemInfo = it.filterIsInstance<ResultItem.ItemInfo>().first()
                         val mediaThumbnail = view.findViewById<ImageView>(R.id.media_thumbnail)
@@ -124,7 +135,7 @@ class MediaSheet : BottomSheetDialogFragment() {
                             .with(requireContext())
                             .load(itemInfo!!.thumbnail)
                             .into(mediaThumbnail)
-                        adapter.submitList(it.filter {  item -> item !is ResultItem.ItemInfo })
+                        adapter.submitList(it.filter { item -> item !is ResultItem.ItemInfo })
                     }
                 }
             }
@@ -132,37 +143,52 @@ class MediaSheet : BottomSheetDialogFragment() {
 
     }
 
-    private fun downloadMedia(itemData: ResultItem.ItemData){
-        Intent(requireContext(), DownloadFileService::class.java).also {
-            Toast.makeText(requireContext(),"Downloading started...",Toast.LENGTH_SHORT).show()
-            downloadViewModel.updateItemInfo(itemInfo)
-            it.putExtra("fileUrl",itemData.url)
-            it.putExtra("mediaTitle",itemInfo!!.title)
-            it.putExtra("source",itemInfo!!.link)
-            it.putExtra("platform",itemInfo!!.platform)
-            when(itemData.format){
-                MediaType.Video->{
-                    it.putExtra("fileType","video")
-                    if(itemInfo!!.platform == YOUTUBE && itemData.hasAudio == false){
-                        println("--------------------------------- ${itemInfo!!.platform} ${adapter.getListData().size}")
-                        adapter.getListData().filterIsInstance<ResultItem.ItemData>().filter { item -> item.format == MediaType.Audio }.forEach { item ->
-                            it.putExtra("audioUrl",item.url)
-                        }
-                    }
-                }
-                MediaType.Image->it.putExtra("fileType","image")
-                MediaType.Audio->{
-                    it.putExtra("fileType","audio")
-                    it.putExtra("thumbnail",itemInfo!!.thumbnail)
-                }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireContext().startForegroundService(it)
-            }else{
-                requireContext().startService(it)
+    private fun sendRequestToDownloadWorker(itemData: ResultItem.ItemData) {
+        Toast.makeText(requireContext(), "Downloading started...", Toast.LENGTH_SHORT).show()
+
+        val request = OneTimeWorkRequestBuilder<DownloadFileWorker>()
+            .setInputData(
+                workDataOf(
+                    DownloadFileWorker.PARAMS_MEDIA_URL to itemData.url,
+                    DownloadFileWorker.PARAMS_MEDIA_TITLE to itemInfo!!.title,
+                    DownloadFileWorker.PARAMS_MEDIA_SOURCE to itemInfo!!.link,
+                    DownloadFileWorker.PARAMS_MEDIA_TYPE to getMediaType(itemData),
+                    DownloadFileWorker.PARAMS_MEDIA_AUDIO_URL to getAudioForYoutubeVideo(itemData),
+                    DownloadFileWorker.PARAMS_MEDIA_AUDIO_THUMBNAIL to getAudioCover(itemData),
+                    DownloadFileWorker.PARAMS_MEDIA_THUMBNAIL to itemInfo!!.thumbnail
+                )
+            )
+            .build()
+
+        workManager.enqueue(request)
+        downloadViewModel.updateRequestUUID(request.id)
+
+        dismiss()
+    }
+
+    private fun getMediaType(itemData: ResultItem.ItemData): String {
+        return when (itemData.format) {
+            MediaType.Image -> "image"
+            MediaType.Video -> "video"
+            MediaType.Audio -> "audio"
+        }
+    }
+
+    private fun getAudioForYoutubeVideo(itemData: ResultItem.ItemData): String? {
+        if (itemInfo!!.platform == YOUTUBE && itemData.hasAudio == false) {
+            adapter.getListData().filterIsInstance<ResultItem.ItemData>()
+                .filter { item -> item.format == MediaType.Audio }.forEach { item ->
+                return item.url
             }
         }
-        dismiss()
+        return null
+    }
+
+    private fun getAudioCover(itemData: ResultItem.ItemData): String? {
+        if (itemData.format == MediaType.Audio) {
+            return itemInfo!!.thumbnail
+        }
+        return null
     }
 
 }

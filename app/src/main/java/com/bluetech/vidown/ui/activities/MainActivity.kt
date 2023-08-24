@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
+import com.bluetech.vidown.core.workers.DownloadFileWorker
 import com.bluetech.vidown.ui.fragments.DownloadFragment
 import com.bluetech.vidown.ui.fragments.MainFragment
 import com.bluetech.vidown.ui.vm.DownloadViewModel
@@ -45,12 +46,9 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-
-
     }
 
     private fun setUpNavigationBottom(){
-
         supportFragmentManager.beginTransaction().apply {
             add(R.id.nav_host,mainFragment,"Main")
             add(R.id.nav_host,downloadFragment,"Downloads").hide(downloadFragment)
@@ -80,48 +78,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
-        LocalBroadcastManager.getInstance(this).registerReceiver(DownloadReceiver(), IntentFilter(DOWNLOAD_SERVICE_ACTION))
-        LocalBroadcastManager.getInstance(this).registerReceiver(DownloadProgressReceiver(),
-            IntentFilter(DOWNLOAD_FILE_PROGRESS_ACTION))
-    }
-
-    inner class DownloadReceiver : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val result = intent?.getStringExtra("result")
-            println("received broadcast action")
-
-            downloadViewModel.updateItemInfo(null)
-            mainViewModel.getLastDownloads()
-
-        }
-
-    }
-
-    inner class DownloadProgressReceiver : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val progress = intent?.getIntExtra("progress",-1)
-            val fileSize = intent?.getLongExtra("fileSizeInByte",-1)
-            val downloadedSize = intent?.getLongExtra("downloadSizeInByte",0)
-            downloadViewModel.updateProgress(DownloadMediaProgress(
-                fileSize,downloadedSize!!,progress
-            ))
-        }
-
-    }
-
-    override fun onStop() {
-        super.onStop()
-        try {
-            unregisterReceiver(DownloadReceiver())
-            unregisterReceiver(DownloadProgressReceiver())
-        }catch (ex : Exception){
-
-        }
-
-    }
-
     override fun onResume() {
         super.onResume()
         handleSendIntent(intent)
@@ -137,5 +93,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
 }
