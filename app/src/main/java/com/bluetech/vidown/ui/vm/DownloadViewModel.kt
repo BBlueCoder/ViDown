@@ -29,7 +29,7 @@ import kotlin.random.Random
 @HiltViewModel
 class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewModel(){
 
-    private val _removeMediaStateFlow = MutableStateFlow<Result<Boolean?>>(Result.success(null))
+    private val _removeMediaStateFlow = MutableStateFlow<Int?>(null)
     val removeMediaStateFlow = _removeMediaStateFlow.asStateFlow()
 
     private val _renameMediaStateFlow = MutableStateFlow<Result<DownloadItemPayload?>>(Result.success(null))
@@ -65,10 +65,15 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         currentWorkId.value = uuid
     }
 
-    fun removeMedia(mediaEntity: MediaEntity,context: Context){
+    fun removeMedia(mediaEntity: MediaEntity,context: Context,position : Int){
         viewModelScope.launch(Dispatchers.IO){
             dbRepo.removeMedia(mediaEntity,context).collect{
-                _removeMediaStateFlow.emit(it)
+                it.onSuccess {
+                    _removeMediaStateFlow.emit(position)
+                }
+                it.onFailure {
+                    _removeMediaStateFlow.emit(null)
+                }
             }
         }
     }

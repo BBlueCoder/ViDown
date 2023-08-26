@@ -69,6 +69,7 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         currentMedia = args.mediaEntity
 
+
         requestPermissionLauncher = registerForPermission()
 
         view.apply {
@@ -106,9 +107,9 @@ class MediaEditSheet : BottomSheetDialogFragment() {
                         dialog.dismiss()
                     }
                     .setPositiveButton("YES") { dialog, _ ->
-                        observeRemovingMedia(this)
-                        downloadViewModel.removeMedia(currentMedia, requireContext())
                         dialog.dismiss()
+                        downloadViewModel.removeMedia(currentMedia, requireContext(),args.position)
+                        dismiss()
                     }
                 val dialog = dialogBuilder.create()
                 dialog.show()
@@ -124,24 +125,6 @@ class MediaEditSheet : BottomSheetDialogFragment() {
         } else {
             favoriteBtn.text = resources.getText(R.string.add_to_favorite_media_edit_sheet_btn)
             favoriteIcon.setImageResource(R.drawable.ic_favorite_gray)
-        }
-    }
-
-    private fun observeRemovingMedia(view: View) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                downloadViewModel.removeMediaStateFlow.collect { result ->
-                    result.onSuccess {
-                        if (it != null) {
-                            view.snackBar("Media removed")
-                            dismiss()
-                        }
-                    }
-                    result.onFailure {
-                        view.snackBar("Could not remove this media")
-                    }
-                }
-            }
         }
     }
 

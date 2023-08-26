@@ -1,24 +1,15 @@
 package com.bluetech.vidown.ui.fragments
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -29,14 +20,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.pojoclasses.SelectItem
-import com.bluetech.vidown.core.services.DownloadFileService
 import com.bluetech.vidown.core.workers.DownloadFileWorker
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
-import com.bluetech.vidown.utils.CustomWorkerFactory
 import com.bluetech.vidown.utils.formatSizeToReadableFormat
 import com.bluetech.vidown.utils.snackBar
 import com.bumptech.glide.Glide
@@ -67,10 +55,6 @@ class DownloadFragment : Fragment() {
 
     private lateinit var saveProgress: LinearProgressIndicator
 
-    private var isDownloadServiceBound = false
-
-    private lateinit var downloadFileService: DownloadFileService
-
     private lateinit var selectBtn: MaterialButton
     private lateinit var cancelSelectionBtn: MaterialButton
     private lateinit var editImageView: ImageView
@@ -85,8 +69,6 @@ class DownloadFragment : Fragment() {
     private lateinit var rootView: View
 
     private lateinit var workManager: WorkManager
-
-    private var mediaTitle = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -381,34 +363,12 @@ class DownloadFragment : Fragment() {
 
     }
 
-    private fun bindToDownloadService() {
-        val serviceConnection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                println("---------------------- bind to service")
-                isDownloadServiceBound = true
-                downloadFileService =
-                    (service as DownloadFileService.DownloadFileServiceBinder).service
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                println("---------------------- unbind to service")
-                isDownloadServiceBound = false
-            }
-
-        }
-
-        Intent(requireContext(), DownloadFileService::class.java).also {
-            requireContext().bindService(it, serviceConnection, Context.BIND_AUTO_CREATE)
-        }
-    }
-
     private fun observeRemovingMedia() {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.removeMediaStateFlow.collect { result ->
-                    result.onSuccess {
-                        if (it != null)
-                            adapter.refresh()
+                viewModel.removeMediaStateFlow.collect { position ->
+                    position?.let {
+                        adapter.refresh()
                     }
                 }
             }
