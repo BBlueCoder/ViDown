@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,26 +7,53 @@
     android:background="#000"
     tools:context=".ui.activities.DisplayMedia">
 
-    <com.google.android.exoplayer2.ui.StyledPlayerView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/video_view"
-        android:layout_centerInParent="true"
-        android:visibility="gone"
-        />
+        android:layout_height="match_parent">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_centerInParent="true"
         android:id="@+id/image_view"
         android:visibility="gone"
         />
 
-    <MediaController
+    <com.google.android.exoplayer2.ui.StyledPlayerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/audio_view"
+        android:id="@+id/player_view"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        app:surface_type="texture_view"
+        android:background="@color/transparent"
+        app:shutter_background_color="@color/transparent"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:id="@+id/audio_cover"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        />
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/audio_cover"
+        android:id="@+id/audio_title"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:textSize="11sp"
+        android:textColor="@color/white"
         android:visibility="gone"
         />
 
-</RelativeLayout>
+    </RelativeLayout>
+
+</com.google.android.material.appbar.AppBarLayout>

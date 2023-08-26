@@ -319,7 +319,8 @@ class DownloadFragment : Fragment() {
                     uuid?.let { id ->
                         workManager.getWorkInfoByIdLiveData(id)
                             .observe(viewLifecycleOwner) { workInfo ->
-                                if(workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED){
+                                if(workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED
+                                    || workInfo?.state == WorkInfo.State.CANCELLED){
                                     viewModel.updateRequestUUID(null)
                                 }
                                 workInfo?.let {
