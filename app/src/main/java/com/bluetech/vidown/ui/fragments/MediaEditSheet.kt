@@ -33,6 +33,7 @@ import com.bluetech.vidown.core.db.MediaEntity
 import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
 import com.bluetech.vidown.ui.vm.DownloadViewModel
 import com.bluetech.vidown.ui.vm.MainViewModel
+import com.bluetech.vidown.utils.hideKeyboard
 import com.bluetech.vidown.utils.showPermissionRequestExplanation
 import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -84,6 +85,7 @@ class MediaEditSheet : BottomSheetDialogFragment() {
                 downloadViewModel.updateMediaFavorite(currentMedia.uid, !currentMedia.favorite)
                 currentMedia.favorite = !currentMedia.favorite
                 toggleFavoriteBtnAndIcon(favoriteBtn, favoriteIcon)
+                dismiss()
             }
 
             saveBtn.setOnClickListener {
@@ -140,6 +142,7 @@ class MediaEditSheet : BottomSheetDialogFragment() {
             .setTitle("Rename Media")
             .setView(alertDialogView)
             .setNegativeButton("CANCEL") { dialog, _ ->
+                requireActivity().hideKeyboard(alertDialogView)
                 dialog.dismiss()
             }
             .setPositiveButton("OK") { dialog, _ ->
@@ -151,6 +154,7 @@ class MediaEditSheet : BottomSheetDialogFragment() {
                     currentMedia.uid, newTitle,
                     DownloadItemPayload(args.position, newTitle)
                 )
+                requireActivity().hideKeyboard(alertDialogView)
                 dialog.dismiss()
                 dismiss()
             }

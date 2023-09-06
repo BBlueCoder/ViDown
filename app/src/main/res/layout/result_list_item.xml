@@ -3,30 +3,32 @@
     android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:clickable="true"
     android:id="@+id/result_item_view"
-    android:padding="10dp"
+    android:layout_marginBottom="5dp"
     android:focusable="true">
 
     <TextView
         android:id="@+id/item_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="25dp"
+        android:layout_marginEnd="20dp"
         android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/result_item_download_icon"
         android:textColor="#7D7D7D"
         android:textSize="15sp"
         tools:text="Title here" />
 
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button.IconButton.Filled"
+        app:icon="@drawable/ic_down_arrow"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:id="@+id/result_item_download_icon"
-        android:src="@drawable/ic_download_purple"
-        />
+        android:contentDescription="@string/download_btn"
+        android:id="@+id/result_item_download_icon"/>
 
 
 </RelativeLayout>

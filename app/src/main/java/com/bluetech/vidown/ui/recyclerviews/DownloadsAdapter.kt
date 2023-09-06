@@ -8,8 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
-import com.bumptech.glide.Glide
-import java.io.File
 
 class DownloadsAdapter(
     private val context: Context,
@@ -20,18 +18,13 @@ class DownloadsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsAdapterHolder {
         return when (viewType) {
-            R.layout.media_audio_layout -> {
-                DownloadsAdapterHolder.AudioMediaViewHolder(
-                    LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-                )
-            }
-            R.layout.media_image_layout -> {
+            R.layout.download_item_image_layout -> {
                 DownloadsAdapterHolder.ImageMediaViewHolder(
                     LayoutInflater.from(parent.context).inflate(viewType, parent, false)
                 )
             }
-            R.layout.media_video_layout -> {
-                DownloadsAdapterHolder.VideoMediaViewHolder(
+            R.layout.download_item_media_layout -> {
+                DownloadsAdapterHolder.MediaViewHolder(
                     LayoutInflater.from(parent.context).inflate(viewType, parent, false)
                 )
             }
@@ -64,9 +57,8 @@ class DownloadsAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)!!.mediaType) {
-            MediaType.Audio -> R.layout.media_audio_layout
-            MediaType.Image -> R.layout.media_image_layout
-            MediaType.Video -> R.layout.media_video_layout
+            MediaType.Image -> R.layout.download_item_image_layout
+            else -> R.layout.download_item_media_layout
         }
     }
 

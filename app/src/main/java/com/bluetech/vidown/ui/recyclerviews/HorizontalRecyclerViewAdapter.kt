@@ -24,10 +24,10 @@ class HorizontalRecyclerViewAdapter(
 
     inner class RecentDownloadAdapterHolder(itemView : View): RecyclerView.ViewHolder(itemView){
         fun bind(mediaEntity: MediaEntity,context : Context){
-            val thumbnail = itemView.findViewById<ImageView>(R.id.recent_thumbnail)
-            val title = itemView.findViewById<TextView>(R.id.recent_title)
+            val thumbnail = itemView.findViewById<ImageView>(R.id.hor_thumbnail)
+            val playIcon = itemView.findViewById<ImageView>(R.id.hor_play_ic)
+            val musicIcon = itemView.findViewById<ImageView>(R.id.hor_music_ic)
 
-            title.text = mediaEntity.title
             val file = File(context.filesDir,mediaEntity.name)
             if (file.exists()){
                 when(mediaEntity.mediaType){
@@ -35,8 +35,8 @@ class HorizontalRecyclerViewAdapter(
                         thumbnail.setImageResource(R.drawable.ic_audio_gray)
                     }
                     MediaType.Image->{
-//                        playIcon.visibility = View.INVISIBLE
-                        //overView.visibility = View.INVISIBLE
+                        playIcon.visibility = View.INVISIBLE
+                        musicIcon.visibility = View.INVISIBLE
                         Glide.with(context)
                             .load(Uri.fromFile(file))
                             .into(thumbnail)

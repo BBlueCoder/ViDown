@@ -6,14 +6,18 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="white">#fffffe</color>
     <color name="gray">#EFF0F5</color>
     <color name="light_pink">#F07DEA</color>
-    <color name="color_primary">#695DED</color>
+    <color name="color_primary">#eebbc3</color>
     <color name="color_accent">#FFE741</color>
     <color name="color_text">#FFFFFF</color>
     <color name="white_smoke">#F5F5F5</color>
     <color name="color_lavender">#E6E6FA</color>
     <color name="dark_purple">#551a8b</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="color_secondary">#b8c1ec</color>
+    <color name="color_background">#232946</color>
+    <color name="color_stroke">#121629</color>
+    <color name="color_gray">#969696</color>
 </resources>

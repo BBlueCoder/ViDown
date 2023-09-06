@@ -7,8 +7,8 @@
     <string name="button_search_media_text">Search</string>
     <string name="media_text">Download media as</string>
     <string name="results_text_btn"><u>Show available formats</u></string>
-    <string name="recent_text">Most Recent</string>
-    <string name="favorites">Favorites</string>
+    <string name="recent_text">Recent</string>
+    <string name="favorites">Favorite</string>
     <string name="rename_media_edit_sheet_btn_text">Rename</string>
     <string name="delete_media_edit_sheet_btn_text">Delete</string>
     <string name="add_to_favorite_media_edit_sheet_btn">Add to favorite</string>
@@ -19,4 +19,12 @@
     <string name="storage_permission_denied_exp">Can not save media to device without storage permission, please give permission on app\u0027 s settings</string>
     <string name="preference_file_key">com.example.myapp.PREFERENCE_FILE_KEY</string>
     <string name="write_permission_key">WRITE_PERMISSION_DENIED_OP</string>
+    <string name="media_link_hint">Type or paste a media link</string>
+    <string name="image_desc">image</string>
+    <string name="sort_icon_button">sort icon button</string>
+    <string name="check_icon_button">check icon button</string>
+    <string name="favorite_icon_button">favorite icon button</string>
+    <string name="remove_icon_button">remove icon button</string>
+    <string name="icon_download_button">icon download button</string>
+    <string name="download_btn">download btn</string>
 </resources>

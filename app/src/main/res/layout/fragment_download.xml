@@ -4,149 +4,123 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff"
+    android:background="@color/color_background"
     tools:context=".ui.fragments.DownloadFragment">
-
-    <com.google.android.material.button.MaterialButton
-        android:layout_width="wrap_content"
-        android:layout_height="45dp"
-        android:text="Select"
-        android:id="@+id/download_select_btn"
-        android:textSize="12sp"
-        android:textColor="#fff"
-        app:cornerRadius="15dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="10dp"
-        />
-
-    <ImageView
-        android:layout_width="34dp"
-        android:layout_height="30dp"
-        android:src="@drawable/ic_dots_filled_purple"
-        android:id="@+id/download_edits"
-        android:layout_marginTop="7dp"
-        android:layout_marginStart="5dp"
-        />
-
-    <com.google.android.material.button.MaterialButton
-        android:layout_width="wrap_content"
-        android:layout_height="45dp"
-        android:text="Cancel"
-        android:id="@+id/download_cancel_btn"
-        android:textSize="12sp"
-        android:textColor="#fff"
-        app:cornerRadius="15dp"
-        android:layout_marginEnd="10dp"
-        android:layout_alignParentEnd="true"
-        android:visibility="gone"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/download_select_text"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="15dp"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@color/color_primary"
-        tools:text="0 items selected"
-        android:visibility="gone"
-        />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:id="@+id/download_progress_card"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:layout_marginTop="5dp"
-        android:layout_below="@id/download_edits"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="80dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/edit_actions_card"
+        app:cardCornerRadius="5dp"
+        style="@style/Widget.Material3.CardView.Elevated"
         >
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             >
 
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="50dp"
-                android:id="@+id/download_media_thumbnail"
-                android:layout_marginTop="5dp"
-                android:layout_marginStart="5dp"
-                android:scaleType="centerCrop"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/download_media_thumbnail"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="45dp"
-                android:layout_marginTop="5dp"
-                android:id="@+id/download_media_title"
-                android:textSize="11sp"
-                android:maxLines="3"/>
-
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:id="@+id/download_media_cancel"
-                android:src="@drawable/ic_cancel_purple"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="17.5dp"
-                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:id="@+id/edit_btn_sort"
+                style="@style/Widget.Material3.Button.IconButton"
+                app:icon="@drawable/ic_sort_desc"
+                android:contentDescription="@string/sort_icon_button"
                 />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/download_media_size"
-                android:layout_below="@id/download_media_thumbnail"
-                android:layout_marginStart="20dp"
-                android:textSize="8sp"
-                tools:text="2MB/15MB"
-                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:id="@+id/edit_btn_select"
+                style="@style/Widget.Material3.Button.IconButton"
+                app:icon="@drawable/ic_check"
+                android:contentDescription="@string/check_icon_button"
                 />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/download_media_progress_text"
-                android:layout_below="@id/download_media_thumbnail"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="20dp"
-                android:textSize="8sp"
-                tools:text="55%"
-                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:id="@+id/edit_btn_favorite"
+                style="@style/Widget.Material3.Button.IconButton"
+                app:icon="@drawable/ic_favorite"
+                android:enabled="false"
+                android:contentDescription="@string/favorite_icon_button"
                 />
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/download_media_progress"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                app:trackColor="@color/color_lavender"
-                app:indicatorColor="@color/color_primary"
-                android:layout_below="@id/download_media_thumbnail"
-                android:layout_marginTop="15dp"
-                android:progress="55"
-                />
+                android:layout_weight="1"
+                android:id="@+id/edit_btn_remove"
+                android:enabled="false"
+                android:contentDescription="@string/remove_icon_button"
+                app:icon="@drawable/ic_remove_red" />
 
-        </RelativeLayout>
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/edit_btn_close"
+                android:contentDescription="@string/remove_icon_button"
+                app:iconTint="@color/color_secondary"
+                android:visibility="gone"
+                app:icon="@drawable/ic_close" />
+
+        </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
+    <RelativeLayout
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="10dp"
+        >
 
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/download_history_btn"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            app:icon="@drawable/ic_download_2"
+            android:contentDescription="@string/icon_download_button"
+            android:layout_centerInParent="true"
+            />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/download_circle_progress"
+            android:indeterminate="false"
+            android:layout_centerInParent="true"
+            android:progress="50"
+            app:indicatorSize="47dp"
+            app:trackColor="@color/color_secondary"
+            app:indicatorColor="@color/color_stroke"
+            />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_below="@id/download_progress_card"
+        android:layout_below="@id/edit_actions_card"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         >
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -156,8 +130,7 @@
             android:indeterminate="true"
             tools:visibility="visible"
             android:layout_weight="0"
-            android:visibility="gone"
-            app:indicatorColor="@color/light_pink" />
+            android:visibility="gone"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
@@ -166,7 +139,7 @@
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="3"
             tools:visibility="visible"
-            tools:listitem="@layout/media_audio_layout"
+            tools:listitem="@layout/download_item_media_layout"
             android:visibility="gone"
             android:layout_weight="1"
             />
@@ -178,9 +151,7 @@
             android:indeterminate="true"
             tools:visibility="visible"
             android:layout_weight="0"
-            android:visibility="gone"
-            app:indicatorColor="@color/light_pink" />
-
+            android:visibility="gone"/>
     </LinearLayout>
 
     <TextView

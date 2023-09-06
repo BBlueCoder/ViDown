@@ -50,14 +50,9 @@ class DownloadFragment : Fragment() {
     private lateinit var recyclerViewHeaderProgress: CircularProgressIndicator
 
     private lateinit var downloadProgress: LinearProgressIndicator
-    private lateinit var downloadTextProgress: TextView
-    private lateinit var downloadSizeProgress: TextView
 
     private lateinit var saveProgress: LinearProgressIndicator
 
-    private lateinit var selectBtn: MaterialButton
-    private lateinit var cancelSelectionBtn: MaterialButton
-    private lateinit var editImageView: ImageView
 
 
     private var selectionFlow = MutableStateFlow(false)
@@ -92,37 +87,24 @@ class DownloadFragment : Fragment() {
             emptyText = findViewById(R.id.download_empty_text)
             recyclerViewFooterProgress = findViewById(R.id.download_progress_footer)
             recyclerViewHeaderProgress = findViewById(R.id.download_progress_header)
-            downloadProgress = findViewById(R.id.download_media_progress)
-            downloadTextProgress = findViewById(R.id.download_media_progress_text)
-            downloadSizeProgress = findViewById(R.id.download_media_size)
-            selectedItemsText = findViewById(R.id.download_select_text)
 
             saveProgress = findViewById(R.id.download_save_progress)
 
-            selectBtn = findViewById(R.id.download_select_btn)
-            cancelSelectionBtn = findViewById(R.id.download_cancel_btn)
-            editImageView = findViewById(R.id.download_edits)
         }
-
-        val cancelBtn = view.findViewById<ImageView>(R.id.download_media_cancel)
 
         workManager = WorkManager.getInstance(requireContext())
 
-        selectBtn.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                selectionFlow.emit(true)
-            }
-        }
-
-        cancelSelectionBtn.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                selectionFlow.emit(false)
-            }
-        }
-
-        cancelBtn.setOnClickListener {
-            workManager.cancelAllWork()
-        }
+//        selectBtn.setOnClickListener {
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                selectionFlow.emit(true)
+//            }
+//        }
+//
+//        cancelSelectionBtn.setOnClickListener {
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                selectionFlow.emit(false)
+//            }
+//        }
 
         adapter = DownloadsAdapter(
             requireContext(),
@@ -153,38 +135,38 @@ class DownloadFragment : Fragment() {
             adapterLoadStateListening(loadState)
         }
 
-        editImageView.setOnClickListener {
-            val popupMenu = PopupMenu(requireContext(), it)
-            popupMenu.menuInflater.inflate(R.menu.popup_download_edit, popupMenu.menu)
-            val orderMenuItem = popupMenu.menu.findItem(R.id.popup_edit_order_by)
-            val favoritesMenuItem = popupMenu.menu.findItem(R.id.popup_edit_display_favorites)
-
-            if (viewModel.fetchArgs.orderByNewest)
-                orderMenuItem.title = "Order by oldest"
-            else
-                orderMenuItem.title = "Order by newest"
-
-            if (viewModel.fetchArgs.onlyFavorites)
-                favoritesMenuItem.title = "Show all"
-            else
-                favoritesMenuItem.title = "Show only favorites"
-
-            popupMenu.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.popup_edit_order_by -> {
-                        viewModel.fetchArgs.orderByNewest = !viewModel.fetchArgs.orderByNewest
-                        adapter.refresh()
-                    }
-
-                    R.id.popup_edit_display_favorites -> {
-                        viewModel.fetchArgs.onlyFavorites = !viewModel.fetchArgs.onlyFavorites
-                        adapter.refresh()
-                    }
-                }
-                true
-            }
-            popupMenu.show()
-        }
+//        editImageView.setOnClickListener {
+//            val popupMenu = PopupMenu(requireContext(), it)
+//            popupMenu.menuInflater.inflate(R.menu.popup_download_edit, popupMenu.menu)
+//            val orderMenuItem = popupMenu.menu.findItem(R.id.popup_edit_order_by)
+//            val favoritesMenuItem = popupMenu.menu.findItem(R.id.popup_edit_display_favorites)
+//
+//            if (viewModel.fetchArgs.orderByNewest)
+//                orderMenuItem.title = "Order by oldest"
+//            else
+//                orderMenuItem.title = "Order by newest"
+//
+//            if (viewModel.fetchArgs.onlyFavorites)
+//                favoritesMenuItem.title = "Show all"
+//            else
+//                favoritesMenuItem.title = "Show only favorites"
+//
+//            popupMenu.setOnMenuItemClickListener { menuItem ->
+//                when (menuItem.itemId) {
+//                    R.id.popup_edit_order_by -> {
+//                        viewModel.fetchArgs.orderByNewest = !viewModel.fetchArgs.orderByNewest
+//                        adapter.refresh()
+//                    }
+//
+//                    R.id.popup_edit_display_favorites -> {
+//                        viewModel.fetchArgs.onlyFavorites = !viewModel.fetchArgs.onlyFavorites
+//                        adapter.refresh()
+//                    }
+//                }
+//                true
+//            }
+//            popupMenu.show()
+//        }
 
         observeDownloadProgress(view)
         observeRemovingMedia()
@@ -256,24 +238,24 @@ class DownloadFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 selectionFlow.collect {
-                    if (it) {
-                        isSelectionEnabled = true
-                        selectBtn.visibility = View.GONE
-                        editImageView.visibility = View.INVISIBLE
-                        cancelSelectionBtn.visibility = View.VISIBLE
-                        selectedItemsText.visibility = View.VISIBLE
-                        selectedItemsText.text = resources.getString(
-                            R.string.selected_items_count,
-                            selectedMedia.count()
-                        )
-                    } else {
-                        isSelectionEnabled = false
-                        cancelSelection()
-                        cancelSelectionBtn.visibility = View.GONE
-                        editImageView.visibility = View.VISIBLE
-                        selectBtn.visibility = View.VISIBLE
-                        selectedItemsText.visibility = View.GONE
-                    }
+//                    if (it) {
+//                        isSelectionEnabled = true
+//                        selectBtn.visibility = View.GONE
+//                        editImageView.visibility = View.INVISIBLE
+//                        cancelSelectionBtn.visibility = View.VISIBLE
+//                        selectedItemsText.visibility = View.VISIBLE
+//                        selectedItemsText.text = resources.getString(
+//                            R.string.selected_items_count,
+//                            selectedMedia.count()
+//                        )
+//                    } else {
+//                        isSelectionEnabled = false
+//                        cancelSelection()
+//                        cancelSelectionBtn.visibility = View.GONE
+//                        editImageView.visibility = View.VISIBLE
+//                        selectBtn.visibility = View.VISIBLE
+//                        selectedItemsText.visibility = View.GONE
+//                    }
                 }
             }
         }
@@ -290,37 +272,37 @@ class DownloadFragment : Fragment() {
     }
 
     private fun observeDownloadProgress(view: View) {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.currentWorkId.collect { uuid ->
-
-                    if(uuid == null){
-                        updateDownloadEnd(view)
-                    }
-
-                    uuid?.let { id ->
-                        workManager.getWorkInfoByIdLiveData(id)
-                            .observe(viewLifecycleOwner) { workInfo ->
-                                if(workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED
-                                    || workInfo?.state == WorkInfo.State.CANCELLED){
-                                    viewModel.updateRequestUUID(null)
-                                }
-                                workInfo?.let {
-                                    updateDownloadedMediaInfo(view, workInfo)
-                                    updateDownloadProgress(workInfo)
-                                }
-                            }
-                    }
-                }
-            }
-        }
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.currentWorkId.collect { uuid ->
+//
+//                    if(uuid == null){
+//                        updateDownloadEnd(view)
+//                    }
+//
+//                    uuid?.let { id ->
+//                        workManager.getWorkInfoByIdLiveData(id)
+//                            .observe(viewLifecycleOwner) { workInfo ->
+//                                if(workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED
+//                                    || workInfo?.state == WorkInfo.State.CANCELLED){
+//                                    viewModel.updateRequestUUID(null)
+//                                }
+//                                workInfo?.let {
+//                                    updateDownloadedMediaInfo(view, workInfo)
+//                                    updateDownloadProgress(workInfo)
+//                                }
+//                            }
+//                    }
+//                }
+//            }
+//        }
     }
 
     private fun updateDownloadEnd(view: View){
-        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
-
-        card.visibility = View.GONE
-        adapter.refresh()
+//        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
+//
+//        card.visibility = View.GONE
+//        adapter.refresh()
     }
 
     private fun updateDownloadedMediaInfo(view: View,workInfo: WorkInfo){
@@ -330,15 +312,15 @@ class DownloadFragment : Fragment() {
         if(mediaTitle == null || mediaThumbnail == null)
             return
 
-        val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
-        val title = view.findViewById<TextView>(R.id.download_media_title)
-        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
+//        val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
+//        val title = view.findViewById<TextView>(R.id.download_media_title)
+//        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
 
-        title.text = mediaTitle
-        Glide.with(requireContext())
-            .load(mediaThumbnail)
-            .into(thumbnail)
-        card.visibility = View.VISIBLE
+//        title.text = mediaTitle
+//        Glide.with(requireContext())
+//            .load(mediaThumbnail)
+//            .into(thumbnail)
+//        card.visibility = View.VISIBLE
     }
     private fun updateDownloadProgress(workInfo: WorkInfo) {
         val progress = workInfo.progress.getInt(DownloadFileWorker.KEY_DOWNLOAD_PROGRESS, -1)
@@ -346,20 +328,20 @@ class DownloadFragment : Fragment() {
         val downloadedSize =
             workInfo.progress.getLong(DownloadFileWorker.KEY_DOWNLOADED_SIZE_IN_BYTES, 0)
 
-        if (progress != -1) {
-            downloadProgress.isIndeterminate = false
-            downloadSizeProgress.text =
-                "${downloadedSize.formatSizeToReadableFormat()}/${fileSize.formatSizeToReadableFormat()}"
-
-            downloadProgress.progress = progress
-            downloadTextProgress.text = "$progress%"
-
-            return
-        }
-
-        downloadProgress.isIndeterminate = true
-        downloadTextProgress.text = ""
-        downloadSizeProgress.text = downloadedSize.formatSizeToReadableFormat()
+//        if (progress != -1) {
+//            downloadProgress.isIndeterminate = false
+//            downloadSizeProgress.text =
+//                "${downloadedSize.formatSizeToReadableFormat()}/${fileSize.formatSizeToReadableFormat()}"
+//
+//            downloadProgress.progress = progress
+//            downloadTextProgress.text = "$progress%"
+//
+//            return
+//        }
+//
+//        downloadProgress.isIndeterminate = true
+//        downloadTextProgress.text = ""
+//        downloadSizeProgress.text = downloadedSize.formatSizeToReadableFormat()
 
     }
 

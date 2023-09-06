@@ -11,6 +11,7 @@
         android:layout_height="120dp"
         android:clickable="true"
         app:cardCornerRadius="15dp"
+        style="@style/Widget.Material3.CardView.Filled"
         android:id="@+id/media_video_card_view"
         app:strokeColor="@color/color_primary"
         android:focusable="true">

@@ -12,6 +12,7 @@ import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -29,15 +30,15 @@ import com.bluetech.vidown.ui.customviews.ResultCardView
 import com.bluetech.vidown.core.pojoclasses.ResultItem
 import com.bluetech.vidown.ui.recyclerviews.HorizontalRecyclerViewAdapter
 import com.bluetech.vidown.ui.vm.MainViewModel
+import com.bluetech.vidown.utils.hideKeyboard
 import com.bluetech.vidown.utils.snackBar
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,7 +66,7 @@ class MainFragment : Fragment() {
     @Inject
     lateinit var mediaDao: MediaDao
 
-    var showSearchBtn = true
+    private var showSearchBtn = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,7 +91,7 @@ class MainFragment : Fragment() {
             recentTextLayout = findViewById(R.id.recent_layout)
             recentDownloadsRecyclerView = findViewById(R.id.recent_recycler_view)
 
-            favoritesLayout = findViewById(R.id.favorites_layout)
+            favoritesLayout = findViewById(R.id.favorite_layout)
             favoritesRecyclerView = findViewById(R.id.favorites_recycler_view)
 
             resultCard = findViewById(R.id.card_result)
@@ -133,12 +134,11 @@ class MainFragment : Fragment() {
             showAvailableFormatsBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         lookUpBtn.setOnClickListener {
-            val link = view.findViewById<TextInputEditText>(R.id.link_text)
+            val link = view.findViewById<EditText>(R.id.link_text)
             link.clearFocus()
             val url = link.text.toString()
 
-            val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(lookUpBtn.windowToken, 0)
+            requireActivity().hideKeyboard(lookUpBtn)
 
             searchButtonAction(url)
         }
@@ -156,8 +156,8 @@ class MainFragment : Fragment() {
     private fun searchForMedia(url: String) {
         hideItemCard()
 
-        circularProgress.visibility = View.VISIBLE
         lookUpBtn.visibility = View.INVISIBLE
+        circularProgress.visibility = View.VISIBLE
 
         lifecycleScope.launch {
             viewModel.searchForResult(url)

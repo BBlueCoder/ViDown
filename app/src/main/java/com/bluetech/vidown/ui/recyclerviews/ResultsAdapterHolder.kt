@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.google.android.material.button.MaterialButton
 
 sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(itemView){
 
@@ -19,9 +20,9 @@ sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(ite
             val categoryThumbnail = itemView.findViewById<ImageView>(R.id.result_category_icon)
             categoryTitle.text = resultItem.title
             when{
-                resultItem.title.contains("Video") -> categoryThumbnail.setImageResource(R.drawable.ic_video_purple)
+                resultItem.title.contains("Video") -> categoryThumbnail.setImageResource(R.drawable.ic_video)
                 resultItem.title.contains("Image") -> categoryThumbnail.setImageResource(R.drawable.ic_image_purple)
-                else -> categoryThumbnail.setImageResource(R.drawable.ic_audio_purple)
+                else -> categoryThumbnail.setImageResource(R.drawable.ic_audio)
             }
         }
     }
@@ -32,7 +33,7 @@ sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(ite
             val title = itemView.findViewById<TextView>(R.id.item_title)
             title.text = resultItem.quality
 
-            val downloadIcon = itemView.findViewById<ImageView>(R.id.result_item_download_icon)
+            val downloadIcon = itemView.findViewById<MaterialButton>(R.id.result_item_download_icon)
             downloadIcon.setOnClickListener {
                 itemClickListener?.invoke(resultItem)
             }
