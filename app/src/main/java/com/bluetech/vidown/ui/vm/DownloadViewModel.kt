@@ -12,6 +12,7 @@ import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
 import com.bluetech.vidown.core.pojoclasses.DownloadMediaProgress
 import com.bluetech.vidown.core.pojoclasses.FetchArgs
 import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.core.pojoclasses.SelectItem
 import com.bluetech.vidown.core.repos.DBRepo
 import com.bluetech.vidown.core.repos.DownloadRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +30,7 @@ import kotlin.random.Random
 @HiltViewModel
 class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewModel(){
 
-    private val _removeMediaStateFlow = MutableStateFlow<Int?>(null)
+    private val _removeMediaStateFlow = MutableStateFlow<Result<String?>>(Result.success(null))
     val removeMediaStateFlow = _removeMediaStateFlow.asStateFlow()
 
     private val _renameMediaStateFlow = MutableStateFlow<Result<DownloadItemPayload?>>(Result.success(null))
@@ -38,7 +39,7 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
     private val _savingProgress = MutableStateFlow(Result.success(""))
     val saveProgress = _savingProgress.asStateFlow()
 
-    var currentWorkId  = MutableStateFlow<UUID?>(null)
+    var selectionState = MutableStateFlow(false)
         private set
 
     var title : String = ""
@@ -61,18 +62,31 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         }
     }
 
-    fun updateRequestUUID(uuid: UUID?){
-        currentWorkId.value = uuid
+    fun updateSelectionState(state : Boolean){
+        selectionState.value = state
     }
 
     fun removeMedia(mediaEntity: MediaEntity,context: Context,position : Int){
         viewModelScope.launch(Dispatchers.IO){
             dbRepo.removeMedia(mediaEntity,context).collect{
                 it.onSuccess {
-                    _removeMediaStateFlow.emit(position)
+                    _removeMediaStateFlow.emit(Result.success(""))
                 }
-                it.onFailure {
-                    _removeMediaStateFlow.emit(null)
+                it.onFailure {ex ->
+                    _removeMediaStateFlow.emit(Result.failure(ex))
+                }
+            }
+        }
+    }
+
+    fun removeMedia(media : List<SelectItem>,context: Context){
+        viewModelScope.launch(Dispatchers.IO) {
+            dbRepo.removeMedia(media.map { it.mediaEntity },context).collect{
+                it.onSuccess {
+                    _removeMediaStateFlow.emit(Result.success(""))
+                }
+                it.onFailure {ex ->
+                    _removeMediaStateFlow.emit(Result.failure(ex))
                 }
             }
         }

@@ -46,6 +46,7 @@
                 android:src="@drawable/ic_audio_purple"
                 android:layout_alignBottom="@id/hor_thumbnail"
                 android:layout_alignEnd="@id/hor_thumbnail"
+                android:visibility="gone"
                 android:contentDescription="@string/image_desc"
                 />
         </RelativeLayout>

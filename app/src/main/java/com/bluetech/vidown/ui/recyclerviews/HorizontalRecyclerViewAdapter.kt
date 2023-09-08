@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
 import com.bluetech.vidown.core.MediaType
 import com.bluetech.vidown.core.db.MediaEntity
+import com.bluetech.vidown.utils.toggleVisibility
 import com.bumptech.glide.Glide
 import java.io.File
 
@@ -32,7 +33,16 @@ class HorizontalRecyclerViewAdapter(
             if (file.exists()){
                 when(mediaEntity.mediaType){
                     MediaType.Audio->{
-                        thumbnail.setImageResource(R.drawable.ic_audio_gray)
+                        mediaEntity.thumbnail?.let {thumbnailName ->
+                            val fileThumbnail = File(context.filesDir, thumbnailName)
+                            if (file.exists()) {
+                                Glide.with(context)
+                                    .load(Uri.fromFile(fileThumbnail))
+                                    .error(R.drawable.ic_audio_gray)
+                                    .into(thumbnail)
+                            }
+                        }
+                        musicIcon.toggleVisibility()
                     }
                     MediaType.Image->{
                         playIcon.visibility = View.INVISIBLE

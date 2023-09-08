@@ -104,7 +104,7 @@ class MediaEditSheet : BottomSheetDialogFragment() {
             deleteBtn.setOnClickListener {
                 val dialogBuilder = AlertDialog.Builder(requireContext())
                     .setTitle("Remove Media")
-                    .setMessage("Are you sure you want to remove the media")
+                    .setMessage("Are you sure you want to remove media?")
                     .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }

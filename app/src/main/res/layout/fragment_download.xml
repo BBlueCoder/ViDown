@@ -7,6 +7,18 @@
     android:background="@color/color_background"
     tools:context=".ui.fragments.DownloadFragment">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/edit_actions_card"
+        android:layout_alignTop="@id/edit_actions_card"
+        android:layout_marginStart="20dp"
+        android:gravity="center"
+        android:textColor="@color/color_secondary"
+        android:textSize="16sp"
+        tools:text="300"
+        android:id="@+id/selected_items_count"/>
+
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,7 +63,6 @@
                 android:id="@+id/edit_btn_favorite"
                 style="@style/Widget.Material3.Button.IconButton"
                 app:icon="@drawable/ic_favorite"
-                android:enabled="false"
                 android:contentDescription="@string/favorite_icon_button"
                 />
 
@@ -99,16 +110,16 @@
             />
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/download_circle_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/download_circle_progress"
-            android:indeterminate="false"
             android:layout_centerInParent="true"
+            android:indeterminate="false"
             android:progress="50"
-            app:indicatorSize="47dp"
-            app:trackColor="@color/color_secondary"
+            android:visibility="invisible"
             app:indicatorColor="@color/color_stroke"
-            />
+            app:indicatorSize="47dp"
+            app:trackColor="@color/color_secondary" />
 
     </RelativeLayout>
 

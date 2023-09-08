@@ -320,7 +320,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/download_for_offline/baseline_download_for_offline_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/favorite/baseline_favorite_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -330,9 +330,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="1a1a1a" />
-                            <entry key="outputName" value="ic_video" />
+                            <entry key="outputName" value="ic_facorite_filled" />
                             <entry key="sourceFile" value="C:\Users\aball\Downloads\ic_video.svg" />
                           </map>
                         </option>

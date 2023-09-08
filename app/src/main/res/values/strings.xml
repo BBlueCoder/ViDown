@@ -13,7 +13,7 @@
     <string name="delete_media_edit_sheet_btn_text">Delete</string>
     <string name="add_to_favorite_media_edit_sheet_btn">Add to favorite</string>
     <string name="remove_from_favorite_media_edit_sheet_btn_text">Remove from favorite</string>
-    <string name="selected_items_count">%1$d items selected</string>
+    <string name="selected_items_count">%1$d</string>
     <string name="storage_permission_dialog_title">Storage Permission</string>
     <string name="storage_permission_exp">To save media to device, please grant storage permission</string>
     <string name="storage_permission_denied_exp">Can not save media to device without storage permission, please give permission on app\u0027 s settings</string>

@@ -12,7 +12,7 @@
         android:clickable="true"
         style="@style/Widget.Material3.CardView.Filled"
         app:cardCornerRadius="15dp"
-        app:strokeColor="@color/color_primary"
+        app:strokeColor="@color/color_stroke"
         android:id="@+id/media_image_card_view"
         android:focusable="true">
 
@@ -33,7 +33,7 @@
                 android:visibility="gone"
                 android:clickable="false"
                 android:id="@+id/media_image_selected_overlay"
-                android:background="#4D695DED"/>
+                android:background="#B2232946"/>
 
         </RelativeLayout>
 

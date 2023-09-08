@@ -50,6 +50,10 @@ class MediaSheet : BottomSheetDialogFragment() {
 
     private var itemInfo: ResultItem.ItemInfo? = null
 
+    companion object {
+        const val WORK_MANAGER_DOWNLOAD_TAG = "WORK_MANAGER_DOWNLOAD_TAG"
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
         return dialog
@@ -153,10 +157,10 @@ class MediaSheet : BottomSheetDialogFragment() {
                     DownloadFileWorker.PARAMS_MEDIA_THUMBNAIL to itemInfo!!.thumbnail
                 )
             )
+            .addTag(WORK_MANAGER_DOWNLOAD_TAG)
             .build()
 
         workManager.enqueue(request)
-        downloadViewModel.updateRequestUUID(request.id)
 
         dismiss()
     }

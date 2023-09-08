@@ -1,13 +1,13 @@
 package com.bluetech.vidown.ui.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -25,16 +25,13 @@ import com.bluetech.vidown.core.pojoclasses.SelectItem
 import com.bluetech.vidown.core.workers.DownloadFileWorker
 import com.bluetech.vidown.ui.recyclerviews.DownloadsAdapter
 import com.bluetech.vidown.ui.vm.DownloadViewModel
-import com.bluetech.vidown.utils.formatSizeToReadableFormat
 import com.bluetech.vidown.utils.snackBar
-import com.bumptech.glide.Glide
+import com.bluetech.vidown.utils.toggleVisibility
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -49,13 +46,15 @@ class DownloadFragment : Fragment() {
     private lateinit var recyclerViewFooterProgress: CircularProgressIndicator
     private lateinit var recyclerViewHeaderProgress: CircularProgressIndicator
 
-    private lateinit var downloadProgress: LinearProgressIndicator
-
     private lateinit var saveProgress: LinearProgressIndicator
 
+    private lateinit var editActionSelect : MaterialButton
+    private lateinit var editActionSort : MaterialButton
+    private lateinit var editActionFavorite : MaterialButton
+    private lateinit var editActionRemove : MaterialButton
+    private lateinit var editActionCancel : MaterialButton
 
 
-    private var selectionFlow = MutableStateFlow(false)
     private var isSelectionEnabled = false
     private val selectedMedia = mutableListOf<SelectItem>()
 
@@ -92,20 +91,83 @@ class DownloadFragment : Fragment() {
 
         }
 
+        initializeEditActionsButtons()
+
         workManager = WorkManager.getInstance(requireContext())
 
-//        selectBtn.setOnClickListener {
-//            lifecycleScope.launch(Dispatchers.IO) {
-//                selectionFlow.emit(true)
-//            }
-//        }
-//
-//        cancelSelectionBtn.setOnClickListener {
-//            lifecycleScope.launch(Dispatchers.IO) {
-//                selectionFlow.emit(false)
-//            }
-//        }
+        initializeAdapterForRecyclerView()
+        observeDownloads()
 
+        adapter.addLoadStateListener { loadState ->
+            adapterLoadStateListening(loadState)
+        }
+
+        observeDownloadProgress()
+        observeRemovingMedia()
+        observeRenamingMedia()
+        observeSelection()
+
+    }
+
+    private fun initializeEditActionsButtons(){
+        editActionSelect = rootView.findViewById(R.id.edit_btn_select)
+        editActionSort = rootView.findViewById(R.id.edit_btn_sort)
+        editActionFavorite = rootView.findViewById(R.id.edit_btn_favorite)
+        editActionRemove = rootView.findViewById(R.id.edit_btn_remove)
+        editActionCancel = rootView.findViewById(R.id.edit_btn_close)
+
+        selectedItemsText = rootView.findViewById(R.id.selected_items_count)
+
+        editActionSelect.setOnClickListener {
+            viewModel.updateSelectionState(!isSelectionEnabled)
+        }
+
+        editActionCancel.setOnClickListener {
+            viewModel.updateSelectionState(!isSelectionEnabled)
+        }
+
+        editActionRemove.setOnClickListener {
+            showRemoveDialog()
+        }
+
+        editActionFavorite.setOnClickListener {
+            viewModel.fetchArgs.onlyFavorites = !viewModel.fetchArgs.onlyFavorites
+            if(viewModel.fetchArgs.onlyFavorites){
+                editActionFavorite.icon = AppCompatResources.getDrawable(requireContext(),R.drawable.ic_facorite_filled)
+            }else{
+                editActionFavorite.icon = AppCompatResources.getDrawable(requireContext(),R.drawable.ic_favorite)
+            }
+            adapter.refresh()
+        }
+
+        editActionSort.setOnClickListener {
+            viewModel.fetchArgs.orderByNewest = !viewModel.fetchArgs.orderByNewest
+            if(!viewModel.fetchArgs.orderByNewest){
+                editActionSort.icon = AppCompatResources.getDrawable(requireContext(),R.drawable.ic_sort_asc)
+            }else{
+                editActionSort.icon = AppCompatResources.getDrawable(requireContext(),R.drawable.ic_sort_desc)
+            }
+            adapter.refresh()
+        }
+    }
+
+    private fun showRemoveDialog() {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+            .setTitle("Remove Media")
+            .setMessage("Are you sure you want to remove media?")
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("YES") { dialog, _ ->
+                dialog.dismiss()
+                viewModel.removeMedia(selectedMedia,requireContext())
+                viewModel.updateSelectionState(!isSelectionEnabled)
+            }
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+
+    private fun initializeAdapterForRecyclerView(){
         adapter = DownloadsAdapter(
             requireContext(),
             { mediaEntity, position ->
@@ -122,58 +184,11 @@ class DownloadFragment : Fragment() {
                 Navigation.findNavController(requireActivity(), R.id.nav_host).navigate(action)
             },
             { mediaEntity, position ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    selectionFlow.emit(true)
-                }
+                viewModel.updateSelectionState(true)
                 selectMedia(mediaEntity, position)
             })
 
         recyclerView.adapter = adapter
-        observeDownloads()
-
-        adapter.addLoadStateListener { loadState ->
-            adapterLoadStateListening(loadState)
-        }
-
-//        editImageView.setOnClickListener {
-//            val popupMenu = PopupMenu(requireContext(), it)
-//            popupMenu.menuInflater.inflate(R.menu.popup_download_edit, popupMenu.menu)
-//            val orderMenuItem = popupMenu.menu.findItem(R.id.popup_edit_order_by)
-//            val favoritesMenuItem = popupMenu.menu.findItem(R.id.popup_edit_display_favorites)
-//
-//            if (viewModel.fetchArgs.orderByNewest)
-//                orderMenuItem.title = "Order by oldest"
-//            else
-//                orderMenuItem.title = "Order by newest"
-//
-//            if (viewModel.fetchArgs.onlyFavorites)
-//                favoritesMenuItem.title = "Show all"
-//            else
-//                favoritesMenuItem.title = "Show only favorites"
-//
-//            popupMenu.setOnMenuItemClickListener { menuItem ->
-//                when (menuItem.itemId) {
-//                    R.id.popup_edit_order_by -> {
-//                        viewModel.fetchArgs.orderByNewest = !viewModel.fetchArgs.orderByNewest
-//                        adapter.refresh()
-//                    }
-//
-//                    R.id.popup_edit_display_favorites -> {
-//                        viewModel.fetchArgs.onlyFavorites = !viewModel.fetchArgs.onlyFavorites
-//                        adapter.refresh()
-//                    }
-//                }
-//                true
-//            }
-//            popupMenu.show()
-//        }
-
-        observeDownloadProgress(view)
-        observeRemovingMedia()
-        observeRenamingMedia()
-        observeSelection()
-
-
     }
 
     private fun selectMedia(mediaEntity: MediaEntity, position: Int) {
@@ -237,25 +252,29 @@ class DownloadFragment : Fragment() {
     private fun observeSelection() {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                selectionFlow.collect {
-//                    if (it) {
-//                        isSelectionEnabled = true
-//                        selectBtn.visibility = View.GONE
-//                        editImageView.visibility = View.INVISIBLE
-//                        cancelSelectionBtn.visibility = View.VISIBLE
-//                        selectedItemsText.visibility = View.VISIBLE
-//                        selectedItemsText.text = resources.getString(
-//                            R.string.selected_items_count,
-//                            selectedMedia.count()
-//                        )
-//                    } else {
-//                        isSelectionEnabled = false
-//                        cancelSelection()
-//                        cancelSelectionBtn.visibility = View.GONE
-//                        editImageView.visibility = View.VISIBLE
-//                        selectBtn.visibility = View.VISIBLE
-//                        selectedItemsText.visibility = View.GONE
-//                    }
+                viewModel.selectionState.collect {
+                    if(it){
+                        isSelectionEnabled = true
+                        editActionSelect.toggleVisibility()
+                        editActionCancel.toggleVisibility()
+
+                        editActionFavorite.isEnabled = false
+                        editActionSort.isEnabled = false
+                        editActionRemove.isEnabled = true
+                    }else{
+                        if(!isSelectionEnabled)
+                            return@collect
+                        isSelectionEnabled = false
+                        editActionSelect.toggleVisibility()
+                        editActionCancel.toggleVisibility()
+                        selectedItemsText.text = ""
+                        cancelSelection()
+
+
+                        editActionFavorite.isEnabled = true
+                        editActionSort.isEnabled = true
+                        editActionRemove.isEnabled = false
+                    }
                 }
             }
         }
@@ -271,75 +290,44 @@ class DownloadFragment : Fragment() {
         }
     }
 
-    private fun observeDownloadProgress(view: View) {
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.currentWorkId.collect { uuid ->
-//
-//                    if(uuid == null){
-//                        updateDownloadEnd(view)
-//                    }
-//
-//                    uuid?.let { id ->
-//                        workManager.getWorkInfoByIdLiveData(id)
-//                            .observe(viewLifecycleOwner) { workInfo ->
-//                                if(workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED
-//                                    || workInfo?.state == WorkInfo.State.CANCELLED){
-//                                    viewModel.updateRequestUUID(null)
-//                                }
-//                                workInfo?.let {
-//                                    updateDownloadedMediaInfo(view, workInfo)
-//                                    updateDownloadProgress(workInfo)
-//                                }
-//                            }
-//                    }
-//                }
-//            }
-//        }
+    private fun observeDownloadProgress() {
+        workManager.getWorkInfosByTagLiveData(MediaSheet.WORK_MANAGER_DOWNLOAD_TAG)
+            .observe(viewLifecycleOwner) { listWorkInfo ->
+                listWorkInfo.forEach { workInfo ->
+                    if(workInfo?.state == WorkInfo.State.RUNNING){
+                        updateDownloadProgress(workInfo)
+                    }else{
+                        if(workInfo?.state == WorkInfo.State.SUCCEEDED)
+                            adapter.refresh()
+                        updateDownloadEnd()
+                    }
+                }
+        }
     }
 
-    private fun updateDownloadEnd(view: View){
-//        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
-//
-//        card.visibility = View.GONE
-//        adapter.refresh()
+    private fun updateDownloadEnd(){
+        val downloadProgress = rootView.findViewById<CircularProgressIndicator>(R.id.download_circle_progress)
+
+        downloadProgress.visibility = View.INVISIBLE
     }
 
-    private fun updateDownloadedMediaInfo(view: View,workInfo: WorkInfo){
-        val mediaTitle = workInfo.progress.getString(DownloadFileWorker.PARAMS_MEDIA_TITLE)
-        val mediaThumbnail = workInfo.progress.getString(DownloadFileWorker.PARAMS_MEDIA_THUMBNAIL)
-
-        if(mediaTitle == null || mediaThumbnail == null)
-            return
-
-//        val thumbnail = view.findViewById<ImageView>(R.id.download_media_thumbnail)
-//        val title = view.findViewById<TextView>(R.id.download_media_title)
-//        val card = view.findViewById<MaterialCardView>(R.id.download_progress_card)
-
-//        title.text = mediaTitle
-//        Glide.with(requireContext())
-//            .load(mediaThumbnail)
-//            .into(thumbnail)
-//        card.visibility = View.VISIBLE
-    }
     private fun updateDownloadProgress(workInfo: WorkInfo) {
+        val downloadProgress = rootView.findViewById<CircularProgressIndicator>(R.id.download_circle_progress)
+        downloadProgress.visibility = View.VISIBLE
+
         val progress = workInfo.progress.getInt(DownloadFileWorker.KEY_DOWNLOAD_PROGRESS, -1)
         val fileSize = workInfo.progress.getLong(DownloadFileWorker.KEY_FILE_SIZE_IN_BYTES, 0)
         val downloadedSize =
             workInfo.progress.getLong(DownloadFileWorker.KEY_DOWNLOADED_SIZE_IN_BYTES, 0)
 
-//        if (progress != -1) {
-//            downloadProgress.isIndeterminate = false
-//            downloadSizeProgress.text =
-//                "${downloadedSize.formatSizeToReadableFormat()}/${fileSize.formatSizeToReadableFormat()}"
-//
-//            downloadProgress.progress = progress
-//            downloadTextProgress.text = "$progress%"
-//
-//            return
-//        }
-//
-//        downloadProgress.isIndeterminate = true
+        if (progress != -1) {
+            downloadProgress.isIndeterminate = false
+
+            downloadProgress.progress = progress
+            return
+        }
+
+        downloadProgress.isIndeterminate = true
 //        downloadTextProgress.text = ""
 //        downloadSizeProgress.text = downloadedSize.formatSizeToReadableFormat()
 
@@ -348,9 +336,15 @@ class DownloadFragment : Fragment() {
     private fun observeRemovingMedia() {
         lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.removeMediaStateFlow.collect { position ->
-                    position?.let {
-                        adapter.refresh()
+                viewModel.removeMediaStateFlow.collect { result ->
+                    result.onSuccess { msg ->
+                        msg?.let {
+
+                            adapter.refresh()
+                        }
+                    }
+                    result.onFailure {
+                        rootView.snackBar("Failed to remove media, please try again")
                     }
                 }
             }

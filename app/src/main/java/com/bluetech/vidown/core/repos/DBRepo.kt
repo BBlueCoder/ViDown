@@ -54,6 +54,19 @@ class DBRepo @Inject constructor(private var mediaDao: MediaDao){
         }
     }
 
+    fun removeMedia(media : List<MediaEntity>,context: Context) = flow {
+        try {
+            mediaDao.deleteMedias(media)
+            emit(Result.success(true))
+            media.forEach {
+                val file = File(context.filesDir,it.name)
+                file.delete()
+            }
+        }catch (ex : Exception){
+            emit(Result.failure(ex))
+        }
+    }
+
     fun renameMedia(id : Int,title : String,downloadItemPayload: DownloadItemPayload) = flow {
         try{
             mediaDao.updateMediaTitle(title,id)
