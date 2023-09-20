@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.activities.MainActivity">
+    tools:context=".ui.mainscreen.MainActivity">
 
     <fragment
         android:id="@+id/nav_host"
@@ -20,6 +20,10 @@
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:backgroundTint="@color/color_stroke"
+        app:itemIconTint="@color/white"
+        app:labelVisibilityMode="unlabeled"
+        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
         app:menu="@menu/bottom_nav"/>
 
 </LinearLayout>

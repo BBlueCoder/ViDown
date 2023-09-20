@@ -13,7 +13,7 @@
         android:layout_height="20dp"
         android:id="@+id/result_category_icon"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_video_purple"
+        android:src="@drawable/ic_video"
         android:layout_marginBottom="20dp"
         />
 
@@ -24,7 +24,7 @@
         tools:text="Videos"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#000"
+        android:textColor="@color/color_background"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/result_category_icon"
         android:layout_marginStart="15dp"

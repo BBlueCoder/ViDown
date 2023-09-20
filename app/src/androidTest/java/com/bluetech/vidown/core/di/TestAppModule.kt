@@ -1,10 +1,14 @@
 package com.bluetech.vidown.core.di
 
+import android.content.Context
+import androidx.room.Room
 import com.bluetech.vidown.core.api.ApplicationApi
+import com.bluetech.vidown.core.db.AppLocalDB
 import com.bluetech.vidown.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -22,6 +26,15 @@ object TestAppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApplicationApi::class.java)
+    }
+
+    @Provides
+    @Named("test_db")
+    fun provideDatabase(@ApplicationContext context : Context) : AppLocalDB {
+        return Room.inMemoryDatabaseBuilder(
+            context,
+            AppLocalDB::class.java
+        ).build()
     }
 
 }

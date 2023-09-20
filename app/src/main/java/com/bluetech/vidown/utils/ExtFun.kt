@@ -1,8 +1,12 @@
 package com.bluetech.vidown.utils
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
+import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
 import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -51,4 +55,37 @@ fun Context.showPermissionRequestExplanation(permission : String, message : Stri
         .setPositiveButton("OK"){_,_->
             retry?.invoke()
         }.show()
+}
+
+fun Activity.hideKeyboard(view : View){
+    val inputMethodManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+}
+
+fun View.toggleVisibility(visibility : Int = View.GONE){
+    if(this.isVisible){
+        this.visibility = visibility
+        return
+    }
+    this.visibility = View.VISIBLE
+}
+
+fun DownloadHistoryWithExtras.calculateSize() : Long {
+    var size : Long = 0
+    size += downloadHistoryEntity.downloadData.sizeInBytes
+    size += downloadHistoryItemExtras
+        .map {
+            it.downloadData.sizeInBytes
+        }.reduce { a, b -> a+b }
+    return size
+}
+
+fun DownloadHistoryWithExtras.calculateDownloadedSize() : Long {
+    var downloadedSize : Long = 0
+    downloadedSize += downloadHistoryEntity.downloadData.downloadSizeInBytes
+    downloadedSize += downloadHistoryItemExtras.
+    map {
+        it.downloadData.downloadSizeInBytes
+    }.reduce {a,b -> a + b}
+    return downloadedSize
 }

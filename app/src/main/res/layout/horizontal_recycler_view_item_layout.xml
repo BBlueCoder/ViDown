@@ -1,25 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="150dp"
+    android:layout_width="90dp"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_background"
     android:padding="10dp">
 
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/recent_thumbnail"
-        android:scaleType="centerCrop"
-        />
-
-    <TextView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/recent_title"
-        android:layout_toEndOf="@id/recent_thumbnail"
-        android:layout_marginStart="10dp"
-        android:maxLines="3"
-        android:textSize="14sp"
-        android:textColor="#000"
-        />
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="3dp"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="90dp"
+                android:id="@+id/hor_thumbnail"
+                android:scaleType="centerCrop"
+                android:src="@color/color_secondary"
+                android:contentDescription="@string/image_desc" />
+
+            <View
+                android:layout_width="80dp"
+                android:layout_height="90dp"
+                android:background="@drawable/bottom_shadow"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_play_white"
+                android:layout_centerInParent="true"
+                android:id="@+id/hor_play_ic"
+                android:contentDescription="@string/image_desc"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/hor_music_ic"
+                android:src="@drawable/ic_audio_purple"
+                android:layout_alignBottom="@id/hor_thumbnail"
+                android:layout_alignEnd="@id/hor_thumbnail"
+                android:visibility="gone"
+                android:contentDescription="@string/image_desc"
+                />
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
 
 </RelativeLayout>

@@ -9,12 +9,13 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.bluetech.vidown"
         minSdk 22
-        targetSdk 33
+        //noinspection EditedTargetSdkVersion
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -34,32 +35,37 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
 
 
 
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
 
     testImplementation "com.google.truth:truth:1.0.1"
     androidTestImplementation "com.google.truth:truth:1.0.1"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+    androidTestImplementation 'app.cash.turbine:turbine:1.0.0'
 
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
 
     //nav comp
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
-    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.1")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.1")
 
     //Youtube download lib
     implementation 'com.github.RaIsseMa:YouDownloaderDemo:2.1.3'
@@ -72,28 +78,32 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
 //
 //    //Material Design
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.google.android.material:material:1.9.0'
 //
 //    //Room
     implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
 //
     //Dagger Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    // When using Kotlin.
+    kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     //Paging
     implementation "androidx.paging:paging-runtime:$paging_version"
 
-//
-//    // Kotlin Extensions and Coroutines support for Room
-//    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+
 //
 //    //design
 //
 //    //glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'jp.wasabeef:glide-transformations:4.3.0'
 
     implementation 'com.github.BBlueCoder:FFmpegAndroidKotlin:2.0.7'
 
@@ -101,6 +111,8 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.2'
     implementation 'com.google.android.exoplayer:extension-cronet:2.18.2'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.2'
+
+    implementation 'com.arthenica:ffmpeg-kit-full-gpl:4.5.1-1'
 
 
 

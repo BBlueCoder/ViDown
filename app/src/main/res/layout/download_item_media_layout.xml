@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="5dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="105dp"
+        android:clickable="true"
+        style="@style/Widget.Material3.CardView.Filled"
+        app:cardCornerRadius="3dp"
+        app:strokeColor="@color/color_stroke"
+        android:id="@+id/media_card_view"
+        android:focusable="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/media_thumbnail"
+                android:background="@color/purple_200"
+                android:scaleType="centerCrop"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#3E000000"
+                />
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_play_white"
+                android:layout_centerInParent="true"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/media_duration"
+                tools:text="03:20"
+                android:layout_alignParentBottom="true"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:background="#41000000"
+                android:textSize="8sp"
+                android:textColor="@color/white"
+                />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_audio_purple"
+                android:id="@+id/media_audio_icon"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:clickable="false"
+                android:id="@+id/media_selected_overlay"
+                android:background="#B2232946"/>
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/media_title"
+        android:layout_below="@id/media_card_view"
+        android:layout_marginTop="5dp"
+        tools:text="Don Big - M9tal"
+        android:gravity="center"
+        android:textSize="11sp"
+        android:maxLines="2"
+        android:textColor="@color/color_secondary"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="18dp"
+        android:src="@drawable/ic_more"
+        android:layout_below="@id/media_title"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/media_more"
+        android:layout_marginTop="3dp"
+        />
+
+</RelativeLayout>

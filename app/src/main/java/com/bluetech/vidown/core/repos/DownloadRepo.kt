@@ -1,9 +1,6 @@
 package com.bluetech.vidown.core.repos
 
-import com.bluetech.vidown.core.db.AppLocalDB
-import com.bluetech.vidown.core.db.MediaDao
-import com.bluetech.vidown.core.db.MediaEntity
-import kotlinx.coroutines.flow.flow
+import com.bluetech.vidown.core.db.dao.MediaDao
 import javax.inject.Inject
 import javax.inject.Singleton
 

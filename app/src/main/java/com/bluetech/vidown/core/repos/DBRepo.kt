@@ -1,66 +1,114 @@
 package com.bluetech.vidown.core.repos
 
 import android.content.Context
-import android.icu.text.CaseMap.Title
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.MediaDao
-import com.bluetech.vidown.core.db.MediaEntity
+import com.bluetech.vidown.core.db.dao.DownloadHistoryDao
+import com.bluetech.vidown.core.db.entities.DownloadHistoryEntity
+import com.bluetech.vidown.core.db.dao.MediaDao
+import com.bluetech.vidown.core.db.entities.DownloadHistoryItemExtras
+import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.core.db.entities.MediaEntity
+import com.bluetech.vidown.core.db.entities.MediaThumbnail
+import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
 import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import java.io.File
+import java.util.LinkedList
+import java.util.Queue
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DBRepo @Inject constructor(private var mediaDao: MediaDao){
+class DBRepo @Inject constructor(
+    private var mediaDao: MediaDao,
+    private var downloadHistoryDao: DownloadHistoryDao
+) {
 
-    fun getRecentRecords() = flow{
-        try {
-            emit(Result.success(mediaDao.getLastSevenRecords()))
-        }catch (ex : Exception){
-            emit(Result.failure(ex))
+    fun addMedia(mediaEntity: MediaEntity): Long {
+        return mediaDao.addMedia(mediaEntity)
+    }
+
+    fun addThumbnail(mediaThumbnail: MediaThumbnail) {
+        mediaDao.addThumbnail(mediaThumbnail)
+    }
+
+    fun getRecentRecords() = mediaDao.getLastSevenRecords()
+
+    fun getMedia(
+        limit: Int,
+        offset: Int,
+        orderByNewest: Boolean,
+        onlyFavorites: Boolean
+    ): List<MediaWithThumbnail> {
+        if (!orderByNewest && onlyFavorites)
+            return mediaDao.getOnlyFavoritesByOld(limit, offset)
+        if (orderByNewest && onlyFavorites)
+            return mediaDao.getOnlyFavorites(limit, offset)
+        if (!orderByNewest)
+            return mediaDao.getAllMediaByOld(limit, offset)
+        return mediaDao.getAllMedia(limit, offset)
+    }
+
+    fun getMediaStream() = mediaDao.getAllMediaStream()
+
+    fun getLastFavorites() = mediaDao.getLastFavorites()
+
+    fun updateMediaFavorite(id: Long, favorite: Boolean) {
+        mediaDao.updateMediaFavorite(id, favorite)
+    }
+
+    fun removeMedia(mediaEntity: MediaEntity, context: Context) {
+        mediaDao.deleteMedia(mediaEntity)
+        val file = File(context.filesDir, mediaEntity.savedName)
+        file.delete()
+    }
+
+    fun removeMedia(media: List<MediaEntity>, context: Context) {
+
+        mediaDao.deleteMedias(media)
+
+        media.forEach {
+            val file = File(context.filesDir, it.savedName)
+            file.delete()
         }
     }
 
-    fun getMedia(limit : Int,offset : Int,orderByNewest : Boolean,onlyFavorites : Boolean): List<MediaEntity>{
-        if(!orderByNewest && onlyFavorites)
-            return mediaDao.getOnlyFavoritesByOld(limit,offset)
-        if(orderByNewest && onlyFavorites)
-            return mediaDao.getOnlyFavorites(limit,offset)
-        if(!orderByNewest)
-            return mediaDao.getAllMediaByOld(limit,offset)
-        return mediaDao.getAllMedia(limit,offset)
+    fun renameMedia(id: Long, title: String) {
+        mediaDao.updateMediaTitle(title, id)
     }
 
-    fun getLastFavorites() = flow{
-        try {
-            emit(Result.success(mediaDao.getLastFavorites()))
-        }catch (ex : Exception){
-            emit(Result.failure(ex))
-        }
+
+    fun addDownloadHistoryItem(downloadHistoryEntity: DownloadHistoryEntity): Long {
+        return downloadHistoryDao.addDownloadHistoryItem(downloadHistoryEntity)
     }
 
-    fun updateMediaFavorite(id : Int,favorite : Boolean){
-        mediaDao.updateMediaFavorite(id,favorite)
+    fun addDownloadExtras(downloadHistoryItemExtras: DownloadHistoryItemExtras) {
+        downloadHistoryDao.addDownloadExtras(downloadHistoryItemExtras)
     }
 
-    fun removeMedia(mediaEntity : MediaEntity,context : Context) = flow{
-        try {
-            mediaDao.deleteMedia(mediaEntity)
-            val file = File(context.filesDir,mediaEntity.name)
-            emit(Result.success(file.delete()))
-        }catch (ex : Exception){
-            emit(Result.failure(ex))
-        }
+    fun getAllDownloadHistory() = downloadHistoryDao.getAllDownloadHistory()
+
+    fun getPendingDownloads(): List<DownloadHistoryWithExtras> {
+        return downloadHistoryDao.getPendingDownloads()
     }
 
-    fun renameMedia(id : Int,title : String,downloadItemPayload: DownloadItemPayload) = flow {
-        try{
-            mediaDao.updateMediaTitle(title,id)
-            emit(Result.success(downloadItemPayload))
-        }catch (ex : Exception){
-            emit(Result.failure(ex))
-        }
+    fun getDownloadInProgressStream() = downloadHistoryDao.getDownloadInProgressStream()
+
+    fun getDownloadHistory(id: Long) = downloadHistoryDao.getDownloadHistoryEntity(id)
+
+    fun isThereAnyUncompletedDownloads(): Boolean {
+        return downloadHistoryDao.getCountOfUncompletedDownloads() != 0
     }
+
+    fun deleteDownloadHistoryItem(downloadHistoryEntity: DownloadHistoryEntity) =
+        downloadHistoryDao.deleteDownloadHistoryItem(downloadHistoryEntity.uid)
+
+    fun deleteDownloadExtra(downloadHistoryItemExtras: DownloadHistoryItemExtras) {
+        downloadHistoryDao.deleteDownloadExtras(downloadHistoryItemExtras)
+    }
+
+    fun updateDownloadHistoryItem(downloadHistoryEntity: DownloadHistoryEntity) =
+        downloadHistoryDao.updateDownloadHistoryItem(downloadHistoryEntity)
 
 }

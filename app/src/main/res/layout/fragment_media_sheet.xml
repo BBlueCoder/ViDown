@@ -5,12 +5,14 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:id="@+id/media_sheet_layout"
-    tools:context=".ui.fragments.MediaSheet">
+    android:background="@color/white"
+    tools:context=".ui.resultsheetscreen.MediaSheet">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="125dp"
         android:padding="20dp"
+        android:background="@color/white"
         >
 
         <ImageView

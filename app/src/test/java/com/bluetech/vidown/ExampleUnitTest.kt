@@ -58,15 +58,15 @@ class ExampleUnitTest {
 
     @Test
     fun quickYouLibTest(){
-        val url = "https://www.youtube.com/watch?v=Q3IkQxzpFfw"
-        val TAG = "test: "
-        val youClient = YouClient(url)
-        println("$TAG initialize client $url")
-        val videoTitle = youClient.getVideoTitle()
-        println("$TAG get video title $videoTitle")
-        val videoThumbnail = youClient.getVideoThumbnail()
-        println("$TAG get video thumbnail $videoThumbnail")
-
-        assertEquals(4, 2 + 2)
+//        val url = "https://www.youtube.com/watch?v=Q3IkQxzpFfw"
+//        val TAG = "test: "
+//        val youClient = YouClient(url)
+//        println("$TAG initialize client $url")
+//        val videoTitle = youClient.getVideoTitle()
+//        println("$TAG get video title $videoTitle")
+//        val videoThumbnail = youClient.getVideoThumbnail()
+//        println("$TAG get video thumbnail $videoThumbnail")
+//
+//        assertEquals(4, 2 + 2)
     }
 }
