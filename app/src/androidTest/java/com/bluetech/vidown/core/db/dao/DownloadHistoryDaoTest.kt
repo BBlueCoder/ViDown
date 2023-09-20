@@ -91,23 +91,9 @@ class DownloadHistoryDaoTest {
         dao.addDownloadHistoryItem(fakeDownloadHistoryItem)
         dao.addDownloadExtras(downloadHistoryItemExtras)
 
-        dao.deleteDownloadHistoryItem(fakeDownloadHistoryItem)
+        dao.deleteDownloadHistoryItem(fakeDownloadHistoryItem.uid)
 
         val list = dao.getPendingDownloads()
         Truth.assertThat(list).isEmpty()
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun downloadHistoryDao_getAllDownloadHistoryTest() = runBlocking {
-
-        dao.getAllDownloadHistory().collectLatest {
-            println("***************** db data $it")
-        }
-
-//        println("************** db data ${dao.getAllDownloadHistory()}")
-
-        Truth.assertThat("1").isEqualTo("1")
-
     }
 }
