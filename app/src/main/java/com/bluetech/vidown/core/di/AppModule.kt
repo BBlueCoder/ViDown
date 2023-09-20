@@ -6,6 +6,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bluetech.vidown.core.api.ApplicationApi
 import com.bluetech.vidown.core.db.AppLocalDB
+import com.bluetech.vidown.core.workers.WorkerStarter
 import com.bluetech.vidown.utils.Constants.API_BASE_URL_EXAMPLE
 import com.bluetech.vidown.utils.Constants.DATABASE_NAME
 import dagger.Module
@@ -57,4 +58,12 @@ object AppModule {
     fun provideMediaDao(
         appLocalDB: AppLocalDB
     ) = appLocalDB.mediaDao()
+
+    @Singleton
+    @Provides
+    fun provideDownloadHistoryDao(appLocalDB: AppLocalDB) = appLocalDB.downloadHistoryDao()
+
+    @Singleton
+    @Provides
+    fun provideWorkerStarter(@ApplicationContext context: Context) = WorkerStarter(context)
 }

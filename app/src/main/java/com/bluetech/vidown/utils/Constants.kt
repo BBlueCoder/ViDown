@@ -1,5 +1,9 @@
 package com.bluetech.vidown.utils
 
+import android.os.Build
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+
 object Constants {
 
     const val DATABASE_NAME = "vidown_db"
@@ -21,4 +25,16 @@ object Constants {
     const val TIKTOK = "tiktok"
 
     const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
+
+    fun generateFileName(): String {
+        return "${Constants.FILE_PREFIX_NAME}${getTimeInMillis()}"
+    }
+
+    fun getTimeInMillis() : Long {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toLong()
+        } else {
+            System.currentTimeMillis()
+        }
+    }
 }

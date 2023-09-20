@@ -12,7 +12,7 @@
 
         <item name="android:colorBackground">@color/color_background</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" >@color/color_background</item>
+        <item name="android:statusBarColor">@color/color_background</item>
         <!-- Customize your theme here. -->
 
     </style>
@@ -49,5 +49,10 @@
 
     <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/color_primary</item>
+    </style>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.ViDown" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 </resources>

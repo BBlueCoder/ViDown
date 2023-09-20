@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:id="@+id/media_sheet_layout"
     android:background="@color/white"
-    tools:context=".ui.fragments.MediaSheet">
+    tools:context=".ui.resultsheetscreen.MediaSheet">
 
     <RelativeLayout
         android:layout_width="match_parent"

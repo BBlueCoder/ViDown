@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.bluetech.vidown"
-    >
+    package="com.bluetech.vidown">
 
-    <uses-sdk tools:overrideLibrary="com.arthenica.ffmpegkit"/>
+    <uses-sdk tools:overrideLibrary="com.arthenica.ffmpegkit" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"
-        />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
     <application
@@ -26,20 +26,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ViDown"
-        tools:targetApi="31" >
+        tools:targetApi="31">
         <activity
-            android:name=".ui.activities.DisplayMedia"
-            android:theme="@style/Theme.NoStatusBar"
-            android:exported="false" >
+            android:name=".ui.downloadhistoryscreen.DownloadHistoryActivity"
+            android:exported="false"
+            android:label="@string/title_activity_download_history"
+            android:theme="@style/Theme.ViDown" />
+        <activity
+            android:name=".ui.displayscreen.DisplayMedia"
+            android:exported="false"
+            android:theme="@style/Theme.NoStatusBar">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name=".ui.mainscreen.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="stateHidden|adjustResize" >
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,18 +52,17 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain"/>
 
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove">
-        </provider>
-
+            tools:node="remove" />
     </application>
 
 </manifest>

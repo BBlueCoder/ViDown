@@ -1,39 +1,54 @@
 package com.bluetech.vidown.core.workers
 
 import android.content.Context
-import android.content.Intent
-import android.media.MediaMuxer
-import android.media.MediaPlayer
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.work.HiltWorker
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.ReturnCode
 import com.bluecoder.ffmpegandroidkotlin.FFmpegWrapper
 import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.MediaDao
-import com.bluetech.vidown.core.db.MediaEntity
+import com.bluetech.vidown.core.db.dao.DownloadHistoryDao
+import com.bluetech.vidown.core.db.dao.MediaDao
+import com.bluetech.vidown.core.db.entities.DownloadData
+import com.bluetech.vidown.core.db.entities.DownloadHistoryItemExtras
+import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.core.db.entities.DownloadStatus
+import com.bluetech.vidown.core.db.entities.MediaEntity
+import com.bluetech.vidown.core.db.entities.mapToMediaEntity
+import com.bluetech.vidown.core.db.entities.mapToMediaThumbnail
+import com.bluetech.vidown.core.db.entities.mapToNewDownloadItemWithNewDownloadData
+import com.bluetech.vidown.core.db.entities.mapToNewDownloadWithNewDownloadData
+import com.bluetech.vidown.core.db.entities.updateDownloadStatus
+import com.bluetech.vidown.core.domain.GetPendingDownloadsAsQueueUseCase
+import com.bluetech.vidown.core.repos.DBRepo
 import com.bluetech.vidown.utils.Constants
-import com.bluetech.vidown.utils.formatSizeToReadableFormat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.Request
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.SizeReadyCallback
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -41,264 +56,210 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 
 @HiltWorker
 class DownloadFileWorker @AssistedInject constructor(
-    private val mediaDao: MediaDao,
+    private val dbRepo: DBRepo,
+    private val downloadHistoryDao: DownloadHistoryDao,
+    private val getPendingDownloadsAsQueueUseCase: GetPendingDownloadsAsQueueUseCase,
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
     private val TAG = "DownloadFileWorker"
 
-    private var nameForFile = ""
-
-    private var contentLength : Long = 0
-    private var downloadedSize : Long = 0
-
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            try {
-                downloadMedia()
-                Result.success()
-            } catch (ex : CancellationException){
-                cleanUp()
-                Result.failure()
-            }catch (ex: Exception) {
-                println("$TAG: Exception : \n ${ex.message}")
-                cleanUp()
-                Result.failure()
+            var downloadsQueue = getPendingDownloadsAsQueueUseCase()
+            while (downloadsQueue.isNotEmpty()) {
+                val download = downloadsQueue.poll()
+                try {
+                    updateDownloadStatusOFDownloadItem(download!!,DownloadStatus.INPROGRESS)
+                    downloadMedia(download)
+                    updateDownloadStatusOFDownloadItem(download, DownloadStatus.COMPLETED)
+
+                } catch (ex: CancellationException) {
+                    cleanUp(download!!)
+                } catch (ex: Exception) {
+                    updateDownloadStatusOFDownloadItem(download!!, DownloadStatus.FAILED)
+                    println("$TAG: Exception : \n ${ex.message}")
+                    ex.printStackTrace()
+                    cleanUp(download)
+                }finally {
+                    downloadsQueue = getPendingDownloadsAsQueueUseCase()
+                }
+            }
+            Result.success()
+        }
+    }
+
+    private suspend fun downloadMedia(currentDownloadItem: DownloadHistoryWithExtras) {
+
+        var blurredThumbnailSavedName: String? = null
+
+        val mainDownloadAsync = CoroutineScope(Dispatchers.IO).async {
+            DownloadFile(
+                context.filesDir.path,
+                currentDownloadItem.downloadHistoryEntity.downloadData.downloadUrl,
+                currentDownloadItem.downloadHistoryEntity.savedName,
+                currentDownloadItem.downloadHistoryEntity.downloadData.downloadSizeInBytes
+            )()
+                .collect {
+                    if(isDownloadCancelled(currentDownloadItem.downloadHistoryEntity.uid))
+                        throw CancellationException()
+
+                    val downloadHistoryItem =
+                        currentDownloadItem.mapToNewDownloadItemWithNewDownloadData(it)
+                    downloadHistoryDao.updateDownloadHistoryItem(downloadHistoryItem)
+
+                }
+        }
+
+        var audioFileName: String? = null
+        val separatedAudioDownloadAsync = CoroutineScope(Dispatchers.IO).async {
+            if (currentDownloadItem.downloadHistoryEntity.type == MediaType.Video) {
+                val isVideoHasASeparatedAudio = checkIfVideoHasASeparatedAudio(currentDownloadItem)
+                if (isVideoHasASeparatedAudio) {
+                    downloadItemExtra(getSeparatedAudioExtra(currentDownloadItem)!!)
+                    audioFileName = getSeparatedAudioExtra(currentDownloadItem)!!.savedName
+                }
             }
         }
-    }
 
-    private suspend fun downloadMedia(){
-        val mediaEntity = createMediaEntityInstance(params)
+        val thumbnailDownloadAsync = CoroutineScope(Dispatchers.IO).async {
+            if(currentDownloadItem.downloadHistoryEntity.type == MediaType.Image)
+                return@async
 
-        nameForFile = generateFileName()
-        mediaEntity.name = nameForFile
+            downloadItemExtra(getThumbnailExtra(currentDownloadItem)!!)
+            if (currentDownloadItem.downloadHistoryEntity.type == MediaType.Audio)
+                blurredThumbnailSavedName =
+                    BlurImage(context, getThumbnailExtra(currentDownloadItem)!!.savedName)()
 
-        val videoDownloadAsync = CoroutineScope(Dispatchers.IO).async {
-            downloadFile(mediaEntity.downloadSource,nameForFile)
         }
 
-        val audioDownloadAsync = CoroutineScope(Dispatchers.IO).async {
-            checkIfVideoHasSeparateAudioAndDownloadIt(params)
-        }
+        thumbnailDownloadAsync.await()
+        mainDownloadAsync.await()
+        separatedAudioDownloadAsync.await()
 
-        val audioThumbnailDownloadAsync = CoroutineScope(Dispatchers.IO).async {
-            checkIfAudioHasThumbnailAndDownloadIt(mediaEntity)
-        }
-
-        val audioThumbnailFileName = audioThumbnailDownloadAsync.await()
-        videoDownloadAsync.await()
-        val audioFileName = audioDownloadAsync.await()
-
-        audioThumbnailFileName?.let {
-            mediaEntity.thumbnail = it
-        }
+        var mixedVideoAndAudioSavedName: String? = null
 
         audioFileName?.let {
-            val videoFileName = nameForFile
-            nameForFile = "${generateFileName()}.mp4"
-            mediaEntity.name = nameForFile
+            mixedVideoAndAudioSavedName = "${Constants.generateFileName()}.mp4"
 
-            muxAudioAndVideo(videoFileName,audioFileName,nameForFile)
-            clearOutputFiles(videoFileName)
-            clearOutputFiles(audioFileName)
+            VideoAudioMuxer(
+                context,
+                currentDownloadItem.downloadHistoryEntity.savedName,
+                it,
+                mixedVideoAndAudioSavedName!!
+            )()
+            clearOutputFiles(currentDownloadItem.downloadHistoryEntity.savedName)
+            clearOutputFiles(it)
+            dbRepo.deleteDownloadExtra(getSeparatedAudioExtra(currentDownloadItem)!!)
         }
 
-        withContext(Dispatchers.Main){
-            getDurationOfMediaIfPossible(mediaEntity)
-        }
+        val duration = CoroutineScope(Dispatchers.Main).async {
+            if(currentDownloadItem.downloadHistoryEntity.type == MediaType.Image)
+                return@async 0
 
-        addMediaToDB(mediaEntity)
+            GetDurationOfMedia(context, mixedVideoAndAudioSavedName?: currentDownloadItem.downloadHistoryEntity.savedName)()
+        }.await()
+
+        val mediaEntity = currentDownloadItem.downloadHistoryEntity.mapToMediaEntity(
+            mixedVideoAndAudioSavedName,
+            duration
+        )
+        val mediaId = addMediaToDB(mediaEntity)
+        val mediaThumbnail = getThumbnailExtra(currentDownloadItem)!!.mapToMediaThumbnail(
+            mediaId,
+            blurredThumbnailSavedName
+        )
+        dbRepo.addThumbnail(mediaThumbnail)
     }
 
-    private fun clearOutputFiles(fileName : String){
-        val file = File(context.filesDir,fileName)
-        if(file.exists())
+    private fun isDownloadCancelled(id : Long) : Boolean {
+        val downloadItem = dbRepo.getDownloadHistory(id)
+        return downloadItem.downloadData.downloadStatus == DownloadStatus.CANCELLED
+    }
+
+    private fun updateDownloadStatusOFDownloadItem(
+        currentDownloadItem: DownloadHistoryWithExtras,
+        status: DownloadStatus
+    ) {
+        val downloadHistoryItem = currentDownloadItem.updateDownloadStatus(status)
+        downloadHistoryDao.updateDownloadHistoryItem(downloadHistoryItem)
+    }
+
+    private fun updateDownloadStatusOFDownloadItemExtra(
+        downloadExtra: DownloadHistoryItemExtras,
+        status: DownloadStatus
+    ){
+        val downloadItemExtra = downloadExtra.updateDownloadStatus(status)
+        downloadHistoryDao.updateDownloadItemExtra(downloadItemExtra)
+    }
+
+    private fun checkIfVideoHasASeparatedAudio(currentDownloadItem: DownloadHistoryWithExtras): Boolean {
+        return currentDownloadItem.downloadHistoryItemExtras.find {
+            it.mediaType == MediaType.Audio
+        } != null
+    }
+
+    private fun clearOutputFiles(fileName: String) {
+        val file = File(context.filesDir, fileName)
+        if (file.exists())
             file.delete()
     }
 
-    private suspend fun muxAudioAndVideo(videoFileName : String,audioFileName : String,outputFileName : String){
-        val video = File(context.filesDir,videoFileName)
-        val audio = File(context.filesDir,audioFileName)
-        val output = File(context.filesDir,outputFileName)
+    private fun getSeparatedAudioExtra(currentDownloadItem: DownloadHistoryWithExtras) =
+        currentDownloadItem.downloadHistoryItemExtras.find { it.mediaType == MediaType.Audio }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            FFmpegKit
-                .execute("-i ${video.path} -i ${audio.path} -c:v copy -c:a copy -strict normal -map 0:v:0 -map 1:a:0 -shortest ${output.path}")
+    private fun getThumbnailExtra(currentDownloadItem: DownloadHistoryWithExtras) =
+        currentDownloadItem.downloadHistoryItemExtras.find { it.mediaType == MediaType.Image }
 
-        }else{
-            FFmpegWrapper(context).mux(video.path, audio.path, output.path)
-                .onCompletion {
-                    it?.printStackTrace()
-                }.catch {
-                    it.printStackTrace()
-                }.collect{
-                    println("$TAG muxing output $it")
+    private suspend fun downloadItemExtra(downloadExtra: DownloadHistoryItemExtras) {
+
+        if(downloadExtra.downloadData.downloadStatus == DownloadStatus.COMPLETED)
+            return
+
+        DownloadFile(
+            context.filesDir.path,
+            downloadExtra.downloadData.downloadUrl,
+            downloadExtra.savedName,
+            downloadExtra.downloadData.downloadSizeInBytes
+        )()
+            .onCompletion {
+                if(it == null){
+                    updateDownloadStatusOFDownloadItemExtra(downloadExtra,DownloadStatus.COMPLETED)
+                }else{
+                    updateDownloadStatusOFDownloadItemExtra(downloadExtra,DownloadStatus.FAILED)
                 }
-        }
-    }
-
-    private suspend fun checkIfVideoHasSeparateAudioAndDownloadIt(params: WorkerParameters): String? {
-        val audioUrl = params.inputData.getString(PARAMS_MEDIA_AUDIO_URL) ?: return null
-
-        val audioFileName = generateFileName()
-        downloadFile(audioUrl,audioFileName)
-
-        return audioFileName
-    }
-
-    private suspend fun checkIfAudioHasThumbnailAndDownloadIt(mediaEntity: MediaEntity): String?{
-        val thumbnailUrl = mediaEntity.thumbnail ?: return null
-
-        val thumbnailFileName = "${nameForFile}_thumbnail"
-        downloadFile(thumbnailUrl,thumbnailFileName)
-
-        return thumbnailFileName
-    }
-
-    private suspend fun createMediaEntityInstance(params: WorkerParameters): MediaEntity {
-        val fileUrl = params.inputData.getString(PARAMS_MEDIA_URL)
-        val fileType = params.inputData.getString(PARAMS_MEDIA_TYPE)
-        val mediaTitle = params.inputData.getString(PARAMS_MEDIA_TITLE) ?: ""
-        val fileAudioThumbnail = params.inputData.getString(PARAMS_MEDIA_AUDIO_THUMBNAIL)
-        val source = params.inputData.getString(PARAMS_MEDIA_SOURCE)
-        val thumbnail = params.inputData.getString(PARAMS_MEDIA_THUMBNAIL)?: ""
-
-        updateDownloadMediaInfo(thumbnail,mediaTitle)
-
-        val mediaType = when (fileType) {
-            "image" -> MediaType.Image
-            "video" -> MediaType.Video
-            "audio" -> MediaType.Audio
-            else -> null
-        }
-
-        return MediaEntity(
-            0,
-            "",
-            mediaType!!,
-            mediaTitle,
-            fileAudioThumbnail,
-            source!!,
-            fileUrl!!,
-            0
-        )
-    }
-
-    private suspend fun updateDownloadMediaInfo(thumbnail : String,title : String){
-        setProgress(
-            workDataOf(
-                PARAMS_MEDIA_TITLE to title,
-                PARAMS_MEDIA_THUMBNAIL to thumbnail
-            )
-        )
-    }
-
-    private suspend fun downloadFile(fileUrl : String,fileName : String) {
-        val newFile = File(context.filesDir, fileName)
-
-        val url = URL(fileUrl)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.setRequestProperty("User-Agent", USER_AGENT)
-
-        val temp = connection.getHeaderField("Content-Length").toLong()
-        contentLength += temp
-
-        connection.requestMethod = "GET"
-
-        connection.connect()
-
-        val inputStream = connection.inputStream
-
-        val buffer = ByteArray(1024 * 1024 * 5)
-        var length = inputStream.read(buffer)
-
-        inputStream.use {
-            val outputStream = FileOutputStream(newFile)
-
-            do {
-                outputStream.write(buffer, 0, length)
-                length = inputStream.read(buffer)
-                downloadedSize += length
-
-                updateProgress()
-            } while (length > 0 && !isStopped)
-        }
-    }
-
-    private fun generateFileName(): String {
-        val timeInMillis = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            DateTimeFormatter.ISO_INSTANT.format(Instant.now())
-        } else {
-            System.currentTimeMillis().toString()
-        }
-
-        return "${Constants.FILE_PREFIX_NAME}${timeInMillis}"
-    }
-
-    private suspend fun updateProgress() {
-        try {
-            val progress = (downloadedSize * 100f / contentLength).roundToInt()
-
-            setProgress(
-                workDataOf(
-                    KEY_DOWNLOAD_PROGRESS to progress,
-                    KEY_FILE_SIZE_IN_BYTES to contentLength,
-                    KEY_DOWNLOADED_SIZE_IN_BYTES to downloadedSize
-                )
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private suspend fun getDurationOfMediaIfPossible(mediaEntity: MediaEntity) {
-        if (mediaEntity.mediaType == MediaType.Audio || mediaEntity.mediaType == MediaType.Video) {
-            val file = File(context.filesDir, nameForFile)
-
-            try {
-                suspendCoroutine<Long> { coroutine ->
-                    ExoPlayer.Builder(context).build().also {
-                        it.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
-                        it.prepare()
-                        it.addListener(object : Player.Listener {
-                            override fun onPlaybackStateChanged(playbackState: Int) {
-                                if (playbackState == Player.STATE_READY) {
-                                    it.removeListener(this)
-                                    it.release()
-                                    mediaEntity.duration = it.duration
-                                    coroutine.resume(it.duration)
-                                }
-                            }
-                        })
-                    }
-                }
-            } catch (e: Exception) {
-                println("$TAG: duration exception ${e.message}")
-                e.printStackTrace()
             }
+            .collect {
+                val newDownloadExtra = downloadExtra.mapToNewDownloadWithNewDownloadData(it)
+                downloadHistoryDao.updateDownloadItemExtra(newDownloadExtra)
+            }
+    }
 
+    private fun addMediaToDB(mediaEntity: MediaEntity): Long {
+        return dbRepo.addMedia(mediaEntity)
+    }
+
+    private fun cleanUp(downloadItem: DownloadHistoryWithExtras) {
+        deleteFile(downloadItem.downloadHistoryEntity.savedName)
+        downloadItem.downloadHistoryItemExtras.forEach {
+            deleteFile(it.savedName)
         }
+
     }
 
-    private fun addMediaToDB(mediaEntity: MediaEntity) {
-        mediaDao.addMedia(mediaEntity)
-    }
-
-    private fun cleanUp(){
-        val file = File(context.filesDir,nameForFile)
-        if(file.exists())
+    private fun deleteFile(fileName: String) {
+        val file = File(context.filesDir, fileName)
+        if (file.exists())
             try {
                 file.delete()
-            }catch(e : Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
     }
@@ -308,14 +269,7 @@ class DownloadFileWorker @AssistedInject constructor(
         const val KEY_FILE_SIZE_IN_BYTES = "FILE_SIZE_IN_BYTES"
         const val KEY_DOWNLOADED_SIZE_IN_BYTES = "DOWNLOADED_SIZE"
 
-        const val PARAMS_MEDIA_URL = "MEDIA_URL"
-        const val PARAMS_MEDIA_TYPE = "MEDIA_TYPE"
-        const val PARAMS_MEDIA_TITLE = "MEDIA_TITLE"
-        const val PARAMS_MEDIA_THUMBNAIL = "MEDIA_THUMBNAIL"
-        const val PARAMS_MEDIA_AUDIO_THUMBNAIL = "AUDIO_THUMBNAIL"
-        const val PARAMS_MEDIA_SOURCE = "MEDIA_SOURCE"
-        const val PARAMS_MEDIA_AUDIO_URL = "MEDIA_AUDIO_URL"
-
-        const val USER_AGENT = "Mozilla/5.0 (BB10; Touch) AppleWebKit/537.1+ (KHTML, like Gecko) Version/10.0.0.1337 Mobile Safari/537.1+"
+        const val USER_AGENT =
+            "Mozilla/5.0 (BB10; Touch) AppleWebKit/537.1+ (KHTML, like Gecko) Version/10.0.0.1337 Mobile Safari/537.1+"
     }
 }

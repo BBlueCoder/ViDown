@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.bluetech.vidown.ui.fragments.MainFragment"
+        android:name="com.bluetech.vidown.ui.mainscreen.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
@@ -22,10 +22,13 @@
         <action
             android:id="@+id/display_media_action"
             app:destination="@id/displayMedia" />
+        <action
+            android:id="@+id/download_history"
+            app:destination="@id/downloadHistoryActivity" />
     </fragment>
     <fragment
         android:id="@+id/downloadFragment"
-        android:name="com.bluetech.vidown.ui.fragments.DownloadFragment"
+        android:name="com.bluetech.vidown.ui.downloadscreen.DownloadFragment"
         android:label="fragment_download"
         tools:layout="@layout/fragment_download" >
         <action
@@ -34,28 +37,33 @@
     </fragment>
     <activity
         android:id="@+id/displayMedia"
-        android:name="com.bluetech.vidown.ui.activities.DisplayMedia"
+        android:name="com.bluetech.vidown.ui.displayscreen.DisplayMedia"
         android:label="activity_display_media"
         tools:layout="@layout/activity_display_media" >
         <argument
-            android:name="mediaEntity"
-            app:argType="com.bluetech.vidown.core.db.MediaEntity" />
+            android:name="mediaWithThumbnail"
+            app:argType="com.bluetech.vidown.core.db.entities.MediaWithThumbnail" />
     </activity>
     <dialog
         android:id="@+id/mediaSheet"
-        android:name="com.bluetech.vidown.ui.fragments.MediaSheet"
+        android:name="com.bluetech.vidown.ui.resultsheetscreen.MediaSheet"
         android:label="fragment_media_sheet"
         tools:layout="@layout/fragment_media_sheet" />
     <dialog
         android:id="@+id/MediaEditSheet"
-        android:name="com.bluetech.vidown.ui.fragments.MediaEditSheet"
+        android:name="com.bluetech.vidown.ui.editsheetscreen.MediaEditSheet"
         android:label="fragment_media_edit_sheet"
         tools:layout="@layout/fragment_media_edit_sheet" >
         <argument
-            android:name="mediaEntity"
-            app:argType="com.bluetech.vidown.core.db.MediaEntity" />
+            android:name="mediaWithThumbnail"
+            app:argType="com.bluetech.vidown.core.db.entities.MediaWithThumbnail" />
         <argument
             android:name="position"
             app:argType="integer" />
     </dialog>
+    <activity
+        android:id="@+id/downloadHistoryActivity"
+        android:name="com.bluetech.vidown.ui.downloadhistoryscreen.DownloadHistoryActivity"
+        android:label="activity_download_history"
+        tools:layout="@layout/activity_download_history" />
 </navigation>

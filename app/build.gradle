@@ -35,6 +35,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -52,11 +55,13 @@ dependencies {
     testImplementation "com.google.truth:truth:1.0.1"
     androidTestImplementation "com.google.truth:truth:1.0.1"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+    androidTestImplementation 'app.cash.turbine:turbine:1.0.0'
 
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
 
     //nav comp
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.1")
@@ -77,6 +82,7 @@ dependencies {
 //
 //    //Room
     implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
 //
     //Dagger Hilt
@@ -91,9 +97,6 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
-//
-//    // Kotlin Extensions and Coroutines support for Room
-//    implementation "androidx.room:room-ktx:$roomVersion"
 //
 //    //design
 //

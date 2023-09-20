@@ -7,7 +7,7 @@
     android:background="@color/color_background"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.fragments.MainFragment">
+    tools:context=".ui.mainscreen.MainFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -96,7 +96,7 @@
                 app:cardCornerRadius="15dp"
                 app:cardElevation="0dp">
 
-                <com.bluetech.vidown.ui.customviews.ResultCardView
+                <com.bluetech.vidown.ui.mainscreen.ResultCardView
                     android:id="@+id/card_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

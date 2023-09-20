@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/color_stroke"
+    android:padding="10dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
+        app:cardCornerRadius="0dp"
+        android:backgroundTint="@color/color_stroke"
+        app:strokeColor="@color/color_background"
+        app:strokeWidth="3dp"
+        style="@style/Widget.Material3.CardView.Elevated"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="76dp"
+                android:layout_height="match_parent"
+                android:id="@+id/download_history_thumbnail_downloading"
+                android:src="@color/color_secondary"
+                android:scaleType="centerCrop"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_downloading_title"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:layout_toEndOf="@id/download_history_thumbnail_downloading"
+                android:layout_toStartOf="@id/download_history_close_downloading"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:textStyle="bold"
+                tools:text="Casey Horner"/>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_close"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:id="@+id/download_history_close_downloading"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_downloading_size"
+                tools:text="2MB/8.3MB"
+                android:textSize="11sp"
+                android:layout_below="@id/download_history_downloading_title"
+                android:layout_toEndOf="@id/download_history_thumbnail_downloading"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/color_gray"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_progress_text"
+                tools:text="25%"
+                android:layout_alignParentEnd="true"
+                android:layout_alignBaseline="@id/download_history_downloading_size"
+                android:layout_marginEnd="10dp"
+                android:textSize="11sp"
+                />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_progress"
+                android:layout_below="@id/download_history_downloading_size"
+                android:layout_toEndOf="@id/download_history_thumbnail_downloading"
+                android:layout_marginStart="5dp"
+                android:layout_alignEnd="@id/download_history_close_downloading"
+                app:trackColor="@color/color_background"
+                app:indicatorColor="@color/color_primary"
+                android:progress="25"
+                />
+
+        </RelativeLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+</RelativeLayout>

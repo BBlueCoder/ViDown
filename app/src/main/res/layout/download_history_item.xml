@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/color_stroke"
+    android:paddingTop="10dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    >
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
+        app:cardCornerRadius="0dp"
+        android:backgroundTint="@color/color_stroke"
+        app:strokeColor="@color/color_background"
+        app:strokeWidth="3dp"
+        style="@style/Widget.Material3.CardView.Elevated"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="76dp"
+                android:layout_height="match_parent"
+                android:id="@+id/download_history_thumbnail"
+                android:src="@color/color_secondary"
+                android:scaleType="centerCrop"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_title"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:layout_toEndOf="@id/download_history_thumbnail"
+                android:layout_toStartOf="@id/download_history_remove_btn"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:textStyle="bold"
+                tools:text="Casey Horner"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_date"
+                android:textColor="#4E4E4E"
+                android:textSize="9sp"
+                android:layout_below="@id/download_history_title"
+                android:layout_marginTop="5dp"
+                android:layout_toEndOf="@id/download_history_thumbnail"
+                android:layout_marginStart="5dp"
+                tools:text="08/29/2023"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/download_history_state"
+                tools:text="Failed"
+                android:layout_below="@id/download_history_date"
+                android:layout_toEndOf="@id/download_history_thumbnail"
+                android:layout_marginStart="5dp"
+                android:textSize="11sp"
+                android:layout_marginTop="5dp"
+                />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_alignParentEnd="true"
+                app:icon="@drawable/ic_remove_red"
+                app:iconTint="#F80000"
+                android:id="@+id/download_history_remove_btn"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/remove_icon_button"
+                />
+
+
+        </RelativeLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+</RelativeLayout>
