@@ -5,7 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
 import com.google.android.material.button.MaterialButton
 
 sealed class ResultsAdapterHolder(itemView : View) : RecyclerView.ViewHolder(itemView){

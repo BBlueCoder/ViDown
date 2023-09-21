@@ -42,7 +42,7 @@
         tools:layout="@layout/activity_display_media" >
         <argument
             android:name="mediaWithThumbnail"
-            app:argType="com.bluetech.vidown.core.db.entities.MediaWithThumbnail" />
+            app:argType="com.bluetech.vidown.data.db.entities.MediaWithThumbnail" />
     </activity>
     <dialog
         android:id="@+id/mediaSheet"
@@ -56,7 +56,7 @@
         tools:layout="@layout/fragment_media_edit_sheet" >
         <argument
             android:name="mediaWithThumbnail"
-            app:argType="com.bluetech.vidown.core.db.entities.MediaWithThumbnail" />
+            app:argType="com.bluetech.vidown.data.db.entities.MediaWithThumbnail" />
         <argument
             android:name="position"
             app:argType="integer" />

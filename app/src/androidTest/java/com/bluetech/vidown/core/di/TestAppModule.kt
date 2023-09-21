@@ -2,8 +2,8 @@ package com.bluetech.vidown.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.bluetech.vidown.core.api.ApplicationApi
-import com.bluetech.vidown.core.db.AppLocalDB
+import com.bluetech.vidown.data.api.ApplicationApi
+import com.bluetech.vidown.data.db.AppLocalDB
 import com.bluetech.vidown.utils.Constants
 import dagger.Module
 import dagger.Provides

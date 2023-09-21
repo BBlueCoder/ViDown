@@ -19,8 +19,8 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.db.dao.MediaDao
-import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.data.db.dao.MediaDao
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
 import com.bluetech.vidown.utils.hideKeyboard
 import com.bluetech.vidown.utils.snackBar
 import com.google.android.material.progressindicator.CircularProgressIndicator

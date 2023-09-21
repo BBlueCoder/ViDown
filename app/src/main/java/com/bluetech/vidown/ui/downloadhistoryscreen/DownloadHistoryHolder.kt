@@ -8,9 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
-import com.bluetech.vidown.core.db.entities.DownloadStatus
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.data.db.entities.DownloadStatus
 import com.bluetech.vidown.utils.calculateDownloadedSize
 import com.bluetech.vidown.utils.calculateSize
 import com.bluetech.vidown.utils.formatSizeToReadableFormat
@@ -29,7 +29,7 @@ sealed class DownloadHistoryHolder(itemView : View) : RecyclerView.ViewHolder(it
         context : Context
     )
 
-    fun bindTitleAndThumbnail(context: Context,downloadHistoryWithExtras: DownloadHistoryWithExtras,titleView: TextView,thumbnailView : ImageView){
+    fun bindTitleAndThumbnail(context: Context, downloadHistoryWithExtras: DownloadHistoryWithExtras, titleView: TextView, thumbnailView : ImageView){
         titleView.text = downloadHistoryWithExtras.downloadHistoryEntity.title
 
         val thumbnail = downloadHistoryWithExtras.downloadHistoryItemExtras.find { it.mediaType == MediaType.Image }

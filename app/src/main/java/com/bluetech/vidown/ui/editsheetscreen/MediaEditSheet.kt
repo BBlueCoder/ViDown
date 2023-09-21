@@ -24,9 +24,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
-import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
 import com.bluetech.vidown.ui.downloadscreen.DownloadViewModel
 import com.bluetech.vidown.ui.mainscreen.MainViewModel
 import com.bluetech.vidown.utils.hideKeyboard

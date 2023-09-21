@@ -1,7 +1,7 @@
 package com.bluetech.vidown
 
-import com.bluetech.vidown.core.pojoclasses.ResultItem
-import com.bluetech.vidown.core.repos.InstaRepo
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
+import com.bluetech.vidown.data.repos.InstaRepo
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test

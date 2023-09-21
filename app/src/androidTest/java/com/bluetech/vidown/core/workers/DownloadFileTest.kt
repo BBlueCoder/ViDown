@@ -2,8 +2,9 @@ package com.bluetech.vidown.core.workers
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
-import com.bluetech.vidown.core.db.entities.DownloadStatus
+import com.bluetech.vidown.data.db.entities.DownloadStatus
 import com.bluetech.vidown.utils.formatSizeToReadableFormat
+import com.bluetech.vidown.workers.DownloadFile
 import com.google.common.truth.Truth
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion

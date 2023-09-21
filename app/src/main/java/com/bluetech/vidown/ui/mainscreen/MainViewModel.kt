@@ -2,11 +2,15 @@ package com.bluetech.vidown.ui.mainscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
-import com.bluetech.vidown.core.domain.AddNewDownloadUseCase
-import com.bluetech.vidown.core.pojoclasses.ResultItem
-import com.bluetech.vidown.core.repos.*
-import com.bluetech.vidown.core.workers.WorkerStarter
+import com.bluetech.vidown.domain.AddNewDownloadUseCase
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
+import com.bluetech.vidown.workers.WorkerStarter
+import com.bluetech.vidown.data.repos.BaseRepo
+import com.bluetech.vidown.data.repos.DBRepo
+import com.bluetech.vidown.data.repos.InstaRepo
+import com.bluetech.vidown.data.repos.TTRepo
+import com.bluetech.vidown.data.repos.TwRepo
+import com.bluetech.vidown.data.repos.YouRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +72,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun addNewDownload(itemData : ResultItem.ItemData,itemInfo : ResultItem.ItemInfo,separatedAudioUrl : String?) {
+    fun addNewDownload(itemData : ResultItem.ItemData, itemInfo : ResultItem.ItemInfo, separatedAudioUrl : String?) {
         viewModelScope.launch(Dispatchers.IO) {
             addNewDownloadUseCase(itemData,itemInfo,separatedAudioUrl)
         }

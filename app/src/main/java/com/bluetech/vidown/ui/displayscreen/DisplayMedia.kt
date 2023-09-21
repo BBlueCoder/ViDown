@@ -10,17 +10,15 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.WindowCompat
 import androidx.navigation.navArgs
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.StyledPlayerView
-import jp.wasabeef.glide.transformations.BlurTransformation
 import java.io.File
 
 class DisplayMedia : AppCompatActivity() {

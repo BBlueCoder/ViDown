@@ -2,6 +2,7 @@ package com.bluetech.vidown.core.workers
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
+import com.bluetech.vidown.workers.BlurImage
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*

@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.bluetech.vidown.core.db.entities.MediaEntity
-import com.bluetech.vidown.core.paging.MediaPagingSource
-import com.bluetech.vidown.core.pojoclasses.DownloadItemPayload
-import com.bluetech.vidown.core.pojoclasses.FetchArgs
-import com.bluetech.vidown.core.pojoclasses.SelectItem
-import com.bluetech.vidown.core.repos.DBRepo
+import com.bluetech.vidown.data.db.entities.MediaEntity
+import com.bluetech.vidown.paging.MediaPagingSource
+import com.bluetech.vidown.data.repos.pojoclasses.DownloadItemPayload
+import com.bluetech.vidown.data.repos.pojoclasses.FetchArgs
+import com.bluetech.vidown.data.repos.pojoclasses.SelectItem
+import com.bluetech.vidown.data.repos.DBRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,7 +58,7 @@ class DownloadViewModel @Inject constructor(private var dbRepo: DBRepo) : ViewMo
         }
     }
 
-    fun removeMedia(media : List<SelectItem>,context: Context){
+    fun removeMedia(media : List<SelectItem>, context: Context){
         viewModelScope.launch(Dispatchers.IO) {
             dbRepo.removeMedia(media.map { it.mediaWithThumbnail.mediaEntity },context)
         }

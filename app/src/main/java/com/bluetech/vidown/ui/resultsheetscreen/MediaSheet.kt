@@ -16,10 +16,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.WorkManager
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
 import com.bluetech.vidown.ui.downloadscreen.DownloadViewModel
 import com.bluetech.vidown.ui.mainscreen.MainViewModel
 import com.bluetech.vidown.utils.Constants.YOUTUBE

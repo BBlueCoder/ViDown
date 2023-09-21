@@ -7,8 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
 import com.bluetech.vidown.utils.formatDurationToReadableFormat
 import com.bluetech.vidown.utils.toggleVisibility
 import com.bumptech.glide.Glide
