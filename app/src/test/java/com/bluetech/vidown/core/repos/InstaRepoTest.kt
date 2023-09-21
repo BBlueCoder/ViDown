@@ -1,5 +1,6 @@
 package com.bluetech.vidown.core.repos
 
+import com.bluetech.vidown.data.repos.InstaRepo
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test

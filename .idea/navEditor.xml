@@ -13,8 +13,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="10" />
-                            <option name="y" value="-145" />
+                            <option name="x" value="139" />
+                            <option name="y" value="-166" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -37,18 +37,13 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-277" />
-                            <option name="y" value="614" />
+                            <option name="x" value="26" />
+                            <option name="y" value="401" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
                             <entry key="display_media_action">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="show_download_history">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -70,25 +65,13 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="downloadHistoryFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="421" />
-                            <option name="y" value="557" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
                   <entry key="mainFragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-252" />
-                            <option name="y" value="252" />
+                            <option name="x" value="-371" />
+                            <option name="y" value="342" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -103,17 +86,17 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="download_history">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="edit_media_action">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
                             <entry key="show_available_formats">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="show_download_history">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -128,8 +111,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-201" />
-                            <option name="y" value="-203" />
+                            <option name="x" value="-282" />
+                            <option name="y" value="-148" />
                           </Point>
                         </option>
                       </LayoutPositions>

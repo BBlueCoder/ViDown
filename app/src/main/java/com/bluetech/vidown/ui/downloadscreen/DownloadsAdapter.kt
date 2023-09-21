@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
 
 class DownloadsAdapter(
     private val context: Context,

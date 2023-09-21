@@ -1,25 +1,18 @@
 package com.bluetech.vidown.core.db.dao
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.cash.turbine.test
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.AppLocalDB
-import com.bluetech.vidown.core.db.entities.DownloadData
-import com.bluetech.vidown.core.db.entities.DownloadHistoryEntity
-import com.bluetech.vidown.core.db.entities.DownloadHistoryItemExtras
-import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
-import com.bluetech.vidown.core.db.entities.DownloadStatus
-import com.google.common.base.Verify.verify
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.AppLocalDB
+import com.bluetech.vidown.data.db.entities.DownloadData
+import com.bluetech.vidown.data.db.entities.DownloadHistoryEntity
+import com.bluetech.vidown.data.db.entities.DownloadHistoryItemExtras
+import com.bluetech.vidown.data.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.data.db.entities.DownloadStatus
+import com.bluetech.vidown.data.db.dao.DownloadHistoryDao
 import com.google.common.truth.Truth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +29,7 @@ class DownloadHistoryDaoTest {
 
     private lateinit var dao : DownloadHistoryDao
 
-    private val fakeDownloadData = DownloadData("url",DownloadStatus.PENDING,0,0,)
+    private val fakeDownloadData = DownloadData("url", DownloadStatus.PENDING,0,0,)
     private val fakeDownloadHistoryItem = DownloadHistoryEntity(
         1,
         MediaType.Audio,
@@ -71,7 +64,8 @@ class DownloadHistoryDaoTest {
 
     @Test
     fun downloadHistoryDao_insertDownloadHistoryItemWithExtrasTest() = runBlocking {
-        val downloadHistoryItemExtras = DownloadHistoryItemExtras(1,1,"savedName",MediaType.Image,fakeDownloadData)
+        val downloadHistoryItemExtras = DownloadHistoryItemExtras(1,1,"savedName",
+            MediaType.Image,fakeDownloadData)
 
         dao.addDownloadHistoryItem(fakeDownloadHistoryItem)
         dao.addDownloadExtras(downloadHistoryItemExtras)
@@ -86,7 +80,8 @@ class DownloadHistoryDaoTest {
 
     @Test
     fun downloadHistoryDao_deleteDownloadHistoryItemTest() = runBlocking {
-        val downloadHistoryItemExtras = DownloadHistoryItemExtras(1,1,"savedName",MediaType.Image,fakeDownloadData)
+        val downloadHistoryItemExtras = DownloadHistoryItemExtras(1,1,"savedName",
+            MediaType.Image,fakeDownloadData)
 
         dao.addDownloadHistoryItem(fakeDownloadHistoryItem)
         dao.addDownloadExtras(downloadHistoryItemExtras)

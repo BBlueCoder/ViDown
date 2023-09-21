@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
 
 class ResultsAdapter(var resultsList : List<ResultItem>,
-    private var itemClickListener : ((resultItem : ResultItem.ItemData)->Unit)? = null) : ListAdapter<ResultItem, ResultsAdapterHolder>(
+                     private var itemClickListener : ((resultItem : ResultItem.ItemData)->Unit)? = null) : ListAdapter<ResultItem, ResultsAdapterHolder>(
     COMPARATOR
 )
 {

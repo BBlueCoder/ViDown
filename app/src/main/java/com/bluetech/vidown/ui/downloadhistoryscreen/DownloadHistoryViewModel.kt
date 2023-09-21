@@ -2,12 +2,11 @@ package com.bluetech.vidown.ui.downloadhistoryscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bluetech.vidown.core.db.entities.DownloadHistoryEntity
-import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
-import com.bluetech.vidown.core.db.entities.DownloadStatus
-import com.bluetech.vidown.core.db.entities.updateDownloadStatus
-import com.bluetech.vidown.core.domain.RemoveDownloadHistoryItemUseCase
-import com.bluetech.vidown.core.repos.DBRepo
+import com.bluetech.vidown.data.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.data.db.entities.DownloadStatus
+import com.bluetech.vidown.data.db.entities.updateDownloadStatus
+import com.bluetech.vidown.domain.RemoveDownloadHistoryItemUseCase
+import com.bluetech.vidown.data.repos.DBRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

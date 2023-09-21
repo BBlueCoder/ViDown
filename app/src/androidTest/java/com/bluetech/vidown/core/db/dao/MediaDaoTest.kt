@@ -1,11 +1,12 @@
 package com.bluetech.vidown.core.db.dao
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.AppLocalDB
-import com.bluetech.vidown.core.db.entities.MediaEntity
-import com.bluetech.vidown.core.db.entities.MediaThumbnail
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.AppLocalDB
+import com.bluetech.vidown.data.db.entities.MediaEntity
+import com.bluetech.vidown.data.db.entities.MediaThumbnail
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.db.dao.MediaDao
 import com.google.common.truth.Truth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -30,7 +31,7 @@ class MediaDaoTest {
 
     private lateinit var mediaDao: MediaDao
 
-    private val fakeMediaEntity = MediaEntity(1,"savedName",MediaType.Audio,"title",0)
+    private val fakeMediaEntity = MediaEntity(1,"savedName", MediaType.Audio,"title",0)
     private val fakeMediaThumbnail = MediaThumbnail(1,1,"name","blur")
     private val fakeMediaWithThumbnail = MediaWithThumbnail(fakeMediaEntity,fakeMediaThumbnail)
     @Before

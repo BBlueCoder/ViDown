@@ -1,7 +1,8 @@
 package com.bluetech.vidown.core.repos
 
-import com.bluetech.vidown.core.api.ApplicationApi
-import com.bluetech.vidown.core.pojoclasses.ResultItem
+import com.bluetech.vidown.data.api.ApplicationApi
+import com.bluetech.vidown.data.repos.pojoclasses.ResultItem
+import com.bluetech.vidown.data.repos.TTRepo
 import com.bluetech.vidown.utils.Constants
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.collectLatest

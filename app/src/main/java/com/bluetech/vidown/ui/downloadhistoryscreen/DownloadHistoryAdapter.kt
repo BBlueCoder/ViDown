@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
-import com.bluetech.vidown.core.db.entities.DownloadStatus
+import com.bluetech.vidown.data.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.data.db.entities.DownloadStatus
 
 class DownloadHistoryAdapter(
     private val context : Context,

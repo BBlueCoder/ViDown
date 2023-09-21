@@ -1,15 +1,14 @@
 package com.bluetech.vidown.ui.mainscreen
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.MediaType
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.db.entities.MediaType
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
 import com.bluetech.vidown.utils.toggleVisibility
 import com.bumptech.glide.Glide
 import java.io.File

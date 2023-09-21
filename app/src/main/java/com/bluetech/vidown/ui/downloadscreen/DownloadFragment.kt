@@ -19,10 +19,10 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
 import com.bluetech.vidown.R
-import com.bluetech.vidown.core.db.entities.DownloadHistoryWithExtras
-import com.bluetech.vidown.core.db.entities.MediaWithThumbnail
-import com.bluetech.vidown.core.pojoclasses.SelectItem
-import com.bluetech.vidown.core.workers.DownloadFileWorker
+import com.bluetech.vidown.data.db.entities.DownloadHistoryWithExtras
+import com.bluetech.vidown.data.db.entities.MediaWithThumbnail
+import com.bluetech.vidown.data.repos.pojoclasses.SelectItem
+import com.bluetech.vidown.workers.DownloadFileWorker
 import com.bluetech.vidown.ui.mainscreen.MainFragmentDirections
 import com.bluetech.vidown.utils.calculateDownloadedSize
 import com.bluetech.vidown.utils.calculateSize

@@ -47,7 +47,6 @@
                 android:inputType="text"
                 android:paddingStart="5dp"
                 android:paddingEnd="0dp"
-                android:text="https://www.youtube.com/watch?v=wSY3UVhRCU8"
                 android:textColor="@color/color_background" />
 
         </com.google.android.material.card.MaterialCardView>
