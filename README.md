@@ -15,11 +15,7 @@ The app's UI is simple, it implements [Material Design 3](https://m3.material.io
 
 ![App](https://github.com/BBlueCoder/ViDown/blob/master/resources/app.gif)
 
-<p>
-  <img src="resources/Screenshot_2.png" width="250" />
-  <img src="resources/Screenshot_3.png" width="250" />
-  <img src="resources/Screenshot_1.png" width="250" />
-</p>
+
 
 ## Tech-Stack
 This app takes advantage of best practices and uses popular android libraries.
